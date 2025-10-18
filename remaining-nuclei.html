@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>النوى المتبقية</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>النوى المتبقية: N = N₀e^(-λt)</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>عدد النوى المتبقية بعد زمن t</p>
+  <p><strong>N = N₀e^(-λt)</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>N: عدد النوى المتبقية</li>
+    <li>N₀: عدد النوى الأولي</li>
+    <li>λ: ثابت الاضمحلال (ث⁻¹)</li>
+    <li>t: الزمن</li>
+    <li>e: قاعدة النيبر (2.718...)</li>
+  </ul>
+
+  <h3>مثال: عدد نوى أولي 1000، ثابت اضمحلال 0.001 ث⁻¹، زمن 1000 ث</h3>
+  <p>النوى المتبقية = 1000 × e^(-0.001 × 1000) = 1000 × e^(-1) = 1000 × 0.3679 = 367.9 نواة</p>
+
+  <h3>حاسبة:</h3>
+  <div>
+    <label for="n_remaining">النوى المتبقية:</label>
+    <input id="n_remaining" type="text" placeholder="النوى المتبقية">
+    <label for="n0_remaining">النوى الأولية:</label>
+    <input id="n0_remaining" type="text" placeholder="النوى الأولية">
+    <label for="lambda_remaining">ثابت الاضمحلال (ث⁻¹):</label>
+    <input id="lambda_remaining" type="text" placeholder="ثابت الاضمحلال">
+    <label for="t_remaining">الزمن (ث):</label>
+    <input id="t_remaining" type="text" placeholder="الزمن">
+    <input id="calc_remaining" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const nEl = document.getElementById('n_remaining');
+      const n0El = document.getElementById('n0_remaining');
+      const lambdaEl = document.getElementById('lambda_remaining');
+      const tEl = document.getElementById('t_remaining');
+      const calcBtn = document.getElementById('calc_remaining');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const nVal = nEl.value.trim();
+        const n0Val = n0El.value.trim();
+        const lambdaVal = lambdaEl.value.trim();
+        const tVal = tEl.value.trim();
+
+        const nNum = parseNum(nVal);
+        const n0Num = parseNum(n0Val);
+        const lambdaNum = parseNum(lambdaVal);
+        const tNum = parseNum(tVal);
+
+        const filled = [!isEmpty(nVal), !isEmpty(n0Val), !isEmpty(lambdaVal), !isEmpty(tVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        if(isEmpty(nVal) && n0Num !== null && lambdaNum !== null && tNum !== null){
+          const remaining = n0Num * Math.exp(-lambdaNum * tNum);
+          nEl.value = formatNumber(remaining);
+          showResult(`النوى المتبقية = ${formatNumber(remaining)}`);
+          return;
+        }
+
+        if(isEmpty(n0Val) && nNum !== null && lambdaNum !== null && tNum !== null){
+          if(lambdaNum === 0 || tNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const initial = nNum / Math.exp(-lambdaNum * tNum);
+          n0El.value = formatNumber(initial);
+          showResult(`النوى الأولية = ${formatNumber(initial)}`);
+          return;
+        }
+
+        if(isEmpty(lambdaVal) && nNum !== null && n0Num !== null && tNum !== null){
+          if(n0Num === 0 || tNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const decayConstant = -Math.log(nNum / n0Num) / tNum;
+          lambdaEl.value = formatNumber(decayConstant);
+          showResult(`ثابت الاضمحلال = ${formatNumber(decayConstant)} ث⁻¹`);
+          return;
+        }
+
+        if(isEmpty(tVal) && nNum !== null && n0Num !== null && lambdaNum !== null){
+          if(n0Num === 0 || lambdaNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const time = -Math.log(nNum / n0Num) / lambdaNum;
+          tEl.value = formatNumber(time);
+          showResult(`الزمن = ${formatNumber(time)} ثانية`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        nEl.value = '';
+        n0El.value = '';
+        lambdaEl.value = '';
+        tEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [nEl, n0El, lambdaEl, tEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+
+

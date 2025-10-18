@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب التأثير الحراري الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب التأثير الحراري الكهربائي</h2>
+
+  <h3>1. قانون بيلتييه: P = π × I</h3>
+  <div>
+    <label for="p_peltier">القدرة:</label>
+    <input id="p_peltier" type="text" placeholder="(W) القدرة">
+    <label for="pi_peltier">معامل بيلتييه:</label>
+    <input id="pi_peltier" type="text" placeholder="(V) معامل بيلتييه">
+    <label for="i_peltier">التيار:</label>
+    <input id="i_peltier" type="text" placeholder="(A) التيار">
+    <input id="calc_peltier" type="button" value="حساب">
+  </div>
+
+  <h3>2. قانون سيبيك: ΔT = S × ΔV</h3>
+  <div>
+    <label for="delta_t_seebeck">فرق درجة الحرارة:</label>
+    <input id="delta_t_seebeck" type="text" placeholder="(K) فرق درجة الحرارة">
+    <label for="s_seebeck">معامل سيبيك:</label>
+    <input id="s_seebeck" type="text" placeholder="(V/K) معامل سيبيك">
+    <label for="delta_v_seebeck">فرق الجهد:</label>
+    <input id="delta_v_seebeck" type="text" placeholder="(V) فرق الجهد">
+    <input id="calc_seebeck" type="button" value="حساب">
+  </div>
+
+  <h3>3. قانون طومسون: Q = σ × I × ΔT</h3>
+  <div>
+    <label for="q_thomson">الحرارة المنبعثة:</label>
+    <input id="q_thomson" type="text" placeholder="(J) الحرارة المنبعثة">
+    <label for="sigma_thomson">معامل طومسون:</label>
+    <input id="sigma_thomson" type="text" placeholder="(V/K) معامل طومسون">
+    <label for="i_thomson">التيار:</label>
+    <input id="i_thomson" type="text" placeholder="(A) التيار">
+    <label for="delta_t_thomson">فرق درجة الحرارة:</label>
+    <input id="delta_t_thomson" type="text" placeholder="(K) فرق درجة الحرارة">
+    <input id="calc_thomson" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const pPeltierEl = document.getElementById('p_peltier');
+      const piPeltierEl = document.getElementById('pi_peltier');
+      const iPeltierEl = document.getElementById('i_peltier');
+      const calcPeltierBtn = document.getElementById('calc_peltier');
+
+      const deltaTSeebeckEl = document.getElementById('delta_t_seebeck');
+      const sSeebeckEl = document.getElementById('s_seebeck');
+      const deltaVSeebeckEl = document.getElementById('delta_v_seebeck');
+      const calcSeebeckBtn = document.getElementById('calc_seebeck');
+
+      const qThomsonEl = document.getElementById('q_thomson');
+      const sigmaThomsonEl = document.getElementById('sigma_thomson');
+      const iThomsonEl = document.getElementById('i_thomson');
+      const deltaTThomsonEl = document.getElementById('delta_t_thomson');
+      const calcThomsonBtn = document.getElementById('calc_thomson');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computePeltier(){
+        const pPeltierVal = pPeltierEl.value.trim();
+        const piPeltierVal = piPeltierEl.value.trim();
+        const iPeltierVal = iPeltierEl.value.trim();
+
+        const pPeltierNum = parseNum(pPeltierVal);
+        const piPeltierNum = parseNum(piPeltierVal);
+        const iPeltierNum = parseNum(iPeltierVal);
+
+        const filled = [!isEmpty(pPeltierVal), !isEmpty(piPeltierVal), !isEmpty(iPeltierVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate power (P = π × I)
+        if(isEmpty(pPeltierVal) && piPeltierNum !== null && iPeltierNum !== null){
+          const power = piPeltierNum * iPeltierNum;
+          pPeltierEl.value = formatNumber(power);
+          showResult(`القدرة = ${formatNumber(power)} W`);
+          return;
+        }
+
+        // Calculate Peltier coefficient (π = P / I)
+        if(isEmpty(piPeltierVal) && pPeltierNum !== null && iPeltierNum !== null){
+          if(iPeltierNum === 0){
+            showResult('خطأ: التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const coeff = pPeltierNum / iPeltierNum;
+          piPeltierEl.value = formatNumber(coeff);
+          showResult(`معامل بيلتييه = ${formatNumber(coeff)} V`);
+          return;
+        }
+
+        // Calculate current (I = P / π)
+        if(isEmpty(iPeltierVal) && pPeltierNum !== null && piPeltierNum !== null){
+          if(piPeltierNum === 0){
+            showResult('خطأ: معامل بيلتييه لا يمكن أن يكون صفر');
+            return;
+          }
+          const current = pPeltierNum / piPeltierNum;
+          iPeltierEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeSeebeck(){
+        const deltaTSeebeckVal = deltaTSeebeckEl.value.trim();
+        const sSeebeckVal = sSeebeckEl.value.trim();
+        const deltaVSeebeckVal = deltaVSeebeckEl.value.trim();
+
+        const deltaTSeebeckNum = parseNum(deltaTSeebeckVal);
+        const sSeebeckNum = parseNum(sSeebeckVal);
+        const deltaVSeebeckNum = parseNum(deltaVSeebeckVal);
+
+        const filled = [!isEmpty(deltaTSeebeckVal), !isEmpty(sSeebeckVal), !isEmpty(deltaVSeebeckVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate temperature difference (ΔT = ΔV / S)
+        if(isEmpty(deltaTSeebeckVal) && deltaVSeebeckNum !== null && sSeebeckNum !== null){
+          if(sSeebeckNum === 0){
+            showResult('خطأ: معامل سيبيك لا يمكن أن يكون صفر');
+            return;
+          }
+          const tempDiff = deltaVSeebeckNum / sSeebeckNum;
+          deltaTSeebeckEl.value = formatNumber(tempDiff);
+          showResult(`فرق درجة الحرارة = ${formatNumber(tempDiff)} K`);
+          return;
+        }
+
+        // Calculate Seebeck coefficient (S = ΔV / ΔT)
+        if(isEmpty(sSeebeckVal) && deltaVSeebeckNum !== null && deltaTSeebeckNum !== null){
+          if(deltaTSeebeckNum === 0){
+            showResult('خطأ: فرق درجة الحرارة لا يمكن أن يكون صفر');
+            return;
+          }
+          const coeff = deltaVSeebeckNum / deltaTSeebeckNum;
+          sSeebeckEl.value = formatNumber(coeff);
+          showResult(`معامل سيبيك = ${formatNumber(coeff)} V/K`);
+          return;
+        }
+
+        // Calculate voltage difference (ΔV = S × ΔT)
+        if(isEmpty(deltaVSeebeckVal) && sSeebeckNum !== null && deltaTSeebeckNum !== null){
+          const voltageDiff = sSeebeckNum * deltaTSeebeckNum;
+          deltaVSeebeckEl.value = formatNumber(voltageDiff);
+          showResult(`فرق الجهد = ${formatNumber(voltageDiff)} V`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeThomson(){
+        const qThomsonVal = qThomsonEl.value.trim();
+        const sigmaThomsonVal = sigmaThomsonEl.value.trim();
+        const iThomsonVal = iThomsonEl.value.trim();
+        const deltaTThomsonVal = deltaTThomsonEl.value.trim();
+
+        const qThomsonNum = parseNum(qThomsonVal);
+        const sigmaThomsonNum = parseNum(sigmaThomsonVal);
+        const iThomsonNum = parseNum(iThomsonVal);
+        const deltaTThomsonNum = parseNum(deltaTThomsonVal);
+
+        const filled = [!isEmpty(qThomsonVal), !isEmpty(sigmaThomsonVal), !isEmpty(iThomsonVal), !isEmpty(deltaTThomsonVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate heat (Q = σ × I × ΔT)
+        if(isEmpty(qThomsonVal) && sigmaThomsonNum !== null && iThomsonNum !== null && deltaTThomsonNum !== null){
+          const heat = sigmaThomsonNum * iThomsonNum * deltaTThomsonNum;
+          qThomsonEl.value = formatNumber(heat);
+          showResult(`الحرارة المنبعثة = ${formatNumber(heat)} J`);
+          return;
+        }
+
+        // Calculate Thomson coefficient (σ = Q / (I × ΔT))
+        if(isEmpty(sigmaThomsonVal) && qThomsonNum !== null && iThomsonNum !== null && deltaTThomsonNum !== null){
+          if(iThomsonNum === 0 || deltaTThomsonNum === 0){
+            showResult('خطأ: التيار أو فرق درجة الحرارة لا يمكن أن يكون صفر');
+            return;
+          }
+          const coeff = qThomsonNum / (iThomsonNum * deltaTThomsonNum);
+          sigmaThomsonEl.value = formatNumber(coeff);
+          showResult(`معامل طومسون = ${formatNumber(coeff)} V/K`);
+          return;
+        }
+
+        // Calculate current (I = Q / (σ × ΔT))
+        if(isEmpty(iThomsonVal) && qThomsonNum !== null && sigmaThomsonNum !== null && deltaTThomsonNum !== null){
+          if(sigmaThomsonNum === 0 || deltaTThomsonNum === 0){
+            showResult('خطأ: معامل طومسون أو فرق درجة الحرارة لا يمكن أن يكون صفر');
+            return;
+          }
+          const current = qThomsonNum / (sigmaThomsonNum * deltaTThomsonNum);
+          iThomsonEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        // Calculate temperature difference (ΔT = Q / (σ × I))
+        if(isEmpty(deltaTThomsonVal) && qThomsonNum !== null && sigmaThomsonNum !== null && iThomsonNum !== null){
+          if(sigmaThomsonNum === 0 || iThomsonNum === 0){
+            showResult('خطأ: معامل طومسون أو التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const tempDiff = qThomsonNum / (sigmaThomsonNum * iThomsonNum);
+          deltaTThomsonEl.value = formatNumber(tempDiff);
+          showResult(`فرق درجة الحرارة = ${formatNumber(tempDiff)} K`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcPeltierBtn.addEventListener('click', computePeltier);
+      calcSeebeckBtn.addEventListener('click', computeSeebeck);
+      calcThomsonBtn.addEventListener('click', computeThomson);
+
+      rBtn.addEventListener('click', function(){
+        pPeltierEl.value = '';
+        piPeltierEl.value = '';
+        iPeltierEl.value = '';
+        deltaTSeebeckEl.value = '';
+        sSeebeckEl.value = '';
+        deltaVSeebeckEl.value = '';
+        qThomsonEl.value = '';
+        sigmaThomsonEl.value = '';
+        iThomsonEl.value = '';
+        deltaTThomsonEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [pPeltierEl, piPeltierEl, iPeltierEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computePeltier();
+          }
+        });
+      });
+
+      [deltaTSeebeckEl, sSeebeckEl, deltaVSeebeckEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeSeebeck();
+          }
+        });
+      });
+
+      [qThomsonEl, sigmaThomsonEl, iThomsonEl, deltaTThomsonEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeThomson();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

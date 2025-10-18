@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>قوانين الحركة الدائرية</h2>
+
+  <h3>1. العلاقة بين السرعة الخطية والزاوية: v = ω × r</h3>
+  <div>
+    <label for="v1">السرعة الخطية (v):</label>
+    <input id="v1" type="text" placeholder="(m/s)">
+    <label for="omega1">السرعة الزاوية (ω):</label>
+    <input id="omega1" type="text" placeholder="(rad/s)">
+    <label for="r1">نصف القطر (r):</label>
+    <input id="r1" type="text" placeholder="(m)">
+    <input id="calc1" type="button" value="حساب">
+  </div>
+
+  <h3>2. الزمن الدوري: T = 2π / ω</h3>
+  <div>
+    <label for="t2">الزمن الدوري (T):</label>
+    <input id="t2" type="text" placeholder="(s)">
+    <label for="omega2">السرعة الزاوية (ω):</label>
+    <input id="omega2" type="text" placeholder="(rad/s)">
+    <input id="calc2" type="button" value="حساب">
+  </div>
+
+  <h3>2.5. المسافة المقطوعة: s = v × t = ω × r × t</h3>
+  <div>
+    <label for="s25">المسافة المقطوعة (s):</label>
+    <input id="s25" type="text" placeholder="(m)">
+    <label for="v25">السرعة الخطية (v):</label>
+    <input id="v25" type="text" placeholder="(m/s)">
+    <label for="t25">الزمن (t):</label>
+    <input id="t25" type="text" placeholder="(s)">
+    <label for="omega25">السرعة الزاوية (ω):</label>
+    <input id="omega25" type="text" placeholder="(rad/s)">
+    <label for="r25">نصف القطر (r):</label>
+    <input id="r25" type="text" placeholder="(m)">
+    <input id="calc25" type="button" value="حساب">
+  </div>
+
+  <h3>2.5. المسافة المقطوعة: s = v × t = ω × r × t</h3>
+  <div>
+    <label for="s25">المسافة المقطوعة (s):</label>
+    <input id="s25" type="text" placeholder="(m)">
+    <label for="v25">السرعة الخطية (v):</label>
+    <input id="v25" type="text" placeholder="(m/s)">
+    <label for="t25">الزمن (t):</label>
+    <input id="t25" type="text" placeholder="(s)">
+    <label for="omega25">السرعة الزاوية (ω):</label>
+    <input id="omega25" type="text" placeholder="(rad/s)">
+    <label for="r25">نصف القطر (r):</label>
+    <input id="r25" type="text" placeholder="(m)">
+    <input id="calc25" type="button" value="حساب">
+  </div>
+
+  <h3>3. التسارع المركزي: a_c = v² / r = ω² × r</h3>
+  <div>
+    <label for="a_c3">التسارع المركزي (a_c):</label>
+    <input id="a_c3" type="text" placeholder="(m/s²)">
+    <label for="v3">السرعة الخطية (v):</label>
+    <input id="v3" type="text" placeholder="(m/s)">
+    <label for="r3">نصف القطر (r):</label>
+    <input id="r3" type="text" placeholder="(m)">
+    <label for="omega3">السرعة الزاوية (ω):</label>
+    <input id="omega3" type="text" placeholder="(rad/s)">
+    <input id="calc3" type="button" value="حساب">
+  </div>
+
+  <h3>4. القوة المركزية: F_c = m × a_c</h3>
+  <div>
+    <label for="f_c4">القوة المركزية (F_c):</label>
+    <input id="f_c4" type="text" placeholder="(N)">
+    <label for="m4">الكتلة (m):</label>
+    <input id="m4" type="text" placeholder="(kg)">
+    <label for="a_c4">التسارع المركزي (a_c):</label>
+    <input id="a_c4" type="text" placeholder="(m/s²)">
+    <input id="calc4" type="button" value="حساب">
+  </div>
+
+  <h3>4. القوة المركزية: F_c = m × a_c</h3>
+  <div>
+    <label for="f_c4">القوة المركزية (F_c):</label>
+    <input id="f_c4" type="text" placeholder="(N)">
+    <label for="m4">الكتلة (m):</label>
+    <input id="m4" type="text" placeholder="(kg)">
+    <label for="a_c4">التسارع المركزي (a_c):</label>
+    <input id="a_c4" type="text" placeholder="(m/s²)">
+    <input id="calc4" type="button" value="حساب">
+  </div>
+
+  <h3>حاسبة الحركة الدائرية الكاملة</h3>
+  <div>
+    <label for="v_full">السرعة الخطية:</label>
+    <input id="v_full" type="text" placeholder="(m/s)">
+    <label for="r_full">نصف القطر:</label>
+    <input id="r_full" type="text" placeholder="(m)">
+    <label for="omega_full">السرعة الزاوية:</label>
+    <input id="omega_full" type="text" placeholder="(rad/s)">
+    <label for="t_full">الزمن الدوري:</label>
+    <input id="t_full" type="text" placeholder="(s)">
+    <label for="a_c_full">التسارع المركزي:</label>
+    <input id="a_c_full" type="text" placeholder="(m/s²)">
+    <label for="m_full">الكتلة:</label>
+    <input id="m_full" type="text" placeholder="(kg)">
+    <label for="f_c_full">القوة المركزية:</label>
+    <input id="f_c_full" type="text" placeholder="(N)">
+    <input id="calc_full" type="button" value="حساب">
+  </div>
+
+  <h3>5. الزاوية المقطوعة: θ = ω × t</h3>
+  <div>
+    <label for="theta5">الزاوية المقطوعة (θ):</label>
+    <input id="theta5" type="text" placeholder="(rad)">
+    <label for="omega5">السرعة الزاوية (ω):</label>
+    <input id="omega5" type="text" placeholder="(rad/s)">
+    <label for="t5">الزمن (t):</label>
+    <input id="t5" type="text" placeholder="(s)">
+    <input id="calc5" type="button" value="حساب">
+  </div>
+
+  <input id="reset" type="button" value="إعادة تعيين الكل">
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const v1El = document.getElementById('v1');
+      const omega1El = document.getElementById('omega1');
+      const r1El = document.getElementById('r1');
+      const calc1Btn = document.getElementById('calc1');
+
+      const t2El = document.getElementById('t2');
+      const omega2El = document.getElementById('omega2');
+      const calc2Btn = document.getElementById('calc2');
+
+      const s25El = document.getElementById('s25');
+      const v25El = document.getElementById('v25');
+      const t25El = document.getElementById('t25');
+      const omega25El = document.getElementById('omega25');
+      const r25El = document.getElementById('r25');
+      const calc25Btn = document.getElementById('calc25');
+
+      const aC3El = document.getElementById('a_c3');
+      const v3El = document.getElementById('v3');
+      const r3El = document.getElementById('r3');
+      const omega3El = document.getElementById('omega3');
+      const calc3Btn = document.getElementById('calc3');
+
+      const fC4El = document.getElementById('f_c4');
+      const m4El = document.getElementById('m4');
+      const aC4El = document.getElementById('a_c4');
+      const calc4Btn = document.getElementById('calc4');
+
+      const theta5El = document.getElementById('theta5');
+      const omega5El = document.getElementById('omega5');
+      const t5El = document.getElementById('t5');
+      const calc5Btn = document.getElementById('calc5');
+
+      const vFullEl = document.getElementById('v_full');
+      const rFullEl = document.getElementById('r_full');
+      const omegaFullEl = document.getElementById('omega_full');
+      const tFullEl = document.getElementById('t_full');
+      const aCFullEl = document.getElementById('a_c_full');
+      const mFullEl = document.getElementById('m_full');
+      const fCFullEl = document.getElementById('f_c_full');
+      const calcFullBtn = document.getElementById('calc_full');
+
+      const rBtn = document.getElementById('reset');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute1(){
+        const v1Val = v1El.value.trim();
+        const omega1Val = omega1El.value.trim();
+        const r1Val = r1El.value.trim();
+
+        const v1Num = parseNum(v1Val);
+        const omega1Num = parseNum(omega1Val);
+        const r1Num = parseNum(r1Val);
+
+        const filled = [!isEmpty(v1Val), !isEmpty(omega1Val), !isEmpty(r1Val)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        if(isEmpty(v1Val) && omega1Num !== null && r1Num !== null){
+          const v = omega1Num * r1Num;
+          v1El.value = formatNumber(v);
+          showResult(`v = ${formatNumber(v)} m/s`);
+          return;
+        }
+
+        if(isEmpty(omega1Val) && v1Num !== null && r1Num !== null){
+          if(r1Num === 0){
+            showResult('خطأ: نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = v1Num / r1Num;
+          omega1El.value = formatNumber(omega);
+          showResult(`ω = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        if(isEmpty(r1Val) && v1Num !== null && omega1Num !== null){
+          if(omega1Num === 0){
+            showResult('خطأ: السرعة الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const r = v1Num / omega1Num;
+          r1El.value = formatNumber(r);
+          showResult(`r = ${formatNumber(r)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function compute2(){
+        const t2Val = t2El.value.trim();
+        const omega2Val = omega2El.value.trim();
+
+        const t2Num = parseNum(t2Val);
+        const omega2Num = parseNum(omega2Val);
+
+        const filled = [!isEmpty(t2Val), !isEmpty(omega2Val)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        if(isEmpty(t2Val) && omega2Num !== null){
+          if(omega2Num === 0){
+            showResult('خطأ: السرعة الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const t = (2 * Math.PI) / omega2Num;
+          t2El.value = formatNumber(t);
+          showResult(`T = ${formatNumber(t)} s`);
+          return;
+        }
+
+        if(isEmpty(omega2Val) && t2Num !== null){
+          if(t2Num === 0){
+            showResult('خطأ: الزمن الدوري لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = (2 * Math.PI) / t2Num;
+          omega2El.value = formatNumber(omega);
+          showResult(`ω = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function compute25(){
+        const s25Val = s25El.value.trim();
+        const v25Val = v25El.value.trim();
+        const t25Val = t25El.value.trim();
+        const omega25Val = omega25El.value.trim();
+        const r25Val = r25El.value.trim();
+
+        const s25Num = parseNum(s25Val);
+        const v25Num = parseNum(v25Val);
+        const t25Num = parseNum(t25Val);
+        const omega25Num = parseNum(omega25Val);
+        const r25Num = parseNum(r25Val);
+
+        const filled = [!isEmpty(s25Val), !isEmpty(v25Val), !isEmpty(t25Val), !isEmpty(omega25Val), !isEmpty(r25Val)].filter(Boolean).length;
+        if(filled < 4){
+          showResult('الرجاء إدخال أربع قيم على الأقل لحساب الخامسة.');
+          return;
+        }
+
+        if(isEmpty(s25Val) && v25Num !== null && t25Num !== null){
+          const s = v25Num * t25Num;
+          s25El.value = formatNumber(s);
+          showResult(`s = ${formatNumber(s)} m`);
+          return;
+        }
+
+        if(isEmpty(s25Val) && omega25Num !== null && r25Num !== null && t25Num !== null){
+          const s = omega25Num * r25Num * t25Num;
+          s25El.value = formatNumber(s);
+          showResult(`s = ${formatNumber(s)} m`);
+          return;
+        }
+
+        if(isEmpty(v25Val) && s25Num !== null && t25Num !== null){
+          if(t25Num === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const v = s25Num / t25Num;
+          v25El.value = formatNumber(v);
+          showResult(`v = ${formatNumber(v)} m/s`);
+          return;
+        }
+
+        if(isEmpty(t25Val) && s25Num !== null && v25Num !== null){
+          if(v25Num === 0){
+            showResult('خطأ: السرعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const t = s25Num / v25Num;
+          t25El.value = formatNumber(t);
+          showResult(`t = ${formatNumber(t)} s`);
+          return;
+        }
+
+        if(isEmpty(omega25Val) && s25Num !== null && r25Num !== null && t25Num !== null){
+          if(r25Num === 0 || t25Num === 0){
+            showResult('خطأ: نصف القطر أو الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = s25Num / (r25Num * t25Num);
+          omega25El.value = formatNumber(omega);
+          showResult(`ω = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        if(isEmpty(r25Val) && s25Num !== null && omega25Num !== null && t25Num !== null){
+          if(omega25Num === 0 || t25Num === 0){
+            showResult('خطأ: السرعة الزاوية أو الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const r = s25Num / (omega25Num * t25Num);
+          r25El.value = formatNumber(r);
+          showResult(`r = ${formatNumber(r)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function compute3(){
+        const aC3Val = aC3El.value.trim();
+        const v3Val = v3El.value.trim();
+        const r3Val = r3El.value.trim();
+        const omega3Val = omega3El.value.trim();
+
+        const aC3Num = parseNum(aC3Val);
+        const v3Num = parseNum(v3Val);
+        const r3Num = parseNum(r3Val);
+        const omega3Num = parseNum(omega3Val);
+
+        const filled = [!isEmpty(aC3Val), !isEmpty(v3Val), !isEmpty(r3Val), !isEmpty(omega3Val)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        if(isEmpty(aC3Val) && v3Num !== null && r3Num !== null){
+          if(r3Num === 0){
+            showResult('خطأ: نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const aC = (v3Num * v3Num) / r3Num;
+          aC3El.value = formatNumber(aC);
+          showResult(`a_c = ${formatNumber(aC)} m/s²`);
+          return;
+        }
+
+        if(isEmpty(aC3Val) && omega3Num !== null && r3Num !== null){
+          const aC = omega3Num * omega3Num * r3Num;
+          aC3El.value = formatNumber(aC);
+          showResult(`a_c = ${formatNumber(aC)} m/s²`);
+          return;
+        }
+
+        if(isEmpty(v3Val) && aC3Num !== null && r3Num !== null){
+          if(r3Num === 0){
+            showResult('خطأ: نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const v = Math.sqrt(aC3Num * r3Num);
+          v3El.value = formatNumber(v);
+          showResult(`v = ${formatNumber(v)} m/s`);
+          return;
+        }
+
+        if(isEmpty(r3Val) && aC3Num !== null && v3Num !== null){
+          if(v3Num === 0){
+            showResult('خطأ: السرعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const r = (v3Num * v3Num) / aC3Num;
+          r3El.value = formatNumber(r);
+          showResult(`r = ${formatNumber(r)} m`);
+          return;
+        }
+
+        if(isEmpty(omega3Val) && aC3Num !== null && r3Num !== null){
+          if(r3Num === 0){
+            showResult('خطأ: نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = Math.sqrt(aC3Num / r3Num);
+          omega3El.value = formatNumber(omega);
+          showResult(`ω = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function compute4(){
+        const fC4Val = fC4El.value.trim();
+        const m4Val = m4El.value.trim();
+        const aC4Val = aC4El.value.trim();
+
+        const fC4Num = parseNum(fC4Val);
+        const m4Num = parseNum(m4Val);
+        const aC4Num = parseNum(aC4Val);
+
+        const filled = [!isEmpty(fC4Val), !isEmpty(m4Val), !isEmpty(aC4Val)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        if(isEmpty(fC4Val) && m4Num !== null && aC4Num !== null){
+          const fC = m4Num * aC4Num;
+          fC4El.value = formatNumber(fC);
+          showResult(`F_c = ${formatNumber(fC)} N`);
+          return;
+        }
+
+        if(isEmpty(m4Val) && fC4Num !== null && aC4Num !== null){
+          if(aC4Num === 0){
+            showResult('خطأ: التسارع المركزي لا يمكن أن يكون صفر');
+            return;
+          }
+          const m = fC4Num / aC4Num;
+          m4El.value = formatNumber(m);
+          showResult(`m = ${formatNumber(m)} kg`);
+          return;
+        }
+
+        if(isEmpty(aC4Val) && fC4Num !== null && m4Num !== null){
+          if(m4Num === 0){
+            showResult('خطأ: الكتلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const aC = fC4Num / m4Num;
+          aC4El.value = formatNumber(aC);
+          showResult(`a_c = ${formatNumber(aC)} m/s²`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function compute5(){
+        const theta5Val = theta5El.value.trim();
+        const omega5Val = omega5El.value.trim();
+        const t5Val = t5El.value.trim();
+
+        const theta5Num = parseNum(theta5Val);
+        const omega5Num = parseNum(omega5Val);
+        const t5Num = parseNum(t5Val);
+
+        const filled = [!isEmpty(theta5Val), !isEmpty(omega5Val), !isEmpty(t5Val)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        if(isEmpty(theta5Val) && omega5Num !== null && t5Num !== null){
+          const theta = omega5Num * t5Num;
+          theta5El.value = formatNumber(theta);
+          showResult(`θ = ${formatNumber(theta)} rad`);
+          return;
+        }
+
+        if(isEmpty(omega5Val) && theta5Num !== null && t5Num !== null){
+          if(t5Num === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = theta5Num / t5Num;
+          omega5El.value = formatNumber(omega);
+          showResult(`ω = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        if(isEmpty(t5Val) && theta5Num !== null && omega5Num !== null){
+          if(omega5Num === 0){
+            showResult('خطأ: السرعة الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const t = theta5Num / omega5Num;
+          t5El.value = formatNumber(t);
+          showResult(`t = ${formatNumber(t)} s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeFull(){
+        const vFullVal = vFullEl.value.trim();
+        const rFullVal = rFullEl.value.trim();
+        const omegaFullVal = omegaFullEl.value.trim();
+        const tFullVal = tFullEl.value.trim();
+        const aCFullVal = aCFullEl.value.trim();
+        const mFullVal = mFullEl.value.trim();
+        const fCFullVal = fCFullEl.value.trim();
+
+        const vFullNum = parseNum(vFullVal);
+        const rFullNum = parseNum(rFullVal);
+        const omegaFullNum = parseNum(omegaFullVal);
+        const tFullNum = parseNum(tFullVal);
+        const aCFullNum = parseNum(aCFullVal);
+        const mFullNum = parseNum(mFullVal);
+        const fCFullNum = parseNum(fCFullVal);
+
+        const filled = [!isEmpty(vFullVal), !isEmpty(rFullVal), !isEmpty(omegaFullVal), !isEmpty(tFullVal), !isEmpty(aCFullVal), !isEmpty(mFullVal), !isEmpty(fCFullVal)].filter(Boolean).length;
+        if(filled < 6){
+          showResult('الرجاء إدخال ست قيم على الأقل لحساب السابعة.');
+          return;
+        }
+
+        // Calculate linear velocity (v = ω * r)
+        if(isEmpty(vFullVal) && omegaFullNum !== null && rFullNum !== null){
+          const velocity = omegaFullNum * rFullNum;
+          vFullEl.value = formatNumber(velocity);
+          showResult(`السرعة الخطية = ${formatNumber(velocity)} m/s`);
+          return;
+        }
+
+        // Calculate angular velocity (ω = v / r)
+        if(isEmpty(omegaFullVal) && vFullNum !== null && rFullNum !== null){
+          if(rFullNum === 0){
+            showResult('خطأ: نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const angularVel = vFullNum / rFullNum;
+          omegaFullEl.value = formatNumber(angularVel);
+          showResult(`السرعة الزاوية = ${formatNumber(angularVel)} rad/s`);
+          return;
+        }
+
+        // Calculate time period (T = 2π / ω)
+        if(isEmpty(tFullVal) && omegaFullNum !== null){
+          if(omegaFullNum === 0){
+            showResult('خطأ: السرعة الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const period = (2 * Math.PI) / omegaFullNum;
+          tFullEl.value = formatNumber(period);
+          showResult(`الزمن الدوري = ${formatNumber(period)} s`);
+          return;
+        }
+
+        // Calculate radius (r = v / ω)
+        if(isEmpty(rFullVal) && vFullNum !== null && omegaFullNum !== null){
+          if(omegaFullNum === 0){
+            showResult('خطأ: السرعة الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const radius = vFullNum / omegaFullNum;
+          rFullEl.value = formatNumber(radius);
+          showResult(`نصف القطر = ${formatNumber(radius)} m`);
+          return;
+        }
+
+        // Calculate centripetal acceleration (a_c = v²/r = ω²*r)
+        if(isEmpty(aCFullVal) && vFullNum !== null && rFullNum !== null){
+          if(rFullNum === 0){
+            showResult('خطأ: نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const acc = (vFullNum * vFullNum) / rFullNum;
+          aCFullEl.value = formatNumber(acc);
+          showResult(`التسارع المركزي = ${formatNumber(acc)} m/s²`);
+          return;
+        }
+
+        // Calculate acceleration from angular velocity (a_c = ω²*r)
+        if(isEmpty(aCFullVal) && omegaFullNum !== null && rFullNum !== null){
+          const acc = omegaFullNum * omegaFullNum * rFullNum;
+          aCFullEl.value = formatNumber(acc);
+          showResult(`التسارع المركزي = ${formatNumber(acc)} m/s²`);
+          return;
+        }
+
+        // Calculate centripetal force (F_c = m * a_c)
+        if(isEmpty(fCFullVal) && mFullNum !== null && aCFullNum !== null){
+          const force = mFullNum * aCFullNum;
+          fCFullEl.value = formatNumber(force);
+          showResult(`القوة المركزية = ${formatNumber(force)} N`);
+          return;
+        }
+
+        // Calculate mass (m = F_c / a_c)
+        if(isEmpty(mFullVal) && fCFullNum !== null && aCFullNum !== null){
+          if(aCFullNum === 0){
+            showResult('خطأ: التسارع المركزي لا يمكن أن يكون صفر');
+            return;
+          }
+          const mass = fCFullNum / aCFullNum;
+          mFullEl.value = formatNumber(mass);
+          showResult(`الكتلة = ${formatNumber(mass)} kg`);
+          return;
+        }
+
+        // Calculate acceleration from force and mass (a_c = F_c / m)
+        if(isEmpty(aCFullVal) && fCFullNum !== null && mFullNum !== null){
+          if(mFullNum === 0){
+            showResult('خطأ: الكتلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const acc = fCFullNum / mFullNum;
+          aCFullEl.value = formatNumber(acc);
+          showResult(`التسارع المركزي = ${formatNumber(acc)} m/s²`);
+          return;
+        }
+
+        // all seven provided -> validate
+        if(vFullNum !== null && rFullNum !== null && omegaFullNum !== null && tFullNum !== null && aCFullNum !== null && mFullNum !== null && fCFullNum !== null){
+          const expectedV = omegaFullNum * rFullNum;
+          const expectedT = (2 * Math.PI) / omegaFullNum;
+          const expectedAC = (vFullNum * vFullNum) / rFullNum;
+          const expectedFC = mFullNum * aCFullNum;
+          if(Math.abs(expectedV - vFullNum) < 0.000001 && Math.abs(expectedT - tFullNum) < 0.000001 && Math.abs(expectedAC - aCFullNum) < 0.000001 && Math.abs(expectedFC - fCFullNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع v = ω*r و T = 2π/ω و a_c = v²/r و F_c = m*a_c');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calc1Btn.addEventListener('click', compute1);
+      calc2Btn.addEventListener('click', compute2);
+      calc25Btn.addEventListener('click', compute25);
+      calc3Btn.addEventListener('click', compute3);
+      calc4Btn.addEventListener('click', compute4);
+      calc5Btn.addEventListener('click', compute5);
+      calcFullBtn.addEventListener('click', computeFull);
+
+      rBtn.addEventListener('click', function(){
+        v1El.value = '';
+        omega1El.value = '';
+        r1El.value = '';
+        t2El.value = '';
+        omega2El.value = '';
+        s25El.value = '';
+        v25El.value = '';
+        t25El.value = '';
+        omega25El.value = '';
+        r25El.value = '';
+        aC3El.value = '';
+        v3El.value = '';
+        r3El.value = '';
+        omega3El.value = '';
+        fC4El.value = '';
+        m4El.value = '';
+        aC4El.value = '';
+        theta5El.value = '';
+        omega5El.value = '';
+        t5El.value = '';
+        vFullEl.value = '';
+        rFullEl.value = '';
+        omegaFullEl.value = '';
+        tFullEl.value = '';
+        aCFullEl.value = '';
+        mFullEl.value = '';
+        fCFullEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [v1El, omega1El, r1El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute1();
+          }
+        });
+      });
+
+      [t2El, omega2El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute2();
+          }
+        });
+      });
+
+      [s25El, v25El, t25El, omega25El, r25El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute25();
+          }
+        });
+      });
+
+      [aC3El, v3El, r3El, omega3El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute3();
+          }
+        });
+      });
+
+      [fC4El, m4El, aC4El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute4();
+          }
+        });
+      });
+
+      [theta5El, omega5El, t5El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute5();
+          }
+        });
+      });
+
+      [vFullEl, rFullEl, omegaFullEl, tFullEl, aCFullEl, mFullEl, fCFullEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeFull();
+          }
+        });
+      });
+    })();
+  </script></style>  
+

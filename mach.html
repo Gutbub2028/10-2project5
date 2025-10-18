@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب كفاءة الآلة</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="w_out" type="text" placeholder="(J) الشغل المفيد"></input>
+    <input id="w_in" type="text" placeholder="(J) الشغل المبذول"></input>
+    <input id="eff" type="text" placeholder="(%) الكفاءة"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const wOutEl = document.getElementById('w_out');
+      const wInEl = document.getElementById('w_in');
+      const effEl = document.getElementById('eff');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const wOutVal = wOutEl.value.trim();
+        const wInVal = wInEl.value.trim();
+        const effVal = effEl.value.trim();
+
+        const wOutNum = parseNum(wOutVal);
+        const wInNum = parseNum(wInVal);
+        const effNum = parseNum(effVal);
+
+        const filled = [!isEmpty(wOutVal), !isEmpty(wInVal), !isEmpty(effVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate efficiency (η = W_out / W_in * 100%)
+        if(isEmpty(effVal) && wOutNum !== null && wInNum !== null){
+          if(wInNum === 0){
+            showResult('خطأ: الشغل المبذول لا يمكن أن يكون صفر');
+            return;
+          }
+          const efficiency = (wOutNum / wInNum) * 100;
+          effEl.value = formatNumber(efficiency);
+          showResult(`الكفاءة = ${formatNumber(efficiency)}%`);
+          return;
+        }
+
+        // Calculate useful work (W_out = η * W_in / 100)
+        if(isEmpty(wOutVal) && effNum !== null && wInNum !== null){
+          const usefulWork = (effNum * wInNum) / 100;
+          wOutEl.value = formatNumber(usefulWork);
+          showResult(`الشغل المفيد = ${formatNumber(usefulWork)} J`);
+          return;
+        }
+
+        // Calculate input work (W_in = W_out * 100 / η)
+        if(isEmpty(wInVal) && wOutNum !== null && effNum !== null){
+          if(effNum === 0){
+            showResult('خطأ: الكفاءة لا يمكن أن تكون صفر');
+            return;
+          }
+          const inputWork = (wOutNum * 100) / effNum;
+          wInEl.value = formatNumber(inputWork);
+          showResult(`الشغل المبذول = ${formatNumber(inputWork)} J`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(wOutNum !== null && wInNum !== null && effNum !== null){
+          const expectedEff = (wOutNum / wInNum) * 100;
+          if(Math.abs(expectedEff - effNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع η = W_out/W_in × 100%');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        wOutEl.value = '';
+        wInEl.value = '';
+        effEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [wOutEl, wInEl, effEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

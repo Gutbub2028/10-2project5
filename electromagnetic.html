@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب الموجة الكهرومغناطيسية</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الموجة الكهرومغناطيسية</h2>
+
+  <h3>1. سرعة الموجة: c = λ × f</h3>
+  <div>
+    <label for="c_wave">سرعة الموجة:</label>
+    <input id="c_wave" type="text" placeholder="(m/s) سرعة الموجة" value="299792458">
+    <label for="lambda_wave">الطول الموجي:</label>
+    <input id="lambda_wave" type="text" placeholder="(m) الطول الموجي">
+    <label for="f_wave">التردد:</label>
+    <input id="f_wave" type="text" placeholder="(Hz) التردد">
+    <input id="calc_wave" type="button" value="حساب">
+  </div>
+
+  <h3>2. شدة المجال الكهربائي: E = c × B</h3>
+  <div>
+    <label for="e_field">شدة المجال الكهربائي:</label>
+    <input id="e_field" type="text" placeholder="(V/m) شدة المجال الكهربائي">
+    <label for="c_em">سرعة الضوء:</label>
+    <input id="c_em" type="text" placeholder="(m/s) سرعة الضوء" value="299792458">
+    <label for="b_field">شدة المجال المغناطيسي:</label>
+    <input id="b_field" type="text" placeholder="(T) شدة المجال المغناطيسي">
+    <input id="calc_em" type="button" value="حساب">
+  </div>
+
+  <h3>3. الطاقة المشعة: I = (1/2) × ε₀ × c × E²</h3>
+  <div>
+    <label for="i_intensity">شدة الإشعاع:</label>
+    <input id="i_intensity" type="text" placeholder="(W/m²) شدة الإشعاع">
+    <label for="e_intensity">شدة المجال الكهربائي:</label>
+    <input id="e_intensity" type="text" placeholder="(V/m) شدة المجال الكهربائي">
+    <input id="calc_intensity" type="button" value="حساب">
+  </div>
+
+  <h3>4. قانون بلانك: E = h × f</h3>
+  <div>
+    <label for="e_photon">طاقة الفوتون:</label>
+    <input id="e_photon" type="text" placeholder="(J) طاقة الفوتون">
+    <label for="h_planck">ثابت بلانك:</label>
+    <input id="h_planck" type="text" placeholder="(J·s) ثابت بلانك" value="6.626e-34">
+    <label for="f_photon">التردد:</label>
+    <input id="f_photon" type="text" placeholder="(Hz) التردد">
+    <input id="calc_photon" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const cWaveEl = document.getElementById('c_wave');
+      const lambdaWaveEl = document.getElementById('lambda_wave');
+      const fWaveEl = document.getElementById('f_wave');
+      const calcWaveBtn = document.getElementById('calc_wave');
+
+      const eFieldEl = document.getElementById('e_field');
+      const cEmEl = document.getElementById('c_em');
+      const bFieldEl = document.getElementById('b_field');
+      const calcEmBtn = document.getElementById('calc_em');
+
+      const iIntensityEl = document.getElementById('i_intensity');
+      const eIntensityEl = document.getElementById('e_intensity');
+      const calcIntensityBtn = document.getElementById('calc_intensity');
+
+      const ePhotonEl = document.getElementById('e_photon');
+      const hPlanckEl = document.getElementById('h_planck');
+      const fPhotonEl = document.getElementById('f_photon');
+      const calcPhotonBtn = document.getElementById('calc_photon');
+
+      const rBtn = document.getElementById('r');
+
+      const epsilon0 = 8.85e-12; // Permittivity of free space
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeWave(){
+        const cWaveVal = cWaveEl.value.trim() || '299792458';
+        const lambdaWaveVal = lambdaWaveEl.value.trim();
+        const fWaveVal = fWaveEl.value.trim();
+
+        const cWaveNum = parseNum(cWaveVal);
+        const lambdaWaveNum = parseNum(lambdaWaveVal);
+        const fWaveNum = parseNum(fWaveVal);
+
+        const filled = [!isEmpty(lambdaWaveVal), !isEmpty(fWaveVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate wavelength (λ = c / f)
+        if(isEmpty(lambdaWaveVal) && fWaveNum !== null){
+          if(fWaveNum === 0){
+            showResult('خطأ: التردد لا يمكن أن يكون صفر');
+            return;
+          }
+          const wavelength = cWaveNum / fWaveNum;
+          lambdaWaveEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        // Calculate frequency (f = c / λ)
+        if(isEmpty(fWaveVal) && lambdaWaveNum !== null){
+          if(lambdaWaveNum === 0){
+            showResult('خطأ: الطول الموجي لا يمكن أن يكون صفر');
+            return;
+          }
+          const frequency = cWaveNum / lambdaWaveNum;
+          fWaveEl.value = formatNumber(frequency);
+          showResult(`التردد = ${formatNumber(frequency)} Hz`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(lambdaWaveNum !== null && fWaveNum !== null){
+          const expectedC = lambdaWaveNum * fWaveNum;
+          if(Math.abs(expectedC - cWaveNum) < 1) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع c = λ × f');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEm(){
+        const eFieldVal = eFieldEl.value.trim();
+        const cEmVal = cEmEl.value.trim() || '299792458';
+        const bFieldVal = bFieldEl.value.trim();
+
+        const eFieldNum = parseNum(eFieldVal);
+        const cEmNum = parseNum(cEmVal);
+        const bFieldNum = parseNum(bFieldVal);
+
+        const filled = [!isEmpty(eFieldVal), !isEmpty(bFieldVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate electric field (E = c × B)
+        if(isEmpty(eFieldVal) && bFieldNum !== null){
+          const eField = cEmNum * bFieldNum;
+          eFieldEl.value = formatNumber(eField);
+          showResult(`شدة المجال الكهربائي = ${formatNumber(eField)} V/m`);
+          return;
+        }
+
+        // Calculate magnetic field (B = E / c)
+        if(isEmpty(bFieldVal) && eFieldNum !== null){
+          if(cEmNum === 0){
+            showResult('خطأ: سرعة الضوء لا يمكن أن تكون صفر');
+            return;
+          }
+          const bField = eFieldNum / cEmNum;
+          bFieldEl.value = formatNumber(bField);
+          showResult(`شدة المجال المغناطيسي = ${formatNumber(bField)} T`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(eFieldNum !== null && bFieldNum !== null){
+          const expectedE = cEmNum * bFieldNum;
+          if(Math.abs(expectedE - eFieldNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع E = c × B');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeIntensity(){
+        const iIntensityVal = iIntensityEl.value.trim();
+        const eIntensityVal = eIntensityEl.value.trim();
+
+        const iIntensityNum = parseNum(iIntensityVal);
+        const eIntensityNum = parseNum(eIntensityVal);
+
+        const filled = [!isEmpty(iIntensityVal), !isEmpty(eIntensityVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate intensity (I = (1/2) × ε₀ × c × E²)
+        if(isEmpty(iIntensityVal) && eIntensityNum !== null){
+          const c = 299792458; // Speed of light
+          const intensity = 0.5 * epsilon0 * c * eIntensityNum * eIntensityNum;
+          iIntensityEl.value = formatNumber(intensity);
+          showResult(`شدة الإشعاع = ${formatNumber(intensity)} W/m²`);
+          return;
+        }
+
+        // Calculate electric field (E = sqrt(2 × I / (ε₀ × c)))
+        if(isEmpty(eIntensityVal) && iIntensityNum !== null){
+          const c = 299792458; // Speed of light
+          if(epsilon0 === 0 || c === 0){
+            showResult('خطأ: ثابت السماحية أو سرعة الضوء لا يمكن أن تكون صفر');
+            return;
+          }
+          const eField = Math.sqrt(2 * iIntensityNum / (epsilon0 * c));
+          eIntensityEl.value = formatNumber(eField);
+          showResult(`شدة المجال الكهربائي = ${formatNumber(eField)} V/m`);
+          return;
+        }
+
+        // all two provided -> validate
+        if(iIntensityNum !== null && eIntensityNum !== null){
+          const c = 299792458; // Speed of light
+          const expectedI = 0.5 * epsilon0 * c * eIntensityNum * eIntensityNum;
+          if(Math.abs(expectedI - iIntensityNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع I = (1/2) × ε₀ × c × E²');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computePhoton(){
+        const ePhotonVal = ePhotonEl.value.trim();
+        const hPlanckVal = hPlanckEl.value.trim() || '6.626e-34';
+        const fPhotonVal = fPhotonEl.value.trim();
+
+        const ePhotonNum = parseNum(ePhotonVal);
+        const hPlanckNum = parseNum(hPlanckVal);
+        const fPhotonNum = parseNum(fPhotonVal);
+
+        const filled = [!isEmpty(ePhotonVal), !isEmpty(fPhotonVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate photon energy (E = h × f)
+        if(isEmpty(ePhotonVal) && fPhotonNum !== null){
+          const energy = hPlanckNum * fPhotonNum;
+          ePhotonEl.value = formatNumber(energy);
+          showResult(`طاقة الفوتون = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate frequency (f = E / h)
+        if(isEmpty(fPhotonVal) && ePhotonNum !== null){
+          if(hPlanckNum === 0){
+            showResult('خطأ: ثابت بلانك لا يمكن أن يكون صفر');
+            return;
+          }
+          const frequency = ePhotonNum / hPlanckNum;
+          fPhotonEl.value = formatNumber(frequency);
+          showResult(`التردد = ${formatNumber(frequency)} Hz`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(ePhotonNum !== null && fPhotonNum !== null){
+          const expectedE = hPlanckNum * fPhotonNum;
+          if(Math.abs(expectedE - ePhotonNum) < 1e-40) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع E = h × f');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcWaveBtn.addEventListener('click', computeWave);
+      calcEmBtn.addEventListener('click', computeEm);
+      calcIntensityBtn.addEventListener('click', computeIntensity);
+      calcPhotonBtn.addEventListener('click', computePhoton);
+
+      rBtn.addEventListener('click', function(){
+        cWaveEl.value = '299792458';
+        lambdaWaveEl.value = '';
+        fWaveEl.value = '';
+        eFieldEl.value = '';
+        cEmEl.value = '299792458';
+        bFieldEl.value = '';
+        iIntensityEl.value = '';
+        eIntensityEl.value = '';
+        ePhotonEl.value = '';
+        hPlanckEl.value = '6.626e-34';
+        fPhotonEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [cWaveEl, lambdaWaveEl, fWaveEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeWave();
+          }
+        });
+      });
+
+      [eFieldEl, cEmEl, bFieldEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEm();
+          }
+        });
+      });
+
+      [iIntensityEl, eIntensityEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeIntensity();
+          }
+        });
+      });
+
+      [ePhotonEl, hPlanckEl, fPhotonEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computePhoton();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

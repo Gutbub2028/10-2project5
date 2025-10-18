@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب المجال الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب المجال الكهربائي: E = F / q</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="e" type="text" placeholder="(N/C) المجال الكهربائي"></input>
+    <input id="f" type="text" placeholder="(N) القوة الكهربائية"></input>
+    <input id="q" type="text" placeholder="(C) الشحنة"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const eEl = document.getElementById('e');
+      const fEl = document.getElementById('f');
+      const qEl = document.getElementById('q');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const eVal = eEl.value.trim();
+        const fVal = fEl.value.trim();
+        const qVal = qEl.value.trim();
+
+        const eNum = parseNum(eVal);
+        const fNum = parseNum(fVal);
+        const qNum = parseNum(qVal);
+
+        const filled = [!isEmpty(eVal), !isEmpty(fVal), !isEmpty(qVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate electric field (E = F / q)
+        if(isEmpty(eVal) && fNum !== null && qNum !== null){
+          if(qNum === 0){
+            showResult('خطأ: الشحنة لا يمكن أن تكون صفر');
+            return;
+          }
+          const field = fNum / qNum;
+          eEl.value = formatNumber(field);
+          showResult(`المجال الكهربائي = ${formatNumber(field)} N/C`);
+          return;
+        }
+
+        // Calculate force (F = E * q)
+        if(isEmpty(fVal) && eNum !== null && qNum !== null){
+          const force = eNum * qNum;
+          fEl.value = formatNumber(force);
+          showResult(`القوة الكهربائية = ${formatNumber(force)} N`);
+          return;
+        }
+
+        // Calculate charge (q = F / E)
+        if(isEmpty(qVal) && fNum !== null && eNum !== null){
+          if(eNum === 0){
+            showResult('خطأ: المجال الكهربائي لا يمكن أن يكون صفر');
+            return;
+          }
+          const charge = fNum / eNum;
+          qEl.value = formatNumber(charge);
+          showResult(`الشحنة = ${formatNumber(charge)} C`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(eNum !== null && fNum !== null && qNum !== null){
+          const expectedE = fNum / qNum;
+          if(Math.abs(expectedE - eNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع E = F/q');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        eEl.value = '';
+        fEl.value = '';
+        qEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [eEl, fEl, qEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب قوة الاحتكاك</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <header>
+    <a href="calcu.html">الصفحة الرئيسة</a>
+  </header>
+  <h2>حساب قوة الاحتكاك</h2>
+  <p>ادخل المعطيات و اذا تريد حساب قيمة اجعل خانتها فارغة</p>
+  <div>
+    <label for="f">قوة الاحتكاك:</label>
+    <input id="f" type="text" placeholder="(N) قوة الاحتكاك">
+    <label for="u">معامل الاحتكاك:</label>
+    <input id="u" type="text" placeholder="معامل الاحتكاك">
+    <label for="n">القوة العمودية:</label>
+    <input id="n" type="text" placeholder="(N) القوة العمودية">
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+  </div>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+  <script>
+    (function(){
+      const f = document.getElementById('f');
+      const u = document.getElementById('u');
+      const n = document.getElementById('n');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const fVal = f.value.trim();
+        const uVal = u.value.trim();
+        const nVal = n.value.trim();
+
+        const fNum = parseNum(fVal);
+        const uNum = parseNum(uVal);
+        const nNum = parseNum(nVal);
+
+        const filled = [!isEmpty(fVal), !isEmpty(uVal), !isEmpty(nVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate friction force (f = μN)
+        if(isEmpty(fVal) && uNum !== null && nNum !== null){
+          const friction = uNum * nNum;
+          f.value = formatNumber(friction);
+          showResult(`قوة الاحتكاك = ${formatNumber(friction)} N`);
+          return;
+        }
+
+        // Calculate coefficient of friction (μ = f/N)
+        if(isEmpty(uVal) && fNum !== null && nNum !== null){
+          if(nNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const coefficient = fNum / nNum;
+          u.value = formatNumber(coefficient);
+          showResult(`معامل الاحتكاك = ${formatNumber(coefficient)}`);
+          return;
+        }
+
+        // Calculate normal force (N = f/μ)
+        if(isEmpty(nVal) && fNum !== null && uNum !== null){
+          if(uNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const normal = fNum / uNum;
+          n.value = formatNumber(normal);
+          showResult(`القوة العمودية = ${formatNumber(normal)} N`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(fNum !== null && uNum !== null && nNum !== null){
+          const expectedF = uNum * nNum;
+          if(Math.abs(expectedF - fNum) < 0.000001){
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون الاحتكاك f = μN');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        f.value = '';
+        u.value = '';
+        n.value = '';
+        const old = document.getElementById('calc-result');
+        if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [f, u, n].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+

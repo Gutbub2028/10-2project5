@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب التأثير الكهربائي الميكانيكي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب التأثير الكهربائي الميكانيكي (البيزوكهربائي)</h2>
+
+  <h3>1. الجهد الناتج عن الضغط: V = (d × F) / (ε × A)</h3>
+  <div>
+    <label for="v_piezo">الجهد:</label>
+    <input id="v_piezo" type="text" placeholder="(V) الجهد">
+    <label for="d_piezo">معامل البيزوكهربائية:</label>
+    <input id="d_piezo" type="text" placeholder="(C/N) معامل البيزوكهربائية">
+    <label for="f_piezo">القوة:</label>
+    <input id="f_piezo" type="text" placeholder="(N) القوة">
+    <label for="epsilon_piezo">السماحية:</label>
+    <input id="epsilon_piezo" type="text" placeholder="(F/m) السماحية">
+    <label for="a_piezo">المساحة:</label>
+    <input id="a_piezo" type="text" placeholder="(m²) المساحة">
+    <input id="calc_piezo" type="button" value="حساب">
+  </div>
+
+  <h3>2. الشحنة الناتجة عن الضغط: Q = d × F</h3>
+  <div>
+    <label for="q_piezo">الشحنة:</label>
+    <input id="q_piezo" type="text" placeholder="(C) الشحنة">
+    <label for="d_charge">معامل البيزوكهربائية:</label>
+    <input id="d_charge" type="text" placeholder="(C/N) معامل البيزوكهربائية">
+    <label for="f_charge">القوة:</label>
+    <input id="f_charge" type="text" placeholder="(N) القوة">
+    <input id="calc_charge_piezo" type="button" value="حساب">
+  </div>
+
+  <h3>3. الطاقة المخزنة: E = 0.5 × d × F × δ</h3>
+  <div>
+    <label for="e_piezo">الطاقة:</label>
+    <input id="e_piezo" type="text" placeholder="(J) الطاقة">
+    <label for="d_energy">معامل البيزوكهربائية:</label>
+    <input id="d_energy" type="text" placeholder="(C/N) معامل البيزوكهربائية">
+    <label for="f_energy">القوة:</label>
+    <input id="f_energy" type="text" placeholder="(N) القوة">
+    <label for="delta_energy">الإزاحة:</label>
+    <input id="delta_energy" type="text" placeholder="(m) الإزاحة">
+    <input id="calc_energy_piezo" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const vPiezoEl = document.getElementById('v_piezo');
+      const dPiezoEl = document.getElementById('d_piezo');
+      const fPiezoEl = document.getElementById('f_piezo');
+      const epsilonPiezoEl = document.getElementById('epsilon_piezo');
+      const aPiezoEl = document.getElementById('a_piezo');
+      const calcPiezoBtn = document.getElementById('calc_piezo');
+
+      const qPiezoEl = document.getElementById('q_piezo');
+      const dChargeEl = document.getElementById('d_charge');
+      const fChargeEl = document.getElementById('f_charge');
+      const calcChargePiezoBtn = document.getElementById('calc_charge_piezo');
+
+      const ePiezoEl = document.getElementById('e_piezo');
+      const dEnergyEl = document.getElementById('d_energy');
+      const fEnergyEl = document.getElementById('f_energy');
+      const deltaEnergyEl = document.getElementById('delta_energy');
+      const calcEnergyPiezoBtn = document.getElementById('calc_energy_piezo');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computePiezo(){
+        const vPiezoVal = vPiezoEl.value.trim();
+        const dPiezoVal = dPiezoEl.value.trim();
+        const fPiezoVal = fPiezoEl.value.trim();
+        const epsilonPiezoVal = epsilonPiezoEl.value.trim();
+        const aPiezoVal = aPiezoEl.value.trim();
+
+        const vPiezoNum = parseNum(vPiezoVal);
+        const dPiezoNum = parseNum(dPiezoVal);
+        const fPiezoNum = parseNum(fPiezoVal);
+        const epsilonPiezoNum = parseNum(epsilonPiezoVal);
+        const aPiezoNum = parseNum(aPiezoVal);
+
+        const filled = [!isEmpty(vPiezoVal), !isEmpty(dPiezoVal), !isEmpty(fPiezoVal), !isEmpty(epsilonPiezoVal), !isEmpty(aPiezoVal)].filter(Boolean).length;
+        if(filled < 4){
+          showResult('الرجاء إدخال أربع قيم على الأقل لحساب الخامسة.');
+          return;
+        }
+
+        // Calculate voltage (V = (d × F) / (ε × A))
+        if(isEmpty(vPiezoVal) && dPiezoNum !== null && fPiezoNum !== null && epsilonPiezoNum !== null && aPiezoNum !== null){
+          if(epsilonPiezoNum === 0 || aPiezoNum === 0){
+            showResult('خطأ: السماحية أو المساحة لا يمكن أن تكون صفر');
+            return;
+          }
+          const voltage = (dPiezoNum * fPiezoNum) / (epsilonPiezoNum * aPiezoNum);
+          vPiezoEl.value = formatNumber(voltage);
+          showResult(`الجهد = ${formatNumber(voltage)} V`);
+          return;
+        }
+
+        // Calculate piezoelectric coefficient (d = (V × ε × A) / F)
+        if(isEmpty(dPiezoVal) && vPiezoNum !== null && epsilonPiezoNum !== null && aPiezoNum !== null && fPiezoNum !== null){
+          if(fPiezoNum === 0){
+            showResult('خطأ: القوة لا يمكن أن تكون صفر');
+            return;
+          }
+          const coeff = (vPiezoNum * epsilonPiezoNum * aPiezoNum) / fPiezoNum;
+          dPiezoEl.value = formatNumber(coeff);
+          showResult(`معامل البيزوكهربائية = ${formatNumber(coeff)} C/N`);
+          return;
+        }
+
+        // Calculate force (F = (V × ε × A) / d)
+        if(isEmpty(fPiezoVal) && vPiezoNum !== null && epsilonPiezoNum !== null && aPiezoNum !== null && dPiezoNum !== null){
+          if(dPiezoNum === 0){
+            showResult('خطأ: معامل البيزوكهربائية لا يمكن أن يكون صفر');
+            return;
+          }
+          const force = (vPiezoNum * epsilonPiezoNum * aPiezoNum) / dPiezoNum;
+          fPiezoEl.value = formatNumber(force);
+          showResult(`القوة = ${formatNumber(force)} N`);
+          return;
+        }
+
+        // Calculate permittivity (ε = (d × F) / (V × A))
+        if(isEmpty(epsilonPiezoVal) && dPiezoNum !== null && fPiezoNum !== null && vPiezoNum !== null && aPiezoNum !== null){
+          if(vPiezoNum === 0 || aPiezoNum === 0){
+            showResult('خطأ: الجهد أو المساحة لا يمكن أن يكون صفر');
+            return;
+          }
+          const permittivity = (dPiezoNum * fPiezoNum) / (vPiezoNum * aPiezoNum);
+          epsilonPiezoEl.value = formatNumber(permittivity);
+          showResult(`السماحية = ${formatNumber(permittivity)} F/m`);
+          return;
+        }
+
+        // Calculate area (A = (d × F) / (V × ε))
+        if(isEmpty(aPiezoVal) && dPiezoNum !== null && fPiezoNum !== null && vPiezoNum !== null && epsilonPiezoNum !== null){
+          if(vPiezoNum === 0 || epsilonPiezoNum === 0){
+            showResult('خطأ: الجهد أو السماحية لا يمكن أن يكون صفر');
+            return;
+          }
+          const area = (dPiezoNum * fPiezoNum) / (vPiezoNum * epsilonPiezoNum);
+          aPiezoEl.value = formatNumber(area);
+          showResult(`المساحة = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeChargePiezo(){
+        const qPiezoVal = qPiezoEl.value.trim();
+        const dChargeVal = dChargeEl.value.trim();
+        const fChargeVal = fChargeEl.value.trim();
+
+        const qPiezoNum = parseNum(qPiezoVal);
+        const dChargeNum = parseNum(dChargeVal);
+        const fChargeNum = parseNum(fChargeVal);
+
+        const filled = [!isEmpty(qPiezoVal), !isEmpty(dChargeVal), !isEmpty(fChargeVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate charge (Q = d × F)
+        if(isEmpty(qPiezoVal) && dChargeNum !== null && fChargeNum !== null){
+          const charge = dChargeNum * fChargeNum;
+          qPiezoEl.value = formatNumber(charge);
+          showResult(`الشحنة = ${formatNumber(charge)} C`);
+          return;
+        }
+
+        // Calculate piezoelectric coefficient (d = Q / F)
+        if(isEmpty(dChargeVal) && qPiezoNum !== null && fChargeNum !== null){
+          if(fChargeNum === 0){
+            showResult('خطأ: القوة لا يمكن أن تكون صفر');
+            return;
+          }
+          const coeff = qPiezoNum / fChargeNum;
+          dChargeEl.value = formatNumber(coeff);
+          showResult(`معامل البيزوكهربائية = ${formatNumber(coeff)} C/N`);
+          return;
+        }
+
+        // Calculate force (F = Q / d)
+        if(isEmpty(fChargeVal) && qPiezoNum !== null && dChargeNum !== null){
+          if(dChargeNum === 0){
+            showResult('خطأ: معامل البيزوكهربائية لا يمكن أن يكون صفر');
+            return;
+          }
+          const force = qPiezoNum / dChargeNum;
+          fChargeEl.value = formatNumber(force);
+          showResult(`القوة = ${formatNumber(force)} N`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEnergyPiezo(){
+        const ePiezoVal = ePiezoEl.value.trim();
+        const dEnergyVal = dEnergyEl.value.trim();
+        const fEnergyVal = fEnergyEl.value.trim();
+        const deltaEnergyVal = deltaEnergyEl.value.trim();
+
+        const ePiezoNum = parseNum(ePiezoVal);
+        const dEnergyNum = parseNum(dEnergyVal);
+        const fEnergyNum = parseNum(fEnergyVal);
+        const deltaEnergyNum = parseNum(deltaEnergyVal);
+
+        const filled = [!isEmpty(ePiezoVal), !isEmpty(dEnergyVal), !isEmpty(fEnergyVal), !isEmpty(deltaEnergyVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate energy (E = 0.5 × d × F × δ)
+        if(isEmpty(ePiezoVal) && dEnergyNum !== null && fEnergyNum !== null && deltaEnergyNum !== null){
+          const energy = 0.5 * dEnergyNum * fEnergyNum * deltaEnergyNum;
+          ePiezoEl.value = formatNumber(energy);
+          showResult(`الطاقة = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate piezoelectric coefficient (d = 2 × E / (F × δ))
+        if(isEmpty(dEnergyVal) && ePiezoNum !== null && fEnergyNum !== null && deltaEnergyNum !== null){
+          if(fEnergyNum === 0 || deltaEnergyNum === 0){
+            showResult('خطأ: القوة أو الإزاحة لا يمكن أن تكون صفر');
+            return;
+          }
+          const coeff = 2 * ePiezoNum / (fEnergyNum * deltaEnergyNum);
+          dEnergyEl.value = formatNumber(coeff);
+          showResult(`معامل البيزوكهربائية = ${formatNumber(coeff)} C/N`);
+          return;
+        }
+
+        // Calculate force (F = 2 × E / (d × δ))
+        if(isEmpty(fEnergyVal) && ePiezoNum !== null && dEnergyNum !== null && deltaEnergyNum !== null){
+          if(dEnergyNum === 0 || deltaEnergyNum === 0){
+            showResult('خطأ: معامل البيزوكهربائية أو الإزاحة لا يمكن أن يكون صفر');
+            return;
+          }
+          const force = 2 * ePiezoNum / (dEnergyNum * deltaEnergyNum);
+          fEnergyEl.value = formatNumber(force);
+          showResult(`القوة = ${formatNumber(force)} N`);
+          return;
+        }
+
+        // Calculate displacement (δ = 2 × E / (d × F))
+        if(isEmpty(deltaEnergyVal) && ePiezoNum !== null && dEnergyNum !== null && fEnergyNum !== null){
+          if(dEnergyNum === 0 || fEnergyNum === 0){
+            showResult('خطأ: معامل البيزوكهربائية أو القوة لا يمكن أن يكون صفر');
+            return;
+          }
+          const displacement = 2 * ePiezoNum / (dEnergyNum * fEnergyNum);
+          deltaEnergyEl.value = formatNumber(displacement);
+          showResult(`الإزاحة = ${formatNumber(displacement)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcPiezoBtn.addEventListener('click', computePiezo);
+      calcChargePiezoBtn.addEventListener('click', computeChargePiezo);
+      calcEnergyPiezoBtn.addEventListener('click', computeEnergyPiezo);
+
+      rBtn.addEventListener('click', function(){
+        vPiezoEl.value = '';
+        dPiezoEl.value = '';
+        fPiezoEl.value = '';
+        epsilonPiezoEl.value = '';
+        aPiezoEl.value = '';
+        qPiezoEl.value = '';
+        dChargeEl.value = '';
+        fChargeEl.value = '';
+        ePiezoEl.value = '';
+        dEnergyEl.value = '';
+        fEnergyEl.value = '';
+        deltaEnergyEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [vPiezoEl, dPiezoEl, fPiezoEl, epsilonPiezoEl, aPiezoEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computePiezo();
+          }
+        });
+      });
+
+      [qPiezoEl, dChargeEl, fChargeEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeChargePiezo();
+          }
+        });
+      });
+
+      [ePiezoEl, dEnergyEl, fEnergyEl, deltaEnergyEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEnergyPiezo();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

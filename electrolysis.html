@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب التحليل الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب التحليل الكهربائي</h2>
+
+  <h3>1. الكتلة المنطلقة: m = (I × t × M) / (n × F)</h3>
+  <div>
+    <label for="m_electrolysis">الكتلة المنطلقة:</label>
+    <input id="m_electrolysis" type="text" placeholder="(g) الكتلة المنطلقة">
+    <label for="i_electrolysis">التيار:</label>
+    <input id="i_electrolysis" type="text" placeholder="(A) التيار">
+    <label for="t_electrolysis">الزمن:</label>
+    <input id="t_electrolysis" type="text" placeholder="(s) الزمن">
+    <label for="m_molar">الكتلة المولية:</label>
+    <input id="m_molar" type="text" placeholder="(g/mol) الكتلة المولية">
+    <label for="n_electrolysis">عدد الإلكترونات:</label>
+    <input id="n_electrolysis" type="text" placeholder="(n) عدد الإلكترونات">
+    <input id="calc_electrolysis" type="button" value="حساب">
+  </div>
+
+  <h3>2. الشحنة المارة: Q = I × t</h3>
+  <div>
+    <label for="q_electrolysis">الشحنة:</label>
+    <input id="q_electrolysis" type="text" placeholder="(C) الشحنة">
+    <label for="i_charge">التيار:</label>
+    <input id="i_charge" type="text" placeholder="(A) التيار">
+    <label for="t_charge">الزمن:</label>
+    <input id="t_charge" type="text" placeholder="(s) الزمن">
+    <input id="calc_charge_electrolysis" type="button" value="حساب">
+  </div>
+
+  <h3>3. عدد المولات المنطلقة: n_moles = (I × t) / (n × F)</h3>
+  <div>
+    <label for="n_moles">عدد المولات:</label>
+    <input id="n_moles" type="text" placeholder="(mol) عدد المولات">
+    <label for="i_moles">التيار:</label>
+    <input id="i_moles" type="text" placeholder="(A) التيار">
+    <label for="t_moles">الزمن:</label>
+    <input id="t_moles" type="text" placeholder="(s) الزمن">
+    <label for="n_electrons_moles">عدد الإلكترونات:</label>
+    <input id="n_electrons_moles" type="text" placeholder="(n) عدد الإلكترونات">
+    <input id="calc_moles" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const mElectrolysisEl = document.getElementById('m_electrolysis');
+      const iElectrolysisEl = document.getElementById('i_electrolysis');
+      const tElectrolysisEl = document.getElementById('t_electrolysis');
+      const mMolarEl = document.getElementById('m_molar');
+      const nElectrolysisEl = document.getElementById('n_electrolysis');
+      const calcElectrolysisBtn = document.getElementById('calc_electrolysis');
+
+      const qElectrolysisEl = document.getElementById('q_electrolysis');
+      const iChargeEl = document.getElementById('i_charge');
+      const tChargeEl = document.getElementById('t_charge');
+      const calcChargeElectrolysisBtn = document.getElementById('calc_charge_electrolysis');
+
+      const nMolesEl = document.getElementById('n_moles');
+      const iMolesEl = document.getElementById('i_moles');
+      const tMolesEl = document.getElementById('t_moles');
+      const nElectronsMolesEl = document.getElementById('n_electrons_moles');
+      const calcMolesBtn = document.getElementById('calc_moles');
+
+      const rBtn = document.getElementById('r');
+
+      const F = 96485; // Faraday constant in C/mol
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeElectrolysis(){
+        const mElectrolysisVal = mElectrolysisEl.value.trim();
+        const iElectrolysisVal = iElectrolysisEl.value.trim();
+        const tElectrolysisVal = tElectrolysisEl.value.trim();
+        const mMolarVal = mMolarEl.value.trim();
+        const nElectrolysisVal = nElectrolysisEl.value.trim();
+
+        const mElectrolysisNum = parseNum(mElectrolysisVal);
+        const iElectrolysisNum = parseNum(iElectrolysisVal);
+        const tElectrolysisNum = parseNum(tElectrolysisVal);
+        const mMolarNum = parseNum(mMolarVal);
+        const nElectrolysisNum = parseNum(nElectrolysisVal);
+
+        const filled = [!isEmpty(mElectrolysisVal), !isEmpty(iElectrolysisVal), !isEmpty(tElectrolysisVal), !isEmpty(mMolarVal), !isEmpty(nElectrolysisVal)].filter(Boolean).length;
+        if(filled < 4){
+          showResult('الرجاء إدخال أربع قيم على الأقل لحساب الخامسة.');
+          return;
+        }
+
+        // Calculate mass (m = (I × t × M) / (n × F))
+        if(isEmpty(mElectrolysisVal) && iElectrolysisNum !== null && tElectrolysisNum !== null && mMolarNum !== null && nElectrolysisNum !== null){
+          if(nElectrolysisNum === 0 || F === 0){
+            showResult('خطأ: عدد الإلكترونات أو ثابت فاراداي لا يمكن أن يكون صفر');
+            return;
+          }
+          const mass = (iElectrolysisNum * tElectrolysisNum * mMolarNum) / (nElectrolysisNum * F);
+          mElectrolysisEl.value = formatNumber(mass);
+          showResult(`الكتلة المنطلقة = ${formatNumber(mass)} g`);
+          return;
+        }
+
+        // Calculate current (I = (m × n × F) / (t × M))
+        if(isEmpty(iElectrolysisVal) && mElectrolysisNum !== null && tElectrolysisNum !== null && mMolarNum !== null && nElectrolysisNum !== null){
+          if(tElectrolysisNum === 0 || mMolarNum === 0){
+            showResult('خطأ: الزمن أو الكتلة المولية لا يمكن أن تكون صفر');
+            return;
+          }
+          const current = (mElectrolysisNum * nElectrolysisNum * F) / (tElectrolysisNum * mMolarNum);
+          iElectrolysisEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        // Calculate time (t = (m × n × F) / (I × M))
+        if(isEmpty(tElectrolysisVal) && mElectrolysisNum !== null && iElectrolysisNum !== null && mMolarNum !== null && nElectrolysisNum !== null){
+          if(iElectrolysisNum === 0 || mMolarNum === 0){
+            showResult('خطأ: التيار أو الكتلة المولية لا يمكن أن تكون صفر');
+            return;
+          }
+          const time = (mElectrolysisNum * nElectrolysisNum * F) / (iElectrolysisNum * mMolarNum);
+          tElectrolysisEl.value = formatNumber(time);
+          showResult(`الزمن = ${formatNumber(time)} s`);
+          return;
+        }
+
+        // Calculate molar mass (M = (I × t × n × F) / m)
+        if(isEmpty(mMolarVal) && mElectrolysisNum !== null && iElectrolysisNum !== null && tElectrolysisNum !== null && nElectrolysisNum !== null){
+          if(mElectrolysisNum === 0){
+            showResult('خطأ: الكتلة المنطلقة لا يمكن أن تكون صفر');
+            return;
+          }
+          const molarMass = (iElectrolysisNum * tElectrolysisNum * nElectrolysisNum * F) / mElectrolysisNum;
+          mMolarEl.value = formatNumber(molarMass);
+          showResult(`الكتلة المولية = ${formatNumber(molarMass)} g/mol`);
+          return;
+        }
+
+        // Calculate electrons (n = (I × t × M) / (m × F))
+        if(isEmpty(nElectrolysisVal) && mElectrolysisNum !== null && iElectrolysisNum !== null && tElectrolysisNum !== null && mMolarNum !== null){
+          if(mElectrolysisNum === 0 || F === 0){
+            showResult('خطأ: الكتلة المنطلقة أو ثابت فاراداي لا يمكن أن يكون صفر');
+            return;
+          }
+          const electrons = (iElectrolysisNum * tElectrolysisNum * mMolarNum) / (mElectrolysisNum * F);
+          nElectrolysisEl.value = formatNumber(electrons);
+          showResult(`عدد الإلكترونات = ${formatNumber(electrons)}`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeChargeElectrolysis(){
+        const qElectrolysisVal = qElectrolysisEl.value.trim();
+        const iChargeVal = iChargeEl.value.trim();
+        const tChargeVal = tChargeEl.value.trim();
+
+        const qElectrolysisNum = parseNum(qElectrolysisVal);
+        const iChargeNum = parseNum(iChargeVal);
+        const tChargeNum = parseNum(tChargeVal);
+
+        const filled = [!isEmpty(qElectrolysisVal), !isEmpty(iChargeVal), !isEmpty(tChargeVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate charge (Q = I × t)
+        if(isEmpty(qElectrolysisVal) && iChargeNum !== null && tChargeNum !== null){
+          const charge = iChargeNum * tChargeNum;
+          qElectrolysisEl.value = formatNumber(charge);
+          showResult(`الشحنة = ${formatNumber(charge)} C`);
+          return;
+        }
+
+        // Calculate current (I = Q / t)
+        if(isEmpty(iChargeVal) && qElectrolysisNum !== null && tChargeNum !== null){
+          if(tChargeNum === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const current = qElectrolysisNum / tChargeNum;
+          iChargeEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        // Calculate time (t = Q / I)
+        if(isEmpty(tChargeVal) && qElectrolysisNum !== null && iChargeNum !== null){
+          if(iChargeNum === 0){
+            showResult('خطأ: التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const time = qElectrolysisNum / iChargeNum;
+          tChargeEl.value = formatNumber(time);
+          showResult(`الزمن = ${formatNumber(time)} s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeMoles(){
+        const nMolesVal = nMolesEl.value.trim();
+        const iMolesVal = iMolesEl.value.trim();
+        const tMolesVal = tMolesEl.value.trim();
+        const nElectronsMolesVal = nElectronsMolesEl.value.trim();
+
+        const nMolesNum = parseNum(nMolesVal);
+        const iMolesNum = parseNum(iMolesVal);
+        const tMolesNum = parseNum(tMolesVal);
+        const nElectronsMolesNum = parseNum(nElectronsMolesVal);
+
+        const filled = [!isEmpty(nMolesVal), !isEmpty(iMolesVal), !isEmpty(tMolesVal), !isEmpty(nElectronsMolesVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate moles (n = (I × t) / (n_e × F))
+        if(isEmpty(nMolesVal) && iMolesNum !== null && tMolesNum !== null && nElectronsMolesNum !== null){
+          if(nElectronsMolesNum === 0 || F === 0){
+            showResult('خطأ: عدد الإلكترونات أو ثابت فاراداي لا يمكن أن يكون صفر');
+            return;
+          }
+          const moles = (iMolesNum * tMolesNum) / (nElectronsMolesNum * F);
+          nMolesEl.value = formatNumber(moles);
+          showResult(`عدد المولات = ${formatNumber(moles)} mol`);
+          return;
+        }
+
+        // Calculate current (I = (n × n_e × F) / t)
+        if(isEmpty(iMolesVal) && nMolesNum !== null && tMolesNum !== null && nElectronsMolesNum !== null){
+          if(tMolesNum === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const current = (nMolesNum * nElectronsMolesNum * F) / tMolesNum;
+          iMolesEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        // Calculate time (t = (n × n_e × F) / I)
+        if(isEmpty(tMolesVal) && nMolesNum !== null && iMolesNum !== null && nElectronsMolesNum !== null){
+          if(iMolesNum === 0){
+            showResult('خطأ: التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const time = (nMolesNum * nElectronsMolesNum * F) / iMolesNum;
+          tMolesEl.value = formatNumber(time);
+          showResult(`الزمن = ${formatNumber(time)} s`);
+          return;
+        }
+
+        // Calculate electrons (n_e = (I × t) / (n × F))
+        if(isEmpty(nElectronsMolesVal) && nMolesNum !== null && iMolesNum !== null && tMolesNum !== null){
+          if(nMolesNum === 0 || F === 0){
+            showResult('خطأ: عدد المولات أو ثابت فاراداي لا يمكن أن يكون صفر');
+            return;
+          }
+          const electrons = (iMolesNum * tMolesNum) / (nMolesNum * F);
+          nElectronsMolesEl.value = formatNumber(electrons);
+          showResult(`عدد الإلكترونات = ${formatNumber(electrons)}`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcElectrolysisBtn.addEventListener('click', computeElectrolysis);
+      calcChargeElectrolysisBtn.addEventListener('click', computeChargeElectrolysis);
+      calcMolesBtn.addEventListener('click', computeMoles);
+
+      rBtn.addEventListener('click', function(){
+        mElectrolysisEl.value = '';
+        iElectrolysisEl.value = '';
+        tElectrolysisEl.value = '';
+        mMolarEl.value = '';
+        nElectrolysisEl.value = '';
+        qElectrolysisEl.value = '';
+        iChargeEl.value = '';
+        tChargeEl.value = '';
+        nMolesEl.value = '';
+        iMolesEl.value = '';
+        tMolesEl.value = '';
+        nElectronsMolesEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [mElectrolysisEl, iElectrolysisEl, tElectrolysisEl, mMolarEl, nElectrolysisEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeElectrolysis();
+          }
+        });
+      });
+
+      [qElectrolysisEl, iChargeEl, tChargeEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeChargeElectrolysis();
+          }
+        });
+      });
+
+      [nMolesEl, iMolesEl, tMolesEl, nElectronsMolesEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeMoles();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

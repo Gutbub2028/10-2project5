@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>حساب قانون الضغط</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="p" type="text" placeholder="(Pa) الضغط"></input>
+    <input id="f" type="text" placeholder="(N) القوة"></input>
+    <input id="a" type="text" placeholder="(m²) المساحة"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const pEl = document.getElementById('p');
+      const fEl = document.getElementById('f');
+      const aEl = document.getElementById('a');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const pVal = pEl.value.trim();
+        const fVal = fEl.value.trim();
+        const aVal = aEl.value.trim();
+
+        const pNum = parseNum(pVal);
+        const fNum = parseNum(fVal);
+        const aNum = parseNum(aVal);
+
+        const filled = [!isEmpty(pVal), !isEmpty(fVal), !isEmpty(aVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate pressure (P = F/A)
+        if(isEmpty(pVal) && fNum !== null && aNum !== null){
+          if(aNum === 0){
+            showResult('خطأ: المساحة لا يمكن أن تكون صفر');
+            return;
+          }
+          const pressure = fNum / aNum;
+          pEl.value = formatNumber(pressure);
+          showResult(`الضغط = ${formatNumber(pressure)} Pa`);
+          return;
+        }
+
+        // Calculate force (F = P*A)
+        if(isEmpty(fVal) && pNum !== null && aNum !== null){
+          const force = pNum * aNum;
+          fEl.value = formatNumber(force);
+          showResult(`القوة = ${formatNumber(force)} N`);
+          return;
+        }
+
+        // Calculate area (A = F/P)
+        if(isEmpty(aVal) && fNum !== null && pNum !== null){
+          if(pNum === 0){
+            showResult('خطأ: الضغط لا يمكن أن يكون صفر');
+            return;
+          }
+          const area = fNum / pNum;
+          aEl.value = formatNumber(area);
+          showResult(`المساحة = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(pNum !== null && fNum !== null && aNum !== null){
+          const expectedP = fNum / aNum;
+          if(Math.abs(expectedP - pNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع P = F/A');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        pEl.value = '';
+        fEl.value = '';
+        aEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [pEl, fEl, aEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

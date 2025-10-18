@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب طاقة الوضع</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="calcu.html">الصفحة الرئيسة</a>
+  </header>
+  <h2>قوانين الطاقة</h2>
+
+  <h3>1. طاقة الوضع الجاذبية: PE = m × g × h</h3>
+  <div>
+    <label for="pe_grav">طاقة الوضع الجاذبية:</label>
+    <input id="pe_grav" type="text" placeholder="(J) طاقة الوضع الجاذبية">
+    <label for="m_grav">الكتلة:</label>
+    <input id="m_grav" type="text" placeholder="(kg) الكتلة">
+    <label for="g_grav">تسارع الجاذبية:</label>
+    <input id="g_grav" type="text" placeholder="(m/s²) تسارع الجاذبية" value="9.81">
+    <label for="h_grav">الارتفاع:</label>
+    <input id="h_grav" type="text" placeholder="(m) الارتفاع">
+    <input id="calc_grav" type="button" value="حساب">
+  </div>
+
+  <h3>2. طاقة الوضع المرنة: PE = 0.5 × k × x²</h3>
+  <div>
+    <label for="pe_spring">طاقة الوضع المرنة:</label>
+    <input id="pe_spring" type="text" placeholder="(J) طاقة الوضع المرنة">
+    <label for="k_spring">ثابت النابض:</label>
+    <input id="k_spring" type="text" placeholder="(N/m) ثابت النابض">
+    <label for="x_spring">الإزاحة:</label>
+    <input id="x_spring" type="text" placeholder="(m) الإزاحة">
+    <input id="calc_spring" type="button" value="حساب">
+  </div>
+
+  <h3>حاسبة الطاقة الكاملة</h3>
+  <div>
+    <label for="pe_total">طاقة الوضع الكلية:</label>
+    <input id="pe_total" type="text" placeholder="(J) طاقة الوضع الكلية">
+    <label for="m_total">الكتلة:</label>
+    <input id="m_total" type="text" placeholder="(kg) الكتلة">
+    <label for="g_total">تسارع الجاذبية:</label>
+    <input id="g_total" type="text" placeholder="(m/s²) تسارع الجاذبية" value="9.81">
+    <label for="h_total">الارتفاع:</label>
+    <input id="h_total" type="text" placeholder="(m) الارتفاع">
+    <label for="k_total">ثابت النابض:</label>
+    <input id="k_total" type="text" placeholder="(N/m) ثابت النابض">
+    <label for="x_total">الإزاحة:</label>
+    <input id="x_total" type="text" placeholder="(m) الإزاحة">
+    <input id="calc_total" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+  <a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+  <script>
+    (function(){
+      const peGravEl = document.getElementById('pe_grav');
+      const mGravEl = document.getElementById('m_grav');
+      const gGravEl = document.getElementById('g_grav');
+      const hGravEl = document.getElementById('h_grav');
+      const calcGravBtn = document.getElementById('calc_grav');
+
+      const peSpringEl = document.getElementById('pe_spring');
+      const kSpringEl = document.getElementById('k_spring');
+      const xSpringEl = document.getElementById('x_spring');
+      const calcSpringBtn = document.getElementById('calc_spring');
+
+      const peTotalEl = document.getElementById('pe_total');
+      const mTotalEl = document.getElementById('m_total');
+      const gTotalEl = document.getElementById('g_total');
+      const hTotalEl = document.getElementById('h_total');
+      const kTotalEl = document.getElementById('k_total');
+      const xTotalEl = document.getElementById('x_total');
+      const calcTotalBtn = document.getElementById('calc_total');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeGrav(){
+        const peGravVal = peGravEl.value.trim();
+        const mGravVal = mGravEl.value.trim();
+        const gGravVal = gGravEl.value.trim() || '9.81';
+        const hGravVal = hGravEl.value.trim();
+
+        const peGravNum = parseNum(peGravVal);
+        const mGravNum = parseNum(mGravVal);
+        const gGravNum = parseNum(gGravVal);
+        const hGravNum = parseNum(hGravVal);
+
+        const filled = [!isEmpty(peGravVal), !isEmpty(mGravVal), !isEmpty(hGravVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate Potential Energy (PE = mgh)
+        if(isEmpty(peGravVal) && mGravNum !== null && hGravNum !== null){
+          const energy = mGravNum * gGravNum * hGravNum;
+          peGravEl.value = formatNumber(energy);
+          showResult(`طاقة الوضع الجاذبية = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate mass (m = PE/gh)
+        if(isEmpty(mGravVal) && peGravNum !== null && hGravNum !== null){
+          if(gGravNum === 0 || hGravNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const mass = peGravNum / (gGravNum * hGravNum);
+          mGravEl.value = formatNumber(mass);
+          showResult(`الكتلة = ${formatNumber(mass)} kg`);
+          return;
+        }
+
+        // Calculate height (h = PE/mg)
+        if(isEmpty(hGravVal) && peGravNum !== null && mGravNum !== null){
+          if(gGravNum === 0 || mGravNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const height = peGravNum / (mGravNum * gGravNum);
+          hGravEl.value = formatNumber(height);
+          showResult(`الارتفاع = ${formatNumber(height)} m`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(peGravNum !== null && mGravNum !== null && hGravNum !== null){
+          const expectedPE = mGravNum * gGravNum * hGravNum;
+          if(Math.abs(expectedPE - peGravNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون طاقة الوضع الجاذبية PE = mgh');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeSpring(){
+        const peSpringVal = peSpringEl.value.trim();
+        const kSpringVal = kSpringEl.value.trim();
+        const xSpringVal = xSpringEl.value.trim();
+
+        const peSpringNum = parseNum(peSpringVal);
+        const kSpringNum = parseNum(kSpringVal);
+        const xSpringNum = parseNum(xSpringVal);
+
+        const filled = [!isEmpty(peSpringVal), !isEmpty(kSpringVal), !isEmpty(xSpringVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate Potential Energy (PE = 0.5*k*x²)
+        if(isEmpty(peSpringVal) && kSpringNum !== null && xSpringNum !== null){
+          const energy = 0.5 * kSpringNum * xSpringNum * xSpringNum;
+          peSpringEl.value = formatNumber(energy);
+          showResult(`طاقة الوضع المرنة = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate spring constant (k = 2*PE/x²)
+        if(isEmpty(kSpringVal) && peSpringNum !== null && xSpringNum !== null){
+          if(xSpringNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const k = (2 * peSpringNum) / (xSpringNum * xSpringNum);
+          kSpringEl.value = formatNumber(k);
+          showResult(`ثابت النابض = ${formatNumber(k)} N/m`);
+          return;
+        }
+
+        // Calculate displacement (x = sqrt(2*PE/k))
+        if(isEmpty(xSpringVal) && peSpringNum !== null && kSpringNum !== null){
+          if(kSpringNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const x = Math.sqrt((2 * peSpringNum) / kSpringNum);
+          xSpringEl.value = formatNumber(x);
+          showResult(`الإزاحة = ${formatNumber(x)} m`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(peSpringNum !== null && kSpringNum !== null && xSpringNum !== null){
+          const expectedPE = 0.5 * kSpringNum * xSpringNum * xSpringNum;
+          if(Math.abs(expectedPE - peSpringNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون طاقة الوضع المرنة PE = 0.5*k*x²');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeTotal(){
+        const peTotalVal = peTotalEl.value.trim();
+        const mTotalVal = mTotalEl.value.trim();
+        const gTotalVal = gTotalEl.value.trim() || '9.81';
+        const hTotalVal = hTotalEl.value.trim();
+        const kTotalVal = kTotalEl.value.trim();
+        const xTotalVal = xTotalEl.value.trim();
+
+        const peTotalNum = parseNum(peTotalVal);
+        const mTotalNum = parseNum(mTotalVal);
+        const gTotalNum = parseNum(gTotalVal);
+        const hTotalNum = parseNum(hTotalVal);
+        const kTotalNum = parseNum(kTotalVal);
+        const xTotalNum = parseNum(xTotalVal);
+
+        const filled = [!isEmpty(peTotalVal), !isEmpty(mTotalVal), !isEmpty(hTotalVal), !isEmpty(kTotalVal), !isEmpty(xTotalVal)].filter(Boolean).length;
+        if(filled < 4){
+          showResult('الرجاء إدخال أربع قيم على الأقل لحساب الخامسة.');
+          return;
+        }
+
+        // Calculate total potential energy (PE_total = PE_grav + PE_spring)
+        if(isEmpty(peTotalVal) && mTotalNum !== null && hTotalNum !== null && kTotalNum !== null && xTotalNum !== null){
+          const peGrav = mTotalNum * gTotalNum * hTotalNum;
+          const peSpring = 0.5 * kTotalNum * xTotalNum * xTotalNum;
+          const peTotal = peGrav + peSpring;
+          peTotalEl.value = formatNumber(peTotal);
+          showResult(`طاقة الوضع الكلية = ${formatNumber(peTotal)} J (جاذبية: ${formatNumber(peGrav)} J، مرنة: ${formatNumber(peSpring)} J)`);
+          return;
+        }
+
+        // Calculate mass from gravitational PE (m = PE_grav/(g*h))
+        if(isEmpty(mTotalVal) && peTotalNum !== null && hTotalNum !== null && kTotalNum !== null && xTotalNum !== null){
+          const peSpring = 0.5 * kTotalNum * xTotalNum * xTotalNum;
+          const peGrav = peTotalNum - peSpring;
+          if(gTotalNum === 0 || hTotalNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const mass = peGrav / (gTotalNum * hTotalNum);
+          mTotalEl.value = formatNumber(mass);
+          showResult(`الكتلة = ${formatNumber(mass)} kg`);
+          return;
+        }
+
+        // Calculate height from gravitational PE (h = PE_grav/(m*g))
+        if(isEmpty(hTotalVal) && peTotalNum !== null && mTotalNum !== null && kTotalNum !== null && xTotalNum !== null){
+          const peSpring = 0.5 * kTotalNum * xTotalNum * xTotalNum;
+          const peGrav = peTotalNum - peSpring;
+          if(gTotalNum === 0 || mTotalNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const height = peGrav / (mTotalNum * gTotalNum);
+          hTotalEl.value = formatNumber(height);
+          showResult(`الارتفاع = ${formatNumber(height)} m`);
+          return;
+        }
+
+        // Calculate spring constant from elastic PE (k = 2*PE_spring/x²)
+        if(isEmpty(kTotalVal) && peTotalNum !== null && mTotalNum !== null && hTotalNum !== null && xTotalNum !== null){
+          const peGrav = mTotalNum * gTotalNum * hTotalNum;
+          const peSpring = peTotalNum - peGrav;
+          if(xTotalNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const k = (2 * peSpring) / (xTotalNum * xTotalNum);
+          kTotalEl.value = formatNumber(k);
+          showResult(`ثابت النابض = ${formatNumber(k)} N/m`);
+          return;
+        }
+
+        // Calculate displacement from elastic PE (x = sqrt(2*PE_spring/k))
+        if(isEmpty(xTotalVal) && peTotalNum !== null && mTotalNum !== null && hTotalNum !== null && kTotalNum !== null){
+          const peGrav = mTotalNum * gTotalNum * hTotalNum;
+          const peSpring = peTotalNum - peGrav;
+          if(kTotalNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const x = Math.sqrt((2 * peSpring) / kTotalNum);
+          xTotalEl.value = formatNumber(x);
+          showResult(`الإزاحة = ${formatNumber(x)} m`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(peTotalNum !== null && mTotalNum !== null && hTotalNum !== null && kTotalNum !== null && xTotalNum !== null){
+          const peGrav = mTotalNum * gTotalNum * hTotalNum;
+          const peSpring = 0.5 * kTotalNum * xTotalNum * xTotalNum;
+          const expectedPE = peGrav + peSpring;
+          if(Math.abs(expectedPE - peTotalNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قوانين الطاقة');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcGravBtn.addEventListener('click', computeGrav);
+      calcSpringBtn.addEventListener('click', computeSpring);
+      calcTotalBtn.addEventListener('click', computeTotal);
+
+      rBtn.addEventListener('click', function(){
+        peGravEl.value = '';
+        mGravEl.value = '';
+        gGravEl.value = '9.81';
+        hGravEl.value = '';
+        peSpringEl.value = '';
+        kSpringEl.value = '';
+        xSpringEl.value = '';
+        peTotalEl.value = '';
+        mTotalEl.value = '';
+        gTotalEl.value = '9.81';
+        hTotalEl.value = '';
+        kTotalEl.value = '';
+        xTotalEl.value = '';
+        const old = document.getElementById('calc-result');
+        if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [peGravEl, mGravEl, gGravEl, hGravEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeGrav();
+          }
+        });
+      });
+
+      [peSpringEl, kSpringEl, xSpringEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeSpring();
+          }
+        });
+      });
+
+      [peTotalEl, mTotalEl, gTotalEl, hTotalEl, kTotalEl, xTotalEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeTotal();
+          }
+        });
+      });
+    })();
+  </script>
+</body></style>  
+
+

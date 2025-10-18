@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الاتزان</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="f1" type="text" placeholder="(N) القوة الأولى"></input>
+    <input id="f2" type="text" placeholder="(N) القوة الثانية"></input>
+    <input id="theta" type="text" placeholder="(rad) الزاوية بين القوتين"></input>
+    <input id="f_result" type="text" placeholder="(N) القوة الناتجة"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const f1El = document.getElementById('f1');
+      const f2El = document.getElementById('f2');
+      const thetaEl = document.getElementById('theta');
+      const fResultEl = document.getElementById('f_result');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const f1Val = f1El.value.trim();
+        const f2Val = f2El.value.trim();
+        const thetaVal = thetaEl.value.trim();
+        const fResultVal = fResultEl.value.trim();
+
+        const f1Num = parseNum(f1Val);
+        const f2Num = parseNum(f2Val);
+        const thetaNum = parseNum(thetaVal);
+        const fResultNum = parseNum(fResultVal);
+
+        const filled = [!isEmpty(f1Val), !isEmpty(f2Val), !isEmpty(thetaVal), !isEmpty(fResultVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate resultant force (F = sqrt(F1² + F2² + 2*F1*F2*cosθ))
+        if(isEmpty(fResultVal) && f1Num !== null && f2Num !== null && thetaNum !== null){
+          const cosTheta = Math.cos(thetaNum);
+          const resultant = Math.sqrt(f1Num*f1Num + f2Num*f2Num + 2*f1Num*f2Num*cosTheta);
+          fResultEl.value = formatNumber(resultant);
+          showResult(`القوة الناتجة = ${formatNumber(resultant)} N`);
+          return;
+        }
+
+        // Calculate first force (F1 = sqrt(F² + F2² - 2*F*F2*cosθ))
+        if(isEmpty(f1Val) && fResultNum !== null && f2Num !== null && thetaNum !== null){
+          const cosTheta = Math.cos(thetaNum);
+          const arg = fResultNum*fResultNum + f2Num*f2Num - 2*fResultNum*f2Num*cosTheta;
+          if(arg < 0){
+            showResult('خطأ: القيمة المحسوبة سالبة، غير ممكن');
+            return;
+          }
+          const f1 = Math.sqrt(arg);
+          f1El.value = formatNumber(f1);
+          showResult(`القوة الأولى = ${formatNumber(f1)} N`);
+          return;
+        }
+
+        // Calculate second force (F2 = sqrt(F² + F1² - 2*F*F1*cosθ))
+        if(isEmpty(f2Val) && fResultNum !== null && f1Num !== null && thetaNum !== null){
+          const cosTheta = Math.cos(thetaNum);
+          const arg = fResultNum*fResultNum + f1Num*f1Num - 2*fResultNum*f1Num*cosTheta;
+          if(arg < 0){
+            showResult('خطأ: القيمة المحسوبة سالبة، غير ممكن');
+            return;
+          }
+          const f2 = Math.sqrt(arg);
+          f2El.value = formatNumber(f2);
+          showResult(`القوة الثانية = ${formatNumber(f2)} N`);
+          return;
+        }
+
+        // Calculate angle (θ = arccos((F² - F1² - F2²)/(2*F1*F2)))
+        if(isEmpty(thetaVal) && fResultNum !== null && f1Num !== null && f2Num !== null){
+          const arg = (fResultNum*fResultNum - f1Num*f1Num - f2Num*f2Num) / (2*f1Num*f2Num);
+          if(Math.abs(arg) > 1){
+            showResult('خطأ: القيمة المحسوبة خارج النطاق [-1,1]، غير ممكن');
+            return;
+          }
+          const angle = Math.acos(arg);
+          thetaEl.value = formatNumber(angle);
+          showResult(`الزاوية = ${formatNumber(angle)} rad`);
+          return;
+        }
+
+        // all four provided -> validate
+        if(f1Num !== null && f2Num !== null && thetaNum !== null && fResultNum !== null){
+          const cosTheta = Math.cos(thetaNum);
+          const expectedF = Math.sqrt(f1Num*f1Num + f2Num*f2Num + 2*f1Num*f2Num*cosTheta);
+          if(Math.abs(expectedF - fResultNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون التوازن');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        f1El.value = '';
+        f2El.value = '';
+        thetaEl.value = '';
+        fResultEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [f1El, f2El, thetaEl, fResultEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>حساب معيار ريليه</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="lambda" type="text" placeholder="(m) الطول الموجي"></input>
+    <input id="d" type="text" placeholder="(m) قطر الفتحة"></input>
+    <input id="theta" type="text" placeholder="(rad) الزاوية"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const lambdaEl = document.getElementById('lambda');
+      const dEl = document.getElementById('d');
+      const thetaEl = document.getElementById('theta');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const lambdaVal = lambdaEl.value.trim();
+        const dVal = dEl.value.trim();
+        const thetaVal = thetaEl.value.trim();
+
+        const lambdaNum = parseNum(lambdaVal);
+        const dNum = parseNum(dVal);
+        const thetaNum = parseNum(thetaVal);
+
+        const filled = [!isEmpty(lambdaVal), !isEmpty(dVal), !isEmpty(thetaVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate angle (θ = 1.22*λ/d)
+        if(isEmpty(thetaVal) && lambdaNum !== null && dNum !== null){
+          if(dNum === 0){
+            showResult('خطأ: قطر الفتحة لا يمكن أن يكون صفر');
+            return;
+          }
+          const angle = 1.22 * lambdaNum / dNum;
+          thetaEl.value = formatNumber(angle);
+          showResult(`الزاوية = ${formatNumber(angle)} rad`);
+          return;
+        }
+
+        // Calculate wavelength (λ = θ*d/1.22)
+        if(isEmpty(lambdaVal) && thetaNum !== null && dNum !== null){
+          const wavelength = thetaNum * dNum / 1.22;
+          lambdaEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        // Calculate aperture diameter (d = 1.22*λ/θ)
+        if(isEmpty(dVal) && lambdaNum !== null && thetaNum !== null){
+          if(thetaNum === 0){
+            showResult('خطأ: الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const diameter = 1.22 * lambdaNum / thetaNum;
+          dEl.value = formatNumber(diameter);
+          showResult(`قطر الفتحة = ${formatNumber(diameter)} m`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(lambdaNum !== null && dNum !== null && thetaNum !== null){
+          const expectedTheta = 1.22 * lambdaNum / dNum;
+          if(Math.abs(expectedTheta - thetaNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع معيار ريليه θ = 1.22*λ/d');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        lambdaEl.value = '';
+        dEl.value = '';
+        thetaEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [lambdaEl, dEl, thetaEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

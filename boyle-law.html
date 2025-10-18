@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+              <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>قانون بويل</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>قانون بويل: PV = constant (للعمليات شبه الثابتة)</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>في العمليات شبه الثابتة، حاصل ضرب الضغط في الحجم ثابت</p>
+  <p><strong>PV = constant</strong></p>
+  <p>أو: <strong>P₁V₁ = P₂V₂</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>P: الضغط (باسكال)</li>
+    <li>V: الحجم (م³)</li>
+    <li>الرقم 1 و 2 يشيران للحالتين الأولى والثانية</li>
+  </ul>
+
+  <h3>مثال: ضغط أولي 200000 باسكال، حجم أولي 0.01 م³، ضغط ثاني 400000 باسكال</h3>
+  <p>الحجم الثاني = (200000 × 0.01) / 400000 = 0.005 م³</p>
+
+  <h3>حاسبة:</h3>
+  <div>
+    <label for="p_boyle">الضغط (ب):</label>
+    <input id="p_boyle" type="text" placeholder="الضغط">
+    <label for="v_boyle">الحجم (م³):</label>
+    <input id="v_boyle" type="text" placeholder="الحجم">
+    <label for="n_boyle">عدد المولات (مول):</label>
+    <input id="n_boyle" type="text" placeholder="عدد المولات">
+    <label for="r_boyle">ثابت الغازات (ج/مول·ك):</label>
+    <input id="r_boyle" type="text" placeholder="ثابت الغازات" value="8.314">
+    <label for="t_boyle">درجة الحرارة (ك):</label>
+    <input id="t_boyle" type="text" placeholder="درجة الحرارة">
+    <input id="calc_boyle" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const pEl = document.getElementById('p_boyle');
+      const vEl = document.getElementById('v_boyle');
+      const nEl = document.getElementById('n_boyle');
+      const rEl = document.getElementById('r_boyle');
+      const tEl = document.getElementById('t_boyle');
+      const calcBtn = document.getElementById('calc_boyle');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const pVal = pEl.value.trim();
+        const vVal = vEl.value.trim();
+        const nVal = nEl.value.trim();
+        const rVal = rEl.value.trim() || '8.314';
+        const tVal = tEl.value.trim();
+
+        const pNum = parseNum(pVal);
+        const vNum = parseNum(vVal);
+        const nNum = parseNum(nVal);
+        const rNum = parseNum(rVal);
+        const tNum = parseNum(tVal);
+
+        const filled = [!isEmpty(pVal), !isEmpty(vVal), !isEmpty(nVal), !isEmpty(tVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Use ideal gas law: PV = nRT
+        if(isEmpty(pVal) && vNum !== null && nNum !== null && tNum !== null){
+          const pressure = (nNum * rNum * tNum) / vNum;
+          pEl.value = formatNumber(pressure);
+          showResult(`الضغط = ${formatNumber(pressure)} باسكال`);
+          return;
+        }
+
+        if(isEmpty(vVal) && pNum !== null && nNum !== null && tNum !== null){
+          const volume = (nNum * rNum * tNum) / pNum;
+          vEl.value = formatNumber(volume);
+          showResult(`الحجم = ${formatNumber(volume)} م³`);
+          return;
+        }
+
+        if(isEmpty(nVal) && pNum !== null && vNum !== null && tNum !== null){
+          const moles = (pNum * vNum) / (rNum * tNum);
+          nEl.value = formatNumber(moles);
+          showResult(`عدد المولات = ${formatNumber(moles)} مول`);
+          return;
+        }
+
+        if(isEmpty(tVal) && pNum !== null && vNum !== null && nNum !== null){
+          const temperature = (pNum * vNum) / (nNum * rNum);
+          tEl.value = formatNumber(temperature);
+          showResult(`درجة الحرارة = ${formatNumber(temperature)} كلفن`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        pEl.value = '';
+        vEl.value = '';
+        nEl.value = '';
+        rEl.value = '8.314';
+        tEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [pEl, vEl, nEl, rEl, tEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+

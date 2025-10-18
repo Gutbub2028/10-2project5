@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب قانون كبلر الثالث</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="t1" type="text" placeholder="(s) الفترة الأولى"></input>
+    <input id="t2" type="text" placeholder="(s) الفترة الثانية"></input>
+    <input id="r1" type="text" placeholder="(m) المسافة الأولى"></input>
+    <input id="r2" type="text" placeholder="(m) المسافة الثانية"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const t1El = document.getElementById('t1');
+      const t2El = document.getElementById('t2');
+      const r1El = document.getElementById('r1');
+      const r2El = document.getElementById('r2');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const t1Val = t1El.value.trim();
+        const t2Val = t2El.value.trim();
+        const r1Val = r1El.value.trim();
+        const r2Val = r2El.value.trim();
+
+        const t1Num = parseNum(t1Val);
+        const t2Num = parseNum(t2Val);
+        const r1Num = parseNum(r1Val);
+        const r2Num = parseNum(r2Val);
+
+        const filled = [!isEmpty(t1Val), !isEmpty(t2Val), !isEmpty(r1Val), !isEmpty(r2Val)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate period (T2 = T1 * (r2/r1)^(3/2))
+        if(isEmpty(t2Val) && t1Num !== null && r1Num !== null && r2Num !== null){
+          if(r1Num === 0){
+            showResult('خطأ: المسافة الأولى لا يمكن أن تكون صفر');
+            return;
+          }
+          const period = t1Num * Math.pow(r2Num / r1Num, 1.5);
+          t2El.value = formatNumber(period);
+          showResult(`الفترة الثانية = ${formatNumber(period)} s`);
+          return;
+        }
+
+        // Calculate period (T1 = T2 / (r2/r1)^(3/2))
+        if(isEmpty(t1Val) && t2Num !== null && r1Num !== null && r2Num !== null){
+          if(r2Num === 0){
+            showResult('خطأ: المسافة الثانية لا يمكن أن تكون صفر');
+            return;
+          }
+          const period = t2Num / Math.pow(r2Num / r1Num, 1.5);
+          t1El.value = formatNumber(period);
+          showResult(`الفترة الأولى = ${formatNumber(period)} s`);
+          return;
+        }
+
+        // Calculate distance (r2 = r1 * (T2/T1)^(2/3))
+        if(isEmpty(r2Val) && r1Num !== null && t1Num !== null && t2Num !== null){
+          if(t1Num === 0){
+            showResult('خطأ: الفترة الأولى لا يمكن أن تكون صفر');
+            return;
+          }
+          const distance = r1Num * Math.pow(t2Num / t1Num, 2/3);
+          r2El.value = formatNumber(distance);
+          showResult(`المسافة الثانية = ${formatNumber(distance)} m`);
+          return;
+        }
+
+        // Calculate distance (r1 = r2 / (T2/T1)^(2/3))
+        if(isEmpty(r1Val) && r2Num !== null && t1Num !== null && t2Num !== null){
+          if(t2Num === 0){
+            showResult('خطأ: الفترة الثانية لا يمكن أن تكون صفر');
+            return;
+          }
+          const distance = r2Num / Math.pow(t2Num / t1Num, 2/3);
+          r1El.value = formatNumber(distance);
+          showResult(`المسافة الأولى = ${formatNumber(distance)} m`);
+          return;
+        }
+
+        // all four provided -> validate
+        if(t1Num !== null && t2Num !== null && r1Num !== null && r2Num !== null){
+          const expectedT2 = t1Num * Math.pow(r2Num / r1Num, 1.5);
+          if(Math.abs(expectedT2 - t2Num) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون كبلر الثالث T² ∝ r³');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        t1El.value = '';
+        t2El.value = '';
+        r1El.value = '';
+        r2El.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [t1El, t2El, r1El, r2El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

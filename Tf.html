@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2> </h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="t" type="text" placeholder="(s) الزمن الدوري "></input>
+    <input id="f" type="text" placeholder="(Hz) التردد"></input>
+    <input id="s" type="button" value="تاكيد"></input>
+    <input id="r" type="button" value="اعادة"></input>
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const T = document.getElementById('t');
+      const f  = document.getElementById('f');
+      const s = document.getElementById('s');
+      const r = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const Tv = T.value.trim();
+        const fv = f.value.trim();
+
+        const Tn = parseNum(Tv);
+        const fn = parseNum(fv);
+
+        const filled = [!isEmpty(Tv), !isEmpty(fv)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء ادخال قيمة لايجاد الاخرى.');
+          return;
+        }
+
+        if(isEmpty(Tv) && fn !== null){
+          const  t=1/fn ;
+          T.value = formatNumber(t);
+          showResult(` الزمن الدوري= ${formatNumber(t)} `);
+          return;
+        }
+
+        
+        if(isEmpty(fv) &&  Tn!== null){
+          const res =  1/Tn ;
+          f.value = formatNumber(res);
+          showResult(` التردد= ${formatNumber(res)} `);
+          return;
+        }
+
+        
+
+        // all three provided -> validate and show computed v
+        if( Tn!== null &&  fn!== null){
+           showResult('خطأ.'); return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      s.addEventListener('click', compute);
+      r.addEventListener('click', function(){
+        T.value = '';
+        f.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [ T, f].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

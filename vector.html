@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب المتجهات</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 15px;
+    }
+    label {
+      display: inline-block;
+      width: 150px;
+      margin-right: 10px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="calcu.html">الصفحة الرئيسة</a>
+  </header>
+  <h2>حساب المتجهات</h2>
+  <p>ادخل المعطيات و اذا تريد حساب قيمة اجعل خانتها فارغة</p>
+  <div>
+    <label for="r">محصلة المتجهات:</label>
+    <input id="r" type="text" placeholder="(units) المحصلة">
+    <label for="v1">المتجه الأول:</label>
+    <input id="v1" type="text" placeholder="(units) المتجه الأول">
+    <label for="v2">المتجه الثاني:</label>
+    <input id="v2" type="text" placeholder="(units) المتجه الثاني">
+    <label for="angle">الزاوية بين المتجهين:</label>
+    <input id="angle" type="text" placeholder="(degrees) الزاوية">
+    <input id="s" type="button" value="تاكيد">
+    <input id="reset" type="button" value="اعادة">
+  </div>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+  <script>
+    (function(){
+      const r = document.getElementById('r');
+      const v1 = document.getElementById('v1');
+      const v2 = document.getElementById('v2');
+      const angle = document.getElementById('angle');
+      const sBtn = document.getElementById('s');
+      const resetBtn = document.getElementById('reset');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const rVal = r.value.trim();
+        const v1Val = v1.value.trim();
+        const v2Val = v2.value.trim();
+        const angleVal = angle.value.trim();
+
+        const rNum = parseNum(rVal);
+        const v1Num = parseNum(v1Val);
+        const v2Num = parseNum(v2Val);
+        const angleNum = parseNum(angleVal);
+
+        const filled = [!isEmpty(rVal), !isEmpty(v1Val), !isEmpty(v2Val), !isEmpty(angleVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Convert angle to radians for calculations
+        const angleRad = angleNum * Math.PI / 180;
+
+        // Calculate resultant (r) using vector addition formula: r² = v1² + v2² + 2v1v2cos(θ)
+        if(isEmpty(rVal) && v1Num !== null && v2Num !== null && angleNum !== null){
+          const resultant = Math.sqrt(Math.pow(v1Num, 2) + Math.pow(v2Num, 2) + 
+                           2 * v1Num * v2Num * Math.cos(angleRad));
+          r.value = formatNumber(resultant);
+          showResult(`محصلة المتجهات = ${formatNumber(resultant)} units`);
+          return;
+        }
+
+        // Calculate v1 if missing
+        if(isEmpty(v1Val) && rNum !== null && v2Num !== null && angleNum !== null){
+          const cosAngle = Math.cos(angleRad);
+          const a = 1;
+          const b = 2 * v2Num * cosAngle;
+          const c = v2Num * v2Num - rNum * rNum;
+          const discriminant = b * b - 4 * a * c;
+          
+          if(discriminant < 0){
+            showResult('خطأ: لا يوجد حل حقيقي للمعادلة');
+            return;
+          }
+          
+          const v1_1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+          const v1_2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+          
+          if(v1_1 > 0){
+            v1.value = formatNumber(v1_1);
+            showResult(`المتجه الأول = ${formatNumber(v1_1)} units`);
+          } else if(v1_2 > 0){
+            v1.value = formatNumber(v1_2);
+            showResult(`المتجه الأول = ${formatNumber(v1_2)} units`);
+          } else {
+            showResult('خطأ: لا يوجد حل موجب للمعادلة');
+          }
+          return;
+        }
+
+        // Calculate v2 if missing (similar to v1)
+        if(isEmpty(v2Val) && rNum !== null && v1Num !== null && angleNum !== null){
+          const cosAngle = Math.cos(angleRad);
+          const a = 1;
+          const b = 2 * v1Num * cosAngle;
+          const c = v1Num * v1Num - rNum * rNum;
+          const discriminant = b * b - 4 * a * c;
+          
+          if(discriminant < 0){
+            showResult('خطأ: لا يوجد حل حقيقي للمعادلة');
+            return;
+          }
+          
+          const v2_1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+          const v2_2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+          
+          if(v2_1 > 0){
+            v2.value = formatNumber(v2_1);
+            showResult(`المتجه الثاني = ${formatNumber(v2_1)} units`);
+          } else if(v2_2 > 0){
+            v2.value = formatNumber(v2_2);
+            showResult(`المتجه الثاني = ${formatNumber(v2_2)} units`);
+          } else {
+            showResult('خطأ: لا يوجد حل موجب للمعادلة');
+          }
+          return;
+        }
+
+        // Calculate angle if missing
+        if(isEmpty(angleVal) && rNum !== null && v1Num !== null && v2Num !== null){
+          const cosTheta = (rNum * rNum - v1Num * v1Num - v2Num * v2Num) / (2 * v1Num * v2Num);
+          if(cosTheta < -1 || cosTheta > 1){
+            showResult('خطأ: القيم المعطاة لا تشكل مثلثاً صحيحاً');
+            return;
+          }
+          const angleDeg = Math.acos(cosTheta) * 180 / Math.PI;
+          angle.value = formatNumber(angleDeg);
+          showResult(`الزاوية = ${formatNumber(angleDeg)} درجة`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(rNum !== null && v1Num !== null && v2Num !== null && angleNum !== null){
+          const expectedR = Math.sqrt(Math.pow(v1Num, 2) + Math.pow(v2Num, 2) + 
+                           2 * v1Num * v2Num * Math.cos(angleRad));
+          if(Math.abs(expectedR - rNum) < 0.000001){
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون جمع المتجهات');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      resetBtn.addEventListener('click', function(){
+        r.value = '';
+        v1.value = '';
+        v2.value = '';
+        angle.value = '';
+        const old = document.getElementById('calc-result');
+        if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [r, v1, v2, angle].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

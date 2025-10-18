@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب السعة الكهربائية</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب السعة الكهربائية</h2>
+
+  <h3>1. سعة المكثف الموازي اللوحي: C = ε₀ × εᵣ × A / d</h3>
+  <div>
+    <label for="c_parallel">السعة:</label>
+    <input id="c_parallel" type="text" placeholder="(F) السعة">
+    <label for="epsilon_r">النسبة الديالكتريكية:</label>
+    <input id="epsilon_r" type="text" placeholder="(εᵣ) النسبة الديالكتريكية" value="1">
+    <label for="a_parallel">المساحة:</label>
+    <input id="a_parallel" type="text" placeholder="(m²) المساحة">
+    <label for="d_parallel">المسافة:</label>
+    <input id="d_parallel" type="text" placeholder="(m) المسافة">
+    <input id="calc_parallel" type="button" value="حساب">
+  </div>
+
+  <h3>2. طاقة المكثف: E = 0.5 × C × V²</h3>
+  <div>
+    <label for="e_cap">الطاقة:</label>
+    <input id="e_cap" type="text" placeholder="(J) الطاقة">
+    <label for="c_energy">السعة:</label>
+    <input id="c_energy" type="text" placeholder="(F) السعة">
+    <label for="v_energy">الجهد:</label>
+    <input id="v_energy" type="text" placeholder="(V) الجهد">
+    <input id="calc_energy" type="button" value="حساب">
+  </div>
+
+  <h3>3. سعة مكثفين متصلين سلسلة: 1/C_total = 1/C₁ + 1/C₂</h3>
+  <div>
+    <label for="c_series_total">السعة الكلية:</label>
+    <input id="c_series_total" type="text" placeholder="(F) السعة الكلية">
+    <label for="c1_series">السعة الأولى:</label>
+    <input id="c1_series" type="text" placeholder="(F) السعة الأولى">
+    <label for="c2_series">السعة الثانية:</label>
+    <input id="c2_series" type="text" placeholder="(F) السعة الثانية">
+    <input id="calc_series" type="button" value="حساب">
+  </div>
+
+  <h3>4. سعة مكثفين متصلين متوازي: C_total = C₁ + C₂</h3>
+  <div>
+    <label for="c_parallel_total">السعة الكلية:</label>
+    <input id="c_parallel_total" type="text" placeholder="(F) السعة الكلية">
+    <label for="c1_parallel">السعة الأولى:</label>
+    <input id="c1_parallel" type="text" placeholder="(F) السعة الأولى">
+    <label for="c2_parallel">السعة الثانية:</label>
+    <input id="c2_parallel" type="text" placeholder="(F) السعة الثانية">
+    <input id="calc_parallel_total" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const cParallelEl = document.getElementById('c_parallel');
+      const epsilonREl = document.getElementById('epsilon_r');
+      const aParallelEl = document.getElementById('a_parallel');
+      const dParallelEl = document.getElementById('d_parallel');
+      const calcParallelBtn = document.getElementById('calc_parallel');
+
+      const eCapEl = document.getElementById('e_cap');
+      const cEnergyEl = document.getElementById('c_energy');
+      const vEnergyEl = document.getElementById('v_energy');
+      const calcEnergyBtn = document.getElementById('calc_energy');
+
+      const cSeriesTotalEl = document.getElementById('c_series_total');
+      const c1SeriesEl = document.getElementById('c1_series');
+      const c2SeriesEl = document.getElementById('c2_series');
+      const calcSeriesBtn = document.getElementById('calc_series');
+
+      const cParallelTotalEl = document.getElementById('c_parallel_total');
+      const c1ParallelEl = document.getElementById('c1_parallel');
+      const c2ParallelEl = document.getElementById('c2_parallel');
+      const calcParallelTotalBtn = document.getElementById('calc_parallel_total');
+
+      const rBtn = document.getElementById('r');
+
+      const epsilon0 = 8.85e-12; // Permittivity of free space
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeParallel(){
+        const cParallelVal = cParallelEl.value.trim();
+        const epsilonRVal = epsilonREl.value.trim() || '1';
+        const aParallelVal = aParallelEl.value.trim();
+        const dParallelVal = dParallelEl.value.trim();
+
+        const cParallelNum = parseNum(cParallelVal);
+        const epsilonRNum = parseNum(epsilonRVal);
+        const aParallelNum = parseNum(aParallelVal);
+        const dParallelNum = parseNum(dParallelVal);
+
+        const filled = [!isEmpty(cParallelVal), !isEmpty(aParallelVal), !isEmpty(dParallelVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate capacitance (C = ε₀ × εᵣ × A / d)
+        if(isEmpty(cParallelVal) && aParallelNum !== null && dParallelNum !== null){
+          if(dParallelNum === 0){
+            showResult('خطأ: المسافة لا يمكن أن تكون صفر');
+            return;
+          }
+          const capacitance = epsilon0 * epsilonRNum * aParallelNum / dParallelNum;
+          cParallelEl.value = formatNumber(capacitance);
+          showResult(`السعة = ${formatNumber(capacitance)} F`);
+          return;
+        }
+
+        // Calculate area (A = C × d / (ε₀ × εᵣ))
+        if(isEmpty(aParallelVal) && cParallelNum !== null && dParallelNum !== null){
+          if(epsilon0 * epsilonRNum === 0){
+            showResult('خطأ: ثابت السماحية لا يمكن أن يكون صفر');
+            return;
+          }
+          const area = cParallelNum * dParallelNum / (epsilon0 * epsilonRNum);
+          aParallelEl.value = formatNumber(area);
+          showResult(`المساحة = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        // Calculate distance (d = ε₀ × εᵣ × A / C)
+        if(isEmpty(dParallelVal) && cParallelNum !== null && aParallelNum !== null){
+          if(cParallelNum === 0){
+            showResult('خطأ: السعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const distance = epsilon0 * epsilonRNum * aParallelNum / cParallelNum;
+          dParallelEl.value = formatNumber(distance);
+          showResult(`المسافة = ${formatNumber(distance)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEnergy(){
+        const eCapVal = eCapEl.value.trim();
+        const cEnergyVal = cEnergyEl.value.trim();
+        const vEnergyVal = vEnergyEl.value.trim();
+
+        const eCapNum = parseNum(eCapVal);
+        const cEnergyNum = parseNum(cEnergyVal);
+        const vEnergyNum = parseNum(vEnergyVal);
+
+        const filled = [!isEmpty(eCapVal), !isEmpty(cEnergyVal), !isEmpty(vEnergyVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate energy (E = 0.5 × C × V²)
+        if(isEmpty(eCapVal) && cEnergyNum !== null && vEnergyNum !== null){
+          const energy = 0.5 * cEnergyNum * vEnergyNum * vEnergyNum;
+          eCapEl.value = formatNumber(energy);
+          showResult(`الطاقة = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate capacitance (C = 2 × E / V²)
+        if(isEmpty(cEnergyVal) && eCapNum !== null && vEnergyNum !== null){
+          if(vEnergyNum === 0){
+            showResult('خطأ: الجهد لا يمكن أن يكون صفر');
+            return;
+          }
+          const capacitance = 2 * eCapNum / (vEnergyNum * vEnergyNum);
+          cEnergyEl.value = formatNumber(capacitance);
+          showResult(`السعة = ${formatNumber(capacitance)} F`);
+          return;
+        }
+
+        // Calculate voltage (V = sqrt(2 × E / C))
+        if(isEmpty(vEnergyVal) && eCapNum !== null && cEnergyNum !== null){
+          if(cEnergyNum === 0){
+            showResult('خطأ: السعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const voltage = Math.sqrt(2 * eCapNum / cEnergyNum);
+          vEnergyEl.value = formatNumber(voltage);
+          showResult(`الجهد = ${formatNumber(voltage)} V`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeSeries(){
+        const cSeriesTotalVal = cSeriesTotalEl.value.trim();
+        const c1SeriesVal = c1SeriesEl.value.trim();
+        const c2SeriesVal = c2SeriesEl.value.trim();
+
+        const cSeriesTotalNum = parseNum(cSeriesTotalVal);
+        const c1SeriesNum = parseNum(c1SeriesVal);
+        const c2SeriesNum = parseNum(c2SeriesVal);
+
+        const filled = [!isEmpty(cSeriesTotalVal), !isEmpty(c1SeriesVal), !isEmpty(c2SeriesVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate total capacitance (1/C_total = 1/C₁ + 1/C₂)
+        if(isEmpty(cSeriesTotalVal) && c1SeriesNum !== null && c2SeriesNum !== null){
+          if(c1SeriesNum === 0 || c2SeriesNum === 0){
+            showResult('خطأ: السعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const cTotal = 1 / (1/c1SeriesNum + 1/c2SeriesNum);
+          cSeriesTotalEl.value = formatNumber(cTotal);
+          showResult(`السعة الكلية = ${formatNumber(cTotal)} F`);
+          return;
+        }
+
+        // Calculate C1 (1/C₁ = 1/C_total - 1/C₂)
+        if(isEmpty(c1SeriesVal) && cSeriesTotalNum !== null && c2SeriesNum !== null){
+          if(cSeriesTotalNum === 0 || c2SeriesNum === 0){
+            showResult('خطأ: السعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const c1 = 1 / (1/cSeriesTotalNum - 1/c2SeriesNum);
+          c1SeriesEl.value = formatNumber(c1);
+          showResult(`السعة الأولى = ${formatNumber(c1)} F`);
+          return;
+        }
+
+        // Calculate C2 (1/C₂ = 1/C_total - 1/C₁)
+        if(isEmpty(c2SeriesVal) && cSeriesTotalNum !== null && c1SeriesNum !== null){
+          if(cSeriesTotalNum === 0 || c1SeriesNum === 0){
+            showResult('خطأ: السعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const c2 = 1 / (1/cSeriesTotalNum - 1/c1SeriesNum);
+          c2SeriesEl.value = formatNumber(c2);
+          showResult(`السعة الثانية = ${formatNumber(c2)} F`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeParallelTotal(){
+        const cParallelTotalVal = cParallelTotalEl.value.trim();
+        const c1ParallelVal = c1ParallelEl.value.trim();
+        const c2ParallelVal = c2ParallelEl.value.trim();
+
+        const cParallelTotalNum = parseNum(cParallelTotalVal);
+        const c1ParallelNum = parseNum(c1ParallelVal);
+        const c2ParallelNum = parseNum(c2ParallelVal);
+
+        const filled = [!isEmpty(cParallelTotalVal), !isEmpty(c1ParallelVal), !isEmpty(c2ParallelVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate total capacitance (C_total = C₁ + C₂)
+        if(isEmpty(cParallelTotalVal) && c1ParallelNum !== null && c2ParallelNum !== null){
+          const cTotal = c1ParallelNum + c2ParallelNum;
+          cParallelTotalEl.value = formatNumber(cTotal);
+          showResult(`السعة الكلية = ${formatNumber(cTotal)} F`);
+          return;
+        }
+
+        // Calculate C1 (C₁ = C_total - C₂)
+        if(isEmpty(c1ParallelVal) && cParallelTotalNum !== null && c2ParallelNum !== null){
+          const c1 = cParallelTotalNum - c2ParallelNum;
+          c1ParallelEl.value = formatNumber(c1);
+          showResult(`السعة الأولى = ${formatNumber(c1)} F`);
+          return;
+        }
+
+        // Calculate C2 (C₂ = C_total - C₁)
+        if(isEmpty(c2ParallelVal) && cParallelTotalNum !== null && c1ParallelNum !== null){
+          const c2 = cParallelTotalNum - c1ParallelNum;
+          c2ParallelEl.value = formatNumber(c2);
+          showResult(`السعة الثانية = ${formatNumber(c2)} F`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcParallelBtn.addEventListener('click', computeParallel);
+      calcEnergyBtn.addEventListener('click', computeEnergy);
+      calcSeriesBtn.addEventListener('click', computeSeries);
+      calcParallelTotalBtn.addEventListener('click', computeParallelTotal);
+
+      rBtn.addEventListener('click', function(){
+        cParallelEl.value = '';
+        epsilonREl.value = '1';
+        aParallelEl.value = '';
+        dParallelEl.value = '';
+        eCapEl.value = '';
+        cEnergyEl.value = '';
+        vEnergyEl.value = '';
+        cSeriesTotalEl.value = '';
+        c1SeriesEl.value = '';
+        c2SeriesEl.value = '';
+        cParallelTotalEl.value = '';
+        c1ParallelEl.value = '';
+        c2ParallelEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [cParallelEl, epsilonREl, aParallelEl, dParallelEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeParallel();
+          }
+        });
+      });
+
+      [eCapEl, cEnergyEl, vEnergyEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEnergy();
+          }
+        });
+      });
+
+      [cSeriesTotalEl, c1SeriesEl, c2SeriesEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeSeries();
+          }
+        });
+      });
+
+      [cParallelTotalEl, c1ParallelEl, c2ParallelEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeParallelTotal();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

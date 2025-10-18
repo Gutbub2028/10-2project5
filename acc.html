@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب التسارع</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="calcu.html">الصفحة الرئيسة</a>
+  </header>
+  <h2>حساب التسارع</h2>
+  <p>ادخل المعطيات و اذا تريد حساب قيمة اجعل خانتها فارغة</p>
+  <div>
+    <label for="a">التسارع:</label>
+    <input id="a" type="text" placeholder="(m/s²) التسارع">
+    <label for="dv">تغير السرعة:</label>
+    <input id="dv" type="text" placeholder="(m/s) تغير السرعة">
+    <label for="t">الزمن:</label>
+    <input id="t" type="text" placeholder="(s) الزمن">
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+  </div>
+  <a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+  <script>
+    (function(){
+      const a = document.getElementById('a');
+      const dv = document.getElementById('dv');
+      const t = document.getElementById('t');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const aVal = a.value.trim();
+        const dvVal = dv.value.trim();
+        const tVal = t.value.trim();
+
+        const aNum = parseNum(aVal);
+        const dvNum = parseNum(dvVal);
+        const tNum = parseNum(tVal);
+
+        const filled = [!isEmpty(aVal), !isEmpty(dvVal), !isEmpty(tVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate acceleration (a = Δv/t)
+        if(isEmpty(aVal) && dvNum !== null && tNum !== null){
+          if(tNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const acc = dvNum / tNum;
+          a.value = formatNumber(acc);
+          showResult(`التسارع = ${formatNumber(acc)} m/s²`);
+          return;
+        }
+
+        // Calculate velocity change (Δv = at)
+        if(isEmpty(dvVal) && aNum !== null && tNum !== null){
+          const deltaV = aNum * tNum;
+          dv.value = formatNumber(deltaV);
+          showResult(`تغير السرعة = ${formatNumber(deltaV)} m/s`);
+          return;
+        }
+
+        // Calculate time (t = Δv/a)
+        if(isEmpty(tVal) && dvNum !== null && aNum !== null){
+          if(aNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const time = dvNum / aNum;
+          t.value = formatNumber(time);
+          showResult(`الزمن = ${formatNumber(time)} s`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(aNum !== null && dvNum !== null && tNum !== null){
+          if(tNum === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const expectedA = dvNum / tNum;
+          if(Math.abs(expectedA - aNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون التسارع a = Δv/t');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        a.value = '';
+        dv.value = '';
+        t.value = '';
+        const old = document.getElementById('calc-result');
+        if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [a, dv, t].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body></style>  
+

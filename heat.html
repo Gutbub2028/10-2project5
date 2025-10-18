@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب درجة الانصهار و الغليان</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="q" type="text" placeholder="(J) الحرارة المضافة"></input>
+    <input id="m" type="text" placeholder="(kg) الكتلة"></input>
+    <input id="l" type="text" placeholder="(J/kg) حرارة الانصهار أو الغليان"></input>
+    <input id="t" type="text" placeholder="(°C) درجة الانصهار أو الغليان"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const qEl = document.getElementById('q');
+      const mEl = document.getElementById('m');
+      const lEl = document.getElementById('l');
+      const tEl = document.getElementById('t');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const qVal = qEl.value.trim();
+        const mVal = mEl.value.trim();
+        const lVal = lEl.value.trim();
+        const tVal = tEl.value.trim();
+
+        const qNum = parseNum(qVal);
+        const mNum = parseNum(mVal);
+        const lNum = parseNum(lVal);
+        const tNum = parseNum(tVal);
+
+        const filled = [!isEmpty(qVal), !isEmpty(mVal), !isEmpty(lVal), !isEmpty(tVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate heat added (Q = m*L)
+        if(isEmpty(qVal) && mNum !== null && lNum !== null){
+          const heat = mNum * lNum;
+          qEl.value = formatNumber(heat);
+          showResult(`الحرارة المضافة = ${formatNumber(heat)} J`);
+          return;
+        }
+
+        // Calculate mass (m = Q/L)
+        if(isEmpty(mVal) && qNum !== null && lNum !== null){
+          if(lNum === 0){
+            showResult('خطأ: حرارة الانصهار أو الغليان لا يمكن أن تكون صفر');
+            return;
+          }
+          const mass = qNum / lNum;
+          mEl.value = formatNumber(mass);
+          showResult(`الكتلة = ${formatNumber(mass)} kg`);
+          return;
+        }
+
+        // Calculate latent heat (L = Q/m)
+        if(isEmpty(lVal) && qNum !== null && mNum !== null){
+          if(mNum === 0){
+            showResult('خطأ: الكتلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const latentHeat = qNum / mNum;
+          lEl.value = formatNumber(latentHeat);
+          showResult(`حرارة الانصهار أو الغليان = ${formatNumber(latentHeat)} J/kg`);
+          return;
+        }
+
+        // Calculate temperature (this is just a placeholder - temperature is constant during phase change)
+        if(isEmpty(tVal) && qNum !== null && mNum !== null && lNum !== null){
+          showResult('درجة الحرارة ثابتة أثناء الانصهار أو الغليان');
+          return;
+        }
+
+        // all four provided -> validate
+        if(qNum !== null && mNum !== null && lNum !== null && tNum !== null){
+          const expectedQ = mNum * lNum;
+          if(Math.abs(expectedQ - qNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع Q = m*L');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        qEl.value = '';
+        mEl.value = '';
+        lEl.value = '';
+        tEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [qEl, mEl, lEl, tEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

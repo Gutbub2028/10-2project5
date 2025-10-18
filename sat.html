@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>حساب بعد القمر الصناعي</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="t" type="text" placeholder="(s) الفترة الزمنية"></input>
+    <input id="r" type="text" placeholder="(m) البعد عن مركز الأرض"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="reset" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const tEl = document.getElementById('t');
+      const rEl = document.getElementById('r');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('reset');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const tVal = tEl.value.trim();
+        const rVal = rEl.value.trim();
+
+        const tNum = parseNum(tVal);
+        const rNum = parseNum(rVal);
+
+        const filled = [!isEmpty(tVal), !isEmpty(rVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate distance (r = (G*M*T²/(4*π²))^(1/3))
+        if(isEmpty(rVal) && tNum !== null){
+          const G = 6.67430e-11; // gravitational constant
+          const M = 5.972e24; // Earth mass
+          const r = Math.pow((G * M * tNum * tNum) / (4 * Math.PI * Math.PI), 1/3);
+          rEl.value = formatNumber(r);
+          showResult(`البعد عن مركز الأرض = ${formatNumber(r)} m`);
+          return;
+        }
+
+        // Calculate period (T = 2*π*sqrt(r³/(G*M)))
+        if(isEmpty(tVal) && rNum !== null){
+          const G = 6.67430e-11; // gravitational constant
+          const M = 5.972e24; // Earth mass
+          const t = 2 * Math.PI * Math.sqrt((rNum * rNum * rNum) / (G * M));
+          tEl.value = formatNumber(t);
+          showResult(`الفترة الزمنية = ${formatNumber(t)} s`);
+          return;
+        }
+
+        // both provided -> validate
+        if(tNum !== null && rNum !== null){
+          const G = 6.67430e-11; // gravitational constant
+          const M = 5.972e24; // Earth mass
+          const expectedR = Math.pow((G * M * tNum * tNum) / (4 * Math.PI * Math.PI), 1/3);
+          if(Math.abs(expectedR - rNum) < 1000) { // allow some tolerance for large numbers
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون كبلر الثالث');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        tEl.value = '';
+        rEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [tEl, rEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

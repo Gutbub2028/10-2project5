@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب الملف الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الملف الكهربائي</h2>
+
+  <h3>1. معاوقة الملف الملفوف: L = μ₀ × μᵣ × N² × A / l</h3>
+  <div>
+    <label for="l_solenoid">المعاوقة المغناطيسية:</label>
+    <input id="l_solenoid" type="text" placeholder="(H) المعاوقة المغناطيسية">
+    <label for="mu_r">النسبة المغناطيسية:</label>
+    <input id="mu_r" type="text" placeholder="(μᵣ) النسبة المغناطيسية" value="1">
+    <label for="n_solenoid">عدد اللفات:</label>
+    <input id="n_solenoid" type="text" placeholder="(N) عدد اللفات">
+    <label for="a_solenoid">المقطع العرضي:</label>
+    <input id="a_solenoid" type="text" placeholder="(m²) المقطع العرضي">
+    <label for="l_length">الطول:</label>
+    <input id="l_length" type="text" placeholder="(m) الطول">
+    <input id="calc_solenoid" type="button" value="حساب">
+  </div>
+
+  <h3>2. طاقة الملف: E = 0.5 × L × I²</h3>
+  <div>
+    <label for="e_inductor">الطاقة:</label>
+    <input id="e_inductor" type="text" placeholder="(J) الطاقة">
+    <label for="l_energy">المعاوقة المغناطيسية:</label>
+    <input id="l_energy" type="text" placeholder="(H) المعاوقة المغناطيسية">
+    <label for="i_energy">التيار:</label>
+    <input id="i_energy" type="text" placeholder="(A) التيار">
+    <input id="calc_energy_ind" type="button" value="حساب">
+  </div>
+
+  <h3>3. معاوقة ملفين متصلين سلسلة: L_total = L₁ + L₂</h3>
+  <div>
+    <label for="l_series_total">المعاوقة الكلية:</label>
+    <input id="l_series_total" type="text" placeholder="(H) المعاوقة الكلية">
+    <label for="l1_series">المعاوقة الأولى:</label>
+    <input id="l1_series" type="text" placeholder="(H) المعاوقة الأولى">
+    <label for="l2_series">المعاوقة الثانية:</label>
+    <input id="l2_series" type="text" placeholder="(H) المعاوقة الثانية">
+    <input id="calc_series_ind" type="button" value="حساب">
+  </div>
+
+  <h3>4. معاوقة ملفين متصلين متوازي: 1/L_total = 1/L₁ + 1/L₂</h3>
+  <div>
+    <label for="l_parallel_total">المعاوقة الكلية:</label>
+    <input id="l_parallel_total" type="text" placeholder="(H) المعاوقة الكلية">
+    <label for="l1_parallel">المعاوقة الأولى:</label>
+    <input id="l1_parallel" type="text" placeholder="(H) المعاوقة الأولى">
+    <label for="l2_parallel">المعاوقة الثانية:</label>
+    <input id="l2_parallel" type="text" placeholder="(H) المعاوقة الثانية">
+    <input id="calc_parallel_ind" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const lSolenoidEl = document.getElementById('l_solenoid');
+      const muREl = document.getElementById('mu_r');
+      const nSolenoidEl = document.getElementById('n_solenoid');
+      const aSolenoidEl = document.getElementById('a_solenoid');
+      const lLengthEl = document.getElementById('l_length');
+      const calcSolenoidBtn = document.getElementById('calc_solenoid');
+
+      const eInductorEl = document.getElementById('e_inductor');
+      const lEnergyEl = document.getElementById('l_energy');
+      const iEnergyEl = document.getElementById('i_energy');
+      const calcEnergyIndBtn = document.getElementById('calc_energy_ind');
+
+      const lSeriesTotalEl = document.getElementById('l_series_total');
+      const l1SeriesEl = document.getElementById('l1_series');
+      const l2SeriesEl = document.getElementById('l2_series');
+      const calcSeriesIndBtn = document.getElementById('calc_series_ind');
+
+      const lParallelTotalEl = document.getElementById('l_parallel_total');
+      const l1ParallelEl = document.getElementById('l1_parallel');
+      const l2ParallelEl = document.getElementById('l2_parallel');
+      const calcParallelIndBtn = document.getElementById('calc_parallel_ind');
+
+      const rBtn = document.getElementById('r');
+
+      const mu0 = 4 * Math.PI * 1e-7; // Permeability of free space
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeSolenoid(){
+        const lSolenoidVal = lSolenoidEl.value.trim();
+        const muRVal = muREl.value.trim() || '1';
+        const nSolenoidVal = nSolenoidEl.value.trim();
+        const aSolenoidVal = aSolenoidEl.value.trim();
+        const lLengthVal = lLengthEl.value.trim();
+
+        const lSolenoidNum = parseNum(lSolenoidVal);
+        const muRNum = parseNum(muRVal);
+        const nSolenoidNum = parseNum(nSolenoidVal);
+        const aSolenoidNum = parseNum(aSolenoidVal);
+        const lLengthNum = parseNum(lLengthVal);
+
+        const filled = [!isEmpty(lSolenoidVal), !isEmpty(nSolenoidVal), !isEmpty(aSolenoidVal), !isEmpty(lLengthVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate inductance (L = μ₀ × μᵣ × N² × A / l)
+        if(isEmpty(lSolenoidVal) && nSolenoidNum !== null && aSolenoidNum !== null && lLengthNum !== null){
+          if(lLengthNum === 0){
+            showResult('خطأ: الطول لا يمكن أن يكون صفر');
+            return;
+          }
+          const inductance = mu0 * muRNum * nSolenoidNum * nSolenoidNum * aSolenoidNum / lLengthNum;
+          lSolenoidEl.value = formatNumber(inductance);
+          showResult(`المعاوقة المغناطيسية = ${formatNumber(inductance)} H`);
+          return;
+        }
+
+        // Calculate turns (N = sqrt(L × l / (μ₀ × μᵣ × A)))
+        if(isEmpty(nSolenoidVal) && lSolenoidNum !== null && aSolenoidNum !== null && lLengthNum !== null){
+          if(mu0 * muRNum * aSolenoidNum === 0){
+            showResult('خطأ: ثابت النفاذية أو المقطع العرضي لا يمكن أن يكون صفر');
+            return;
+          }
+          const turns = Math.sqrt(lSolenoidNum * lLengthNum / (mu0 * muRNum * aSolenoidNum));
+          nSolenoidEl.value = formatNumber(turns);
+          showResult(`عدد اللفات = ${formatNumber(turns)}`);
+          return;
+        }
+
+        // Calculate area (A = L × l / (μ₀ × μᵣ × N²))
+        if(isEmpty(aSolenoidVal) && lSolenoidNum !== null && nSolenoidNum !== null && lLengthNum !== null){
+          if(mu0 * muRNum * nSolenoidNum * nSolenoidNum === 0){
+            showResult('خطأ: ثابت النفاذية أو عدد اللفات لا يمكن أن يكون صفر');
+            return;
+          }
+          const area = lSolenoidNum * lLengthNum / (mu0 * muRNum * nSolenoidNum * nSolenoidNum);
+          aSolenoidEl.value = formatNumber(area);
+          showResult(`المقطع العرضي = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        // Calculate length (l = μ₀ × μᵣ × N² × A / L)
+        if(isEmpty(lLengthVal) && lSolenoidNum !== null && nSolenoidNum !== null && aSolenoidNum !== null){
+          if(lSolenoidNum === 0){
+            showResult('خطأ: المعاوقة المغناطيسية لا يمكن أن تكون صفر');
+            return;
+          }
+          const length = mu0 * muRNum * nSolenoidNum * nSolenoidNum * aSolenoidNum / lSolenoidNum;
+          lLengthEl.value = formatNumber(length);
+          showResult(`الطول = ${formatNumber(length)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEnergyInd(){
+        const eInductorVal = eInductorEl.value.trim();
+        const lEnergyVal = lEnergyEl.value.trim();
+        const iEnergyVal = iEnergyEl.value.trim();
+
+        const eInductorNum = parseNum(eInductorVal);
+        const lEnergyNum = parseNum(lEnergyVal);
+        const iEnergyNum = parseNum(iEnergyVal);
+
+        const filled = [!isEmpty(eInductorVal), !isEmpty(lEnergyVal), !isEmpty(iEnergyVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate energy (E = 0.5 × L × I²)
+        if(isEmpty(eInductorVal) && lEnergyNum !== null && iEnergyNum !== null){
+          const energy = 0.5 * lEnergyNum * iEnergyNum * iEnergyNum;
+          eInductorEl.value = formatNumber(energy);
+          showResult(`الطاقة = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate inductance (L = 2 × E / I²)
+        if(isEmpty(lEnergyVal) && eInductorNum !== null && iEnergyNum !== null){
+          if(iEnergyNum === 0){
+            showResult('خطأ: التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const inductance = 2 * eInductorNum / (iEnergyNum * iEnergyNum);
+          lEnergyEl.value = formatNumber(inductance);
+          showResult(`المعاوقة المغناطيسية = ${formatNumber(inductance)} H`);
+          return;
+        }
+
+        // Calculate current (I = sqrt(2 × E / L))
+        if(isEmpty(iEnergyVal) && eInductorNum !== null && lEnergyNum !== null){
+          if(lEnergyNum === 0){
+            showResult('خطأ: المعاوقة المغناطيسية لا يمكن أن تكون صفر');
+            return;
+          }
+          const current = Math.sqrt(2 * eInductorNum / lEnergyNum);
+          iEnergyEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeSeriesInd(){
+        const lSeriesTotalVal = lSeriesTotalEl.value.trim();
+        const l1SeriesVal = l1SeriesEl.value.trim();
+        const l2SeriesVal = l2SeriesEl.value.trim();
+
+        const lSeriesTotalNum = parseNum(lSeriesTotalVal);
+        const l1SeriesNum = parseNum(l1SeriesVal);
+        const l2SeriesNum = parseNum(l2SeriesVal);
+
+        const filled = [!isEmpty(lSeriesTotalVal), !isEmpty(l1SeriesVal), !isEmpty(l2SeriesVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate total inductance (L_total = L₁ + L₂)
+        if(isEmpty(lSeriesTotalVal) && l1SeriesNum !== null && l2SeriesNum !== null){
+          const lTotal = l1SeriesNum + l2SeriesNum;
+          lSeriesTotalEl.value = formatNumber(lTotal);
+          showResult(`المعاوقة الكلية = ${formatNumber(lTotal)} H`);
+          return;
+        }
+
+        // Calculate L1 (L₁ = L_total - L₂)
+        if(isEmpty(l1SeriesVal) && lSeriesTotalNum !== null && l2SeriesNum !== null){
+          const l1 = lSeriesTotalNum - l2SeriesNum;
+          l1SeriesEl.value = formatNumber(l1);
+          showResult(`المعاوقة الأولى = ${formatNumber(l1)} H`);
+          return;
+        }
+
+        // Calculate L2 (L₂ = L_total - L₁)
+        if(isEmpty(l2SeriesVal) && lSeriesTotalNum !== null && l1SeriesNum !== null){
+          const l2 = lSeriesTotalNum - l1SeriesNum;
+          l2SeriesEl.value = formatNumber(l2);
+          showResult(`المعاوقة الثانية = ${formatNumber(l2)} H`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeParallelInd(){
+        const lParallelTotalVal = lParallelTotalEl.value.trim();
+        const l1ParallelVal = l1ParallelEl.value.trim();
+        const l2ParallelVal = l2ParallelEl.value.trim();
+
+        const lParallelTotalNum = parseNum(lParallelTotalVal);
+        const l1ParallelNum = parseNum(l1ParallelVal);
+        const l2ParallelNum = parseNum(l2ParallelVal);
+
+        const filled = [!isEmpty(lParallelTotalVal), !isEmpty(l1ParallelVal), !isEmpty(l2ParallelVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate total inductance (1/L_total = 1/L₁ + 1/L₂)
+        if(isEmpty(lParallelTotalVal) && l1ParallelNum !== null && l2ParallelNum !== null){
+          if(l1ParallelNum === 0 || l2ParallelNum === 0){
+            showResult('خطأ: المعاوقة المغناطيسية لا يمكن أن تكون صفر');
+            return;
+          }
+          const lTotal = 1 / (1/l1ParallelNum + 1/l2ParallelNum);
+          lParallelTotalEl.value = formatNumber(lTotal);
+          showResult(`المعاوقة الكلية = ${formatNumber(lTotal)} H`);
+          return;
+        }
+
+        // Calculate L1 (1/L₁ = 1/L_total - 1/L₂)
+        if(isEmpty(l1ParallelVal) && lParallelTotalNum !== null && l2ParallelNum !== null){
+          if(lParallelTotalNum === 0 || l2ParallelNum === 0){
+            showResult('خطأ: المعاوقة المغناطيسية لا يمكن أن تكون صفر');
+            return;
+          }
+          const l1 = 1 / (1/lParallelTotalNum - 1/l2ParallelNum);
+          l1ParallelEl.value = formatNumber(l1);
+          showResult(`المعاوقة الأولى = ${formatNumber(l1)} H`);
+          return;
+        }
+
+        // Calculate L2 (1/L₂ = 1/L_total - 1/L₁)
+        if(isEmpty(l2ParallelVal) && lParallelTotalNum !== null && l1ParallelNum !== null){
+          if(lParallelTotalNum === 0 || l1ParallelNum === 0){
+            showResult('خطأ: المعاوقة المغناطيسية لا يمكن أن تكون صفر');
+            return;
+          }
+          const l2 = 1 / (1/lParallelTotalNum - 1/l1ParallelNum);
+          l2ParallelEl.value = formatNumber(l2);
+          showResult(`المعاوقة الثانية = ${formatNumber(l2)} H`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcSolenoidBtn.addEventListener('click', computeSolenoid);
+      calcEnergyIndBtn.addEventListener('click', computeEnergyInd);
+      calcSeriesIndBtn.addEventListener('click', computeSeriesInd);
+      calcParallelIndBtn.addEventListener('click', computeParallelInd);
+
+      rBtn.addEventListener('click', function(){
+        lSolenoidEl.value = '';
+        muREl.value = '1';
+        nSolenoidEl.value = '';
+        aSolenoidEl.value = '';
+        lLengthEl.value = '';
+        eInductorEl.value = '';
+        lEnergyEl.value = '';
+        iEnergyEl.value = '';
+        lSeriesTotalEl.value = '';
+        l1SeriesEl.value = '';
+        l2SeriesEl.value = '';
+        lParallelTotalEl.value = '';
+        l1ParallelEl.value = '';
+        l2ParallelEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [lSolenoidEl, muREl, nSolenoidEl, aSolenoidEl, lLengthEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeSolenoid();
+          }
+        });
+      });
+
+      [eInductorEl, lEnergyEl, iEnergyEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEnergyInd();
+          }
+        });
+      });
+
+      [lSeriesTotalEl, l1SeriesEl, l2SeriesEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeSeriesInd();
+          }
+        });
+      });
+
+      [lParallelTotalEl, l1ParallelEl, l2ParallelEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeParallelInd();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

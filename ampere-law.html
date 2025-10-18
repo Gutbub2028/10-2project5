@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calc1.html">العودة إلى قائمة الدروس</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>قانون أمبير</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>قانون أمبير: ∮B dl = μ₀I</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>تكامل خطي للمجال المغناطيسي حول مسار مغلق يساوي تيار التوصيل مضروباً بثابت المغناطيسية</p>
+  <p><strong>∮B dl = μ₀I</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>B: شدة المجال المغناطيسي (تيسلا)</li>
+    <li>dl: عنصر طول خطي</li>
+    <li>μ₀: ثابت المغناطيسية = 4π × 10⁻⁷ T·m/A</li>
+    <li>I: التيار (أمبير)</li>
+  </ul>
+
+  <h3>مثال: سلك مستقيم يحمل تيار 5 أمبير، نصف القطر 0.02 متر</h3>
+  <p>B = (μ₀ × I) / (2π × r) = (4π × 10⁻⁷ × 5) / (2π × 0.02) = 5 × 10⁻⁵ تيسلا</p>
+
+  <h3>حاسبة التكامل:</h3>
+  <div>
+    <label for="function_ampere">الدالة ∮B dl:</label>
+    <input id="function_ampere" type="text" placeholder="مثال: μ₀*I">
+    <label for="lower_limit_amp">حد أدنى:</label>
+    <input id="lower_limit_amp" type="text" placeholder="0">
+    <label for="upper_limit_amp">حد أعلى:</label>
+    <input id="upper_limit_amp" type="text" placeholder="2πr">
+    <input id="calc_integral_amp" type="button" value="كامل">
+    <input id="calc_ampere" type="button" value="حساب المجال المغناطيسي">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const bEl = document.getElementById('b_ampere');
+      const iEl = document.getElementById('i_ampere');
+      const rEl = document.getElementById('r_ampere');
+      const calcBtn = document.getElementById('calc_ampere');
+      const rBtn = document.getElementById('r');
+
+      const mu0 = 4 * Math.PI * 1e-7; // ثابت المغناطيسية
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeIntegral(){
+        const funcVal = document.getElementById('function_ampere').value.trim();
+        const lowerVal = document.getElementById('lower_limit_amp').value.trim();
+        const upperVal = document.getElementById('upper_limit_amp').value.trim();
+
+        if(isEmpty(funcVal)){
+          showResult('الرجاء إدخال الدالة');
+          return;
+        }
+
+        let integral = '';
+        if(funcVal.includes('μ₀*I') || funcVal.includes('μ0*I') || funcVal.includes('μ₀ I') || funcVal.includes('μ0 I')){
+          integral = 'μ₀×I';
+        }
+
+        if(!isEmpty(lowerVal) && !isEmpty(upperVal)){
+          integral += ` من ${lowerVal} إلى ${upperVal}`;
+        }
+
+        showResult(`التكامل ∮B dl = ${integral}`);
+      }
+
+      function compute(){
+        const bVal = bEl.value.trim();
+        const iVal = iEl.value.trim();
+        const rVal = rEl.value.trim();
+
+        const bNum = parseNum(bVal);
+        const iNum = parseNum(iVal);
+        const rNum = parseNum(rVal);
+
+        const filled = [!isEmpty(bVal), !isEmpty(iVal), !isEmpty(rVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        if(isEmpty(bVal) && iNum !== null && rNum !== null){
+          // لسلك مستقيم: B = (μ₀ × I) / (2π × r)
+          const magneticField = (mu0 * iNum) / (2 * Math.PI * rNum);
+          bEl.value = formatNumber(magneticField);
+          showResult(`شدة المجال المغناطيسي = ${formatNumber(magneticField)} تيسلا`);
+          return;
+        }
+
+        if(isEmpty(iVal) && bNum !== null && rNum !== null){
+          // I = (B × 2π × r) / μ₀
+          const current = (bNum * 2 * Math.PI * rNum) / mu0;
+          iEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} أمبير`);
+          return;
+        }
+
+        if(isEmpty(rVal) && bNum !== null && iNum !== null){
+          // r = (μ₀ × I) / (2π × B)
+          const radius = (mu0 * iNum) / (2 * Math.PI * bNum);
+          rEl.value = formatNumber(radius);
+          showResult(`نصف القطر = ${formatNumber(radius)} متر`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      document.getElementById('calc_integral_amp').addEventListener('click', computeIntegral);
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        document.getElementById('function_ampere').value = '';
+        document.getElementById('lower_limit_amp').value = '';
+        document.getElementById('upper_limit_amp').value = '';
+        bEl.value = '';
+        iEl.value = '';
+        rEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [document.getElementById('function_ampere'), document.getElementById('lower_limit_amp'), document.getElementById('upper_limit_amp'), bEl, iEl, rEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            if(el.id === 'function_ampere' || el.id === 'lower_limit_amp' || el.id === 'upper_limit_amp'){
+              computeIntegral();
+            } else {
+              compute();
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+

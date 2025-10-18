@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب المحول الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب المحول الكهربائي</h2>
+
+  <h3>1. نسبة التحويل: V₂/V₁ = N₂/N₁ = I₁/I₂</h3>
+  <div>
+    <label for="v1_primary">الجهد الأولي:</label>
+    <input id="v1_primary" type="text" placeholder="(V) الجهد الأولي">
+    <label for="v2_secondary">الجهد الثانوي:</label>
+    <input id="v2_secondary" type="text" placeholder="(V) الجهد الثانوي">
+    <label for="n1_primary">عدد لفات الأولي:</label>
+    <input id="n1_primary" type="text" placeholder="(لفات) عدد لفات الأولي">
+    <label for="n2_secondary">عدد لفات الثانوي:</label>
+    <input id="n2_secondary" type="text" placeholder="(لفات) عدد لفات الثانوي">
+    <input id="calc_transformer" type="button" value="حساب">
+  </div>
+
+  <h3>2. الكفاءة: η = (P_out / P_in) × 100%</h3>
+  <div>
+    <label for="efficiency">الكفاءة:</label>
+    <input id="efficiency" type="text" placeholder="(%) الكفاءة">
+    <label for="p_out">القدرة المخرجة:</label>
+    <input id="p_out" type="text" placeholder="(W) القدرة المخرجة">
+    <label for="p_in">القدرة المدخلة:</label>
+    <input id="p_in" type="text" placeholder="(W) القدرة المدخلة">
+    <input id="calc_efficiency" type="button" value="حساب">
+  </div>
+
+  <h3>3. القدرة الظاهرية: S = V × I</h3>
+  <div>
+    <label for="s_power">القدرة الظاهرية:</label>
+    <input id="s_power" type="text" placeholder="(VA) القدرة الظاهرية">
+    <label for="v_apparent">الجهد:</label>
+    <input id="v_apparent" type="text" placeholder="(V) الجهد">
+    <label for="i_apparent">التيار:</label>
+    <input id="i_apparent" type="text" placeholder="(A) التيار">
+    <input id="calc_apparent" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const v1PrimaryEl = document.getElementById('v1_primary');
+      const v2SecondaryEl = document.getElementById('v2_secondary');
+      const n1PrimaryEl = document.getElementById('n1_primary');
+      const n2SecondaryEl = document.getElementById('n2_secondary');
+      const calcTransformerBtn = document.getElementById('calc_transformer');
+
+      const efficiencyEl = document.getElementById('efficiency');
+      const pOutEl = document.getElementById('p_out');
+      const pInEl = document.getElementById('p_in');
+      const calcEfficiencyBtn = document.getElementById('calc_efficiency');
+
+      const sPowerEl = document.getElementById('s_power');
+      const vApparentEl = document.getElementById('v_apparent');
+      const iApparentEl = document.getElementById('i_apparent');
+      const calcApparentBtn = document.getElementById('calc_apparent');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeTransformer(){
+        const v1PrimaryVal = v1PrimaryEl.value.trim();
+        const v2SecondaryVal = v2SecondaryEl.value.trim();
+        const n1PrimaryVal = n1PrimaryEl.value.trim();
+        const n2SecondaryVal = n2SecondaryEl.value.trim();
+
+        const v1PrimaryNum = parseNum(v1PrimaryVal);
+        const v2SecondaryNum = parseNum(v2SecondaryVal);
+        const n1PrimaryNum = parseNum(n1PrimaryVal);
+        const n2SecondaryNum = parseNum(n2SecondaryVal);
+
+        const filled = [!isEmpty(v1PrimaryVal), !isEmpty(v2SecondaryVal), !isEmpty(n1PrimaryVal), !isEmpty(n2SecondaryVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate secondary voltage (V₂ = V₁ × N₂/N₁)
+        if(isEmpty(v2SecondaryVal) && v1PrimaryNum !== null && n1PrimaryNum !== null && n2SecondaryNum !== null){
+          if(n1PrimaryNum === 0){
+            showResult('خطأ: عدد لفات الأولي لا يمكن أن يكون صفر');
+            return;
+          }
+          const v2 = v1PrimaryNum * n2SecondaryNum / n1PrimaryNum;
+          v2SecondaryEl.value = formatNumber(v2);
+          showResult(`الجهد الثانوي = ${formatNumber(v2)} V`);
+          return;
+        }
+
+        // Calculate primary voltage (V₁ = V₂ × N₁/N₂)
+        if(isEmpty(v1PrimaryVal) && v2SecondaryNum !== null && n1PrimaryNum !== null && n2SecondaryNum !== null){
+          if(n2SecondaryNum === 0){
+            showResult('خطأ: عدد لفات الثانوي لا يمكن أن يكون صفر');
+            return;
+          }
+          const v1 = v2SecondaryNum * n1PrimaryNum / n2SecondaryNum;
+          v1PrimaryEl.value = formatNumber(v1);
+          showResult(`الجهد الأولي = ${formatNumber(v1)} V`);
+          return;
+        }
+
+        // Calculate secondary turns (N₂ = N₁ × V₂/V₁)
+        if(isEmpty(n2SecondaryVal) && n1PrimaryNum !== null && v2SecondaryNum !== null && v1PrimaryNum !== null){
+          if(v1PrimaryNum === 0){
+            showResult('خطأ: الجهد الأولي لا يمكن أن يكون صفر');
+            return;
+          }
+          const n2 = n1PrimaryNum * v2SecondaryNum / v1PrimaryNum;
+          n2SecondaryEl.value = formatNumber(n2);
+          showResult(`عدد لفات الثانوي = ${formatNumber(n2)} لفات`);
+          return;
+        }
+
+        // Calculate primary turns (N₁ = N₂ × V₁/V₂)
+        if(isEmpty(n1PrimaryVal) && n2SecondaryNum !== null && v1PrimaryNum !== null && v2SecondaryNum !== null){
+          if(v2SecondaryNum === 0){
+            showResult('خطأ: الجهد الثانوي لا يمكن أن يكون صفر');
+            return;
+          }
+          const n1 = n2SecondaryNum * v1PrimaryNum / v2SecondaryNum;
+          n1PrimaryEl.value = formatNumber(n1);
+          showResult(`عدد لفات الأولي = ${formatNumber(n1)} لفات`);
+          return;
+        }
+
+        // all four provided -> validate
+        if(v1PrimaryNum !== null && v2SecondaryNum !== null && n1PrimaryNum !== null && n2SecondaryNum !== null){
+          const expectedV2 = v1PrimaryNum * n2SecondaryNum / n1PrimaryNum;
+          const expectedN2 = n1PrimaryNum * v2SecondaryNum / v1PrimaryNum;
+          if(Math.abs(expectedV2 - v2SecondaryNum) < 0.000001 && Math.abs(expectedN2 - n2SecondaryNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع V₂/V₁ = N₂/N₁');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEfficiency(){
+        const efficiencyVal = efficiencyEl.value.trim();
+        const pOutVal = pOutEl.value.trim();
+        const pInVal = pInEl.value.trim();
+
+        const efficiencyNum = parseNum(efficiencyVal);
+        const pOutNum = parseNum(pOutVal);
+        const pInNum = parseNum(pInVal);
+
+        const filled = [!isEmpty(efficiencyVal), !isEmpty(pOutVal), !isEmpty(pInVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate efficiency (η = (P_out / P_in) × 100%)
+        if(isEmpty(efficiencyVal) && pOutNum !== null && pInNum !== null){
+          if(pInNum === 0){
+            showResult('خطأ: القدرة المدخلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const eff = (pOutNum / pInNum) * 100;
+          efficiencyEl.value = formatNumber(eff);
+          showResult(`الكفاءة = ${formatNumber(eff)} %`);
+          return;
+        }
+
+        // Calculate output power (P_out = η × P_in / 100)
+        if(isEmpty(pOutVal) && efficiencyNum !== null && pInNum !== null){
+          const pOut = efficiencyNum * pInNum / 100;
+          pOutEl.value = formatNumber(pOut);
+          showResult(`القدرة المخرجة = ${formatNumber(pOut)} W`);
+          return;
+        }
+
+        // Calculate input power (P_in = P_out × 100 / η)
+        if(isEmpty(pInVal) && efficiencyNum !== null && pOutNum !== null){
+          if(efficiencyNum === 0){
+            showResult('خطأ: الكفاءة لا يمكن أن تكون صفر');
+            return;
+          }
+          const pIn = pOutNum * 100 / efficiencyNum;
+          pInEl.value = formatNumber(pIn);
+          showResult(`القدرة المدخلة = ${formatNumber(pIn)} W`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeApparent(){
+        const sPowerVal = sPowerEl.value.trim();
+        const vApparentVal = vApparentEl.value.trim();
+        const iApparentVal = iApparentEl.value.trim();
+
+        const sPowerNum = parseNum(sPowerVal);
+        const vApparentNum = parseNum(vApparentVal);
+        const iApparentNum = parseNum(iApparentVal);
+
+        const filled = [!isEmpty(sPowerVal), !isEmpty(vApparentVal), !isEmpty(iApparentVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate apparent power (S = V × I)
+        if(isEmpty(sPowerVal) && vApparentNum !== null && iApparentNum !== null){
+          const s = vApparentNum * iApparentNum;
+          sPowerEl.value = formatNumber(s);
+          showResult(`القدرة الظاهرية = ${formatNumber(s)} VA`);
+          return;
+        }
+
+        // Calculate voltage (V = S / I)
+        if(isEmpty(vApparentVal) && sPowerNum !== null && iApparentNum !== null){
+          if(iApparentNum === 0){
+            showResult('خطأ: التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const v = sPowerNum / iApparentNum;
+          vApparentEl.value = formatNumber(v);
+          showResult(`الجهد = ${formatNumber(v)} V`);
+          return;
+        }
+
+        // Calculate current (I = S / V)
+        if(isEmpty(iApparentVal) && sPowerNum !== null && vApparentNum !== null){
+          if(vApparentNum === 0){
+            showResult('خطأ: الجهد لا يمكن أن يكون صفر');
+            return;
+          }
+          const i = sPowerNum / vApparentNum;
+          iApparentEl.value = formatNumber(i);
+          showResult(`التيار = ${formatNumber(i)} A`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcTransformerBtn.addEventListener('click', computeTransformer);
+      calcEfficiencyBtn.addEventListener('click', computeEfficiency);
+      calcApparentBtn.addEventListener('click', computeApparent);
+
+      rBtn.addEventListener('click', function(){
+        v1PrimaryEl.value = '';
+        v2SecondaryEl.value = '';
+        n1PrimaryEl.value = '';
+        n2SecondaryEl.value = '';
+        efficiencyEl.value = '';
+        pOutEl.value = '';
+        pInEl.value = '';
+        sPowerEl.value = '';
+        vApparentEl.value = '';
+        iApparentEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [v1PrimaryEl, v2SecondaryEl, n1PrimaryEl, n2SecondaryEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeTransformer();
+          }
+        });
+      });
+
+      [efficiencyEl, pOutEl, pInEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEfficiency();
+          }
+        });
+      });
+
+      [sPowerEl, vApparentEl, iApparentEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeApparent();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

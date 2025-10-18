@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>قوانين كيرشوف</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    ul {
+      text-align: center;
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>قانون كيرشوف الأول: مجموع التيارات الداخلة = مجموع التيارات الخارجة</h2>
+  <h3>قانون كيرشوف الثاني: مجموع الجهود حول حلقة مغلقة = 0</h3>
+  <p>هذه الصفحة توضيحية لقوانين كيرشوف. يمكن استخدامها لحل الدوائر الكهربائية المعقدة.</p>
+  
+  <h3>مثال بسيط لحلقة واحدة (سلسلة):</h3>
+  <p>لدينا دائرة تحتوي على:</p>
+  <ul>
+    <li>مصدر جهد: <input id="v_source" type="text" placeholder="(V) الجهد" value="12"></li>
+    <li>مقاومة 1: <input id="r1" type="text" placeholder="(Ω) المقاومة الأولى" value="4"></li>
+    <li>مقاومة 2: <input id="r2" type="text" placeholder="(Ω) المقاومة الثانية" value="6"></li>
+  </ul>
+
+  <h3>مثال معقد مع عقدة (متوازي):</h3>
+  <p>دائرة مع مقاومة سلسلة ومقاومتين متوازيتين:</p>
+  <ul>
+    <li>مصدر جهد: <input id="v_source2" type="text" placeholder="(V) الجهد" value="12"></li>
+    <li>مقاومة سلسلة: <input id="r_series" type="text" placeholder="(Ω) المقاومة السلسلة" value="2"></li>
+    <li>مقاومة متوازي 1: <input id="r_par1" type="text" placeholder="(Ω) المقاومة المتوازية الأولى" value="4"></li>
+    <li>مقاومة متوازي 2: <input id="r_par2" type="text" placeholder="(Ω) المقاومة المتوازية الثانية" value="6"></li>
+  </ul>
+  
+  <input id="calc_kirchhoff" type="button" value="حساب التيار والجهود (سلسلة)">
+  <input id="calc_kirchhoff2" type="button" value="حساب التيار والجهود (متوازي)">
+  <input id="r" type="button" value="إعادة تعيين">
+  
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+   (function(){
+     // consistent element variable names
+     const vSourceEl = document.getElementById('v_source');
+     const r1El = document.getElementById('r1');
+     const r2El = document.getElementById('r2');
+     const calcBtn = document.getElementById('calc_kirchhoff');
+     const vSource2El = document.getElementById('v_source2');
+     const rSeriesEl = document.getElementById('r_series');
+     const rPar1El = document.getElementById('r_par1');
+     const rPar2El = document.getElementById('r_par2');
+     const calcBtn2 = document.getElementById('calc_kirchhoff2');
+     const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeKirchhoff(){
+        const vSourceVal = vSourceEl.value.trim();
+        const r1Val = r1El.value.trim();
+        const r2Val = r2El.value.trim();
+
+        const vSourceNum = parseNum(vSourceVal);
+        const r1Num = parseNum(r1Val);
+        const r2Num = parseNum(r2Val);
+
+        if(vSourceNum === null || r1Num === null || r2Num === null){
+          showResult('الرجاء إدخال جميع القيم للدائرة السلسلة');
+          return;
+        }
+
+        // Calculate total resistance (series circuit)
+        const totalR = r1Num + r2Num;
+
+        // Calculate total current (Ohm's law)
+        const totalI = vSourceNum / totalR;
+
+        // Calculate voltage drops
+        const v1 = totalI * r1Num;
+        const v2 = totalI * r2Num;
+
+        showResult(`التيار الكلي = ${formatNumber(totalI)} A\n` +
+                  `جهد المقاومة الأولى = ${formatNumber(v1)} V\n` +
+                  `جهد المقاومة الثانية = ${formatNumber(v2)} V\n` +
+                  `التحقق من قانون كيرشوف الثاني: ${formatNumber(v1 + v2)} V = ${formatNumber(vSourceNum)} V`);
+      }
+
+      function computeKirchhoff2(){
+        const vSource2Val = vSource2El.value.trim();
+        const rSeriesVal = rSeriesEl.value.trim();
+        const rPar1Val = rPar1El.value.trim();
+        const rPar2Val = rPar2El.value.trim();
+
+        const vSource2Num = parseNum(vSource2Val);
+        const rSeriesNum = parseNum(rSeriesVal);
+        const rPar1Num = parseNum(rPar1Val);
+        const rPar2Num = parseNum(rPar2Val);
+
+        if(vSource2Num === null || rSeriesNum === null || rPar1Num === null || rPar2Num === null){
+          showResult('الرجاء إدخال جميع القيم للدائرة المتوازية');
+          return;
+        }
+
+        // Calculate equivalent resistance of parallel resistors
+        const rParEq = (rPar1Num * rPar2Num) / (rPar1Num + rPar2Num);
+
+        // Total resistance
+        const totalR = rSeriesNum + rParEq;
+
+        // Total current
+        const totalI = vSource2Num / totalR;
+
+        // Voltage across parallel resistors (same as source minus series drop)
+        const vPar = totalI * rParEq;
+
+        // Currents through parallel resistors
+        const iPar1 = vPar / rPar1Num;
+        const iPar2 = vPar / rPar2Num;
+
+        // Current through series resistor
+        const iSeries = totalI;
+
+        showResult(`التيار الكلي = ${formatNumber(totalI)} A\n` +
+                  `التيار عبر المقاومة السلسلة = ${formatNumber(iSeries)} A\n` +
+                  `التيار عبر المقاومة المتوازية الأولى = ${formatNumber(iPar1)} A\n` +
+                  `التيار عبر المقاومة المتوازية الثانية = ${formatNumber(iPar2)} A\n` +
+                  `التحقق من قانون كيرشوف الأول في العقدة: ${formatNumber(iSeries)} A = ${formatNumber(iPar1 + iPar2)} A`);
+      }
+
+      calcBtn.addEventListener('click', computeKirchhoff);
+      calcBtn2.addEventListener('click', computeKirchhoff2);
+      rBtn.addEventListener('click', function(){
+        vSourceEl.value = '12';
+        r1El.value = '4';
+        r2El.value = '6';
+        vSource2El.value = '12';
+        rSeriesEl.value = '2';
+        rPar1El.value = '4';
+        rPar2El.value = '6';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [vSourceEl, r1El, r2El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeKirchhoff();
+          }
+        });
+      });
+      [vSource2El, rSeriesEl, rPar1El, rPar2El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeKirchhoff2();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

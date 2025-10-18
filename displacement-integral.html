@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>الإزاحة كتكامل للسرعة</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>الإزاحة كتكامل للسرعة: x = ∫v dt</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>الإزاحة هي تكامل السرعة بالنسبة للزمن</p>
+  <p><strong>x(t) = x₀ + ∫v(t) dt</strong></p>
+  <p>للتسارع الثابت: <strong>x = x₀ + v₀t + (1/2)at²</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>x(t): الإزاحة النهائية</li>
+    <li>x₀: الإزاحة الأولية</li>
+    <li>v₀: السرعة الأولية</li>
+    <li>a: التسارع</li>
+    <li>t: الزمن</li>
+  </ul>
+
+  <h3>مثال: جسم يتحرك بسرعة أولية 10 م/ث وتسارع 2 م/ث²</h3>
+  <p>الإزاحة x = ∫v dt = ∫(v₀ + at) dt = v₀t + (1/2)at²</p>
+  <p>بعد 5 ثوانٍ: x = 10×5 + (1/2)×2×25 = 50 + 25 = 75 متر</p>
+  <p>التكامل: ∫v₀ dt = v₀t، ∫at dt = (1/2)at²</p>
+
+  <h3>حاسبة التكامل:</h3>
+  <div>
+    <label for="function_displacement">الدالة v(t):</label>
+    <input id="function_displacement" type="text" placeholder="مثال: v0 + at">
+    <label for="lower_limit_disp">حد أدنى:</label>
+    <input id="lower_limit_disp" type="text" placeholder="0">
+    <label for="upper_limit_disp">حد أعلى:</label>
+    <input id="upper_limit_disp" type="text" placeholder="t">
+    <input id="calc_integral_disp" type="button" value="كامل">
+    <input id="calc_displacement" type="button" value="حساب الإزاحة">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const xEl = document.getElementById('x_displacement');
+      const v0El = document.getElementById('v0_displacement');
+      const aEl = document.getElementById('a_displacement');
+      const tEl = document.getElementById('t_displacement');
+      const calcBtn = document.getElementById('calc_displacement');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeIntegral(){
+        const funcVal = document.getElementById('function_displacement').value.trim();
+        const lowerVal = document.getElementById('lower_limit_disp').value.trim();
+        const upperVal = document.getElementById('upper_limit_disp').value.trim();
+
+        if(isEmpty(funcVal)){
+          showResult('الرجاء إدخال الدالة');
+          return;
+        }
+
+        // Simple integral calculator for velocity functions
+        let integral = '';
+        if(funcVal.includes('v0 + at') || funcVal.includes('v₀ + at')){
+          integral = 'v₀t + (1/2)at²';
+        } else if(funcVal.includes('at') && !funcVal.includes('v0') && !funcVal.includes('v₀')){
+          integral = '(1/2)at²';
+        } else if(funcVal.includes('v0') || funcVal.includes('v₀') && !funcVal.includes('at')){
+          integral = 'v₀t';
+        } else if(funcVal.includes('t^2') || funcVal.includes('t²')){
+          const coeff = funcVal.split('t^2')[0] || '1';
+          const numCoeff = parseNum(coeff) || 1;
+          integral = '(' + numCoeff + '/3)t^3';
+        }
+
+        if(!isEmpty(lowerVal) && !isEmpty(upperVal)){
+          integral += ` من ${lowerVal} إلى ${upperVal}`;
+        }
+
+        showResult(`التكامل ∫v(t) dt = ${integral} + C`);
+      }
+
+      function compute(){
+        const xVal = xEl.value.trim();
+        const v0Val = v0El.value.trim();
+        const aVal = aEl.value.trim();
+        const tVal = tEl.value.trim();
+
+        const xNum = parseNum(xVal);
+        const v0Num = parseNum(v0Val);
+        const aNum = parseNum(aVal);
+        const tNum = parseNum(tVal);
+
+        const filled = [!isEmpty(xVal), !isEmpty(v0Val), !isEmpty(aVal), !isEmpty(tVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        if(isEmpty(xVal) && v0Num !== null && aNum !== null && tNum !== null){
+          const displacement = v0Num * tNum + 0.5 * aNum * tNum * tNum;
+          xEl.value = formatNumber(displacement);
+          showResult(`الإزاحة = ${formatNumber(displacement)} م`);
+          return;
+        }
+
+        if(isEmpty(v0Val) && xNum !== null && aNum !== null && tNum !== null){
+          if(tNum === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const initialVelocity = (xNum - 0.5 * aNum * tNum * tNum) / tNum;
+          v0El.value = formatNumber(initialVelocity);
+          showResult(`السرعة الأولية = ${formatNumber(initialVelocity)} م/ث`);
+          return;
+        }
+
+        if(isEmpty(aVal) && xNum !== null && v0Num !== null && tNum !== null){
+          if(tNum === 0){
+            showResult('خطأ: الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const acceleration = 2 * (xNum - v0Num * tNum) / (tNum * tNum);
+          aEl.value = formatNumber(acceleration);
+          showResult(`التسارع = ${formatNumber(acceleration)} م/ث²`);
+          return;
+        }
+
+        if(isEmpty(tVal) && xNum !== null && v0Num !== null && aNum !== null){
+          // This would require solving quadratic equation
+          showResult('حساب الزمن يتطلب حل معادلة تربيعية - يرجى استخدام قيم أخرى');
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      document.getElementById('calc_integral_disp').addEventListener('click', computeIntegral);
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        document.getElementById('function_displacement').value = '';
+        document.getElementById('lower_limit_disp').value = '';
+        document.getElementById('upper_limit_disp').value = '';
+        xEl.value = '';
+        v0El.value = '';
+        aEl.value = '';
+        tEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [document.getElementById('function_displacement'), document.getElementById('lower_limit_disp'), document.getElementById('upper_limit_disp'), xEl, v0El, aEl, tEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            if(el.id === 'function_displacement' || el.id === 'lower_limit_disp' || el.id === 'upper_limit_disp'){
+              computeIntegral();
+            } else {
+              compute();
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>حساب الضغط على مبدأ باسكال</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="p1" type="text" placeholder="(Pa) الضغط الأول"></input>
+    <input id="a1" type="text" placeholder="(m²) المساحة الأولى"></input>
+    <input id="a2" type="text" placeholder="(m²) المساحة الثانية"></input>
+    <input id="p2" type="text" placeholder="(Pa) الضغط الثاني"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const p1El = document.getElementById('p1');
+      const a1El = document.getElementById('a1');
+      const a2El = document.getElementById('a2');
+      const p2El = document.getElementById('p2');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const p1Val = p1El.value.trim();
+        const a1Val = a1El.value.trim();
+        const a2Val = a2El.value.trim();
+        const p2Val = p2El.value.trim();
+
+        const p1Num = parseNum(p1Val);
+        const a1Num = parseNum(a1Val);
+        const a2Num = parseNum(a2Val);
+        const p2Num = parseNum(p2Val);
+
+        const filled = [!isEmpty(p1Val), !isEmpty(a1Val), !isEmpty(a2Val), !isEmpty(p2Val)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate pressure 2 (P2 = P1 * A1 / A2)
+        if(isEmpty(p2Val) && p1Num !== null && a1Num !== null && a2Num !== null){
+          if(a2Num === 0){
+            showResult('خطأ: المساحة الثانية لا يمكن أن تكون صفر');
+            return;
+          }
+          const pressure2 = p1Num * a1Num / a2Num;
+          p2El.value = formatNumber(pressure2);
+          showResult(`الضغط الثاني = ${formatNumber(pressure2)} Pa`);
+          return;
+        }
+
+        // Calculate area 1 (A1 = P2 * A2 / P1)
+        if(isEmpty(a1Val) && p2Num !== null && a2Num !== null && p1Num !== null){
+          if(p1Num === 0){
+            showResult('خطأ: الضغط الأول لا يمكن أن يكون صفر');
+            return;
+          }
+          const area1 = p2Num * a2Num / p1Num;
+          a1El.value = formatNumber(area1);
+          showResult(`المساحة الأولى = ${formatNumber(area1)} m²`);
+          return;
+        }
+
+        // Calculate area 2 (A2 = P1 * A1 / P2)
+        if(isEmpty(a2Val) && p1Num !== null && a1Num !== null && p2Num !== null){
+          if(p2Num === 0){
+            showResult('خطأ: الضغط الثاني لا يمكن أن يكون صفر');
+            return;
+          }
+          const area2 = p1Num * a1Num / p2Num;
+          a2El.value = formatNumber(area2);
+          showResult(`المساحة الثانية = ${formatNumber(area2)} m²`);
+          return;
+        }
+
+        // Calculate pressure 1 (P1 = P2 * A2 / A1)
+        if(isEmpty(p1Val) && p2Num !== null && a2Num !== null && a1Num !== null){
+          if(a1Num === 0){
+            showResult('خطأ: المساحة الأولى لا يمكن أن تكون صفر');
+            return;
+          }
+          const pressure1 = p2Num * a2Num / a1Num;
+          p1El.value = formatNumber(pressure1);
+          showResult(`الضغط الأول = ${formatNumber(pressure1)} Pa`);
+          return;
+        }
+
+        // all four provided -> validate
+        if(p1Num !== null && a1Num !== null && a2Num !== null && p2Num !== null){
+          const expectedP2 = p1Num * a1Num / a2Num;
+          if(Math.abs(expectedP2 - p2Num) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع P2 = P1*A1/A2');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        p1El.value = '';
+        a1El.value = '';
+        a2El.value = '';
+        p2El.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [p1El, a1El, a2El, p2El].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

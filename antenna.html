@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب الهوائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الهوائي</h2>
+
+  <h3>1. طول الهوائي نصف الموجي: L = λ / 2</h3>
+  <div>
+    <label for="l_antenna">طول الهوائي:</label>
+    <input id="l_antenna" type="text" placeholder="(m) طول الهوائي">
+    <label for="lambda_antenna">الطول الموجي:</label>
+    <input id="lambda_antenna" type="text" placeholder="(m) الطول الموجي">
+    <input id="calc_antenna" type="button" value="حساب">
+  </div>
+
+  <h3>2. تردد التشغيل: f = c / λ</h3>
+  <div>
+    <label for="f_antenna">التردد:</label>
+    <input id="f_antenna" type="text" placeholder="(Hz) التردد">
+    <label for="c_antenna">سرعة الضوء:</label>
+    <input id="c_antenna" type="text" placeholder="(m/s) سرعة الضوء" value="299792458">
+    <label for="lambda_freq">الطول الموجي:</label>
+    <input id="lambda_freq" type="text" placeholder="(m) الطول الموجي">
+    <input id="calc_frequency" type="button" value="حساب">
+  </div>
+
+  <h3>3. كسب الهوائي: G = (4π × A × η) / λ²</h3>
+  <div>
+    <label for="g_gain">كسب الهوائي:</label>
+    <input id="g_gain" type="text" placeholder="(dimensionless) كسب الهوائي">
+    <label for="a_gain">مساحة الهوائي الفعالة:</label>
+    <input id="a_gain" type="text" placeholder="(m²) مساحة الهوائي الفعالة">
+    <label for="eta_gain">كفاءة الهوائي:</label>
+    <input id="eta_gain" type="text" placeholder="(%) كفاءة الهوائي" value="50">
+    <label for="lambda_gain">الطول الموجي:</label>
+    <input id="lambda_gain" type="text" placeholder="(m) الطول الموجي">
+    <input id="calc_gain" type="button" value="حساب">
+  </div>
+
+  <h3>4. زاوية الإشعاع: θ = λ / D</h3>
+  <div>
+    <label for="theta_beam">زاوية الإشعاع:</label>
+    <input id="theta_beam" type="text" placeholder="(rad) زاوية الإشعاع">
+    <label for="lambda_beam">الطول الموجي:</label>
+    <input id="lambda_beam" type="text" placeholder="(m) الطول الموجي">
+    <label for="d_beam">قطر الهوائي:</label>
+    <input id="d_beam" type="text" placeholder="(m) قطر الهوائي">
+    <input id="calc_beam" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const lAntennaEl = document.getElementById('l_antenna');
+      const lambdaAntennaEl = document.getElementById('lambda_antenna');
+      const calcAntennaBtn = document.getElementById('calc_antenna');
+
+      const fAntennaEl = document.getElementById('f_antenna');
+      const cAntennaEl = document.getElementById('c_antenna');
+      const lambdaFreqEl = document.getElementById('lambda_freq');
+      const calcFrequencyBtn = document.getElementById('calc_frequency');
+
+      const gGainEl = document.getElementById('g_gain');
+      const aGainEl = document.getElementById('a_gain');
+      const etaGainEl = document.getElementById('eta_gain');
+      const lambdaGainEl = document.getElementById('lambda_gain');
+      const calcGainBtn = document.getElementById('calc_gain');
+
+      const thetaBeamEl = document.getElementById('theta_beam');
+      const lambdaBeamEl = document.getElementById('lambda_beam');
+      const dBeamEl = document.getElementById('d_beam');
+      const calcBeamBtn = document.getElementById('calc_beam');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeAntenna(){
+        const lAntennaVal = lAntennaEl.value.trim();
+        const lambdaAntennaVal = lambdaAntennaEl.value.trim();
+
+        const lAntennaNum = parseNum(lAntennaVal);
+        const lambdaAntennaNum = parseNum(lambdaAntennaVal);
+
+        const filled = [!isEmpty(lAntennaVal), !isEmpty(lambdaAntennaVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate antenna length (L = λ / 2)
+        if(isEmpty(lAntennaVal) && lambdaAntennaNum !== null){
+          const length = lambdaAntennaNum / 2;
+          lAntennaEl.value = formatNumber(length);
+          showResult(`طول الهوائي = ${formatNumber(length)} m`);
+          return;
+        }
+
+        // Calculate wavelength (λ = 2 × L)
+        if(isEmpty(lambdaAntennaVal) && lAntennaNum !== null){
+          const wavelength = 2 * lAntennaNum;
+          lambdaAntennaEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        // all two provided -> validate
+        if(lAntennaNum !== null && lambdaAntennaNum !== null){
+          const expectedL = lambdaAntennaNum / 2;
+          if(Math.abs(expectedL - lAntennaNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع L = λ/2');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeFrequency(){
+        const fAntennaVal = fAntennaEl.value.trim();
+        const cAntennaVal = cAntennaEl.value.trim() || '299792458';
+        const lambdaFreqVal = lambdaFreqEl.value.trim();
+
+        const fAntennaNum = parseNum(fAntennaVal);
+        const cAntennaNum = parseNum(cAntennaVal);
+        const lambdaFreqNum = parseNum(lambdaFreqVal);
+
+        const filled = [!isEmpty(fAntennaVal), !isEmpty(lambdaFreqVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate frequency (f = c / λ)
+        if(isEmpty(fAntennaVal) && lambdaFreqNum !== null){
+          if(lambdaFreqNum === 0){
+            showResult('خطأ: الطول الموجي لا يمكن أن يكون صفر');
+            return;
+          }
+          const frequency = cAntennaNum / lambdaFreqNum;
+          fAntennaEl.value = formatNumber(frequency);
+          showResult(`التردد = ${formatNumber(frequency)} Hz`);
+          return;
+        }
+
+        // Calculate wavelength (λ = c / f)
+        if(isEmpty(lambdaFreqVal) && fAntennaNum !== null){
+          if(fAntennaNum === 0){
+            showResult('خطأ: التردد لا يمكن أن يكون صفر');
+            return;
+          }
+          const wavelength = cAntennaNum / fAntennaNum;
+          lambdaFreqEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(fAntennaNum !== null && lambdaFreqNum !== null){
+          const expectedF = cAntennaNum / lambdaFreqNum;
+          if(Math.abs(expectedF - fAntennaNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع f = c/λ');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeGain(){
+        const gGainVal = gGainEl.value.trim();
+        const aGainVal = aGainEl.value.trim();
+        const etaGainVal = etaGainEl.value.trim() || '50';
+        const lambdaGainVal = lambdaGainEl.value.trim();
+
+        const gGainNum = parseNum(gGainVal);
+        const aGainNum = parseNum(aGainVal);
+        const etaGainNum = parseNum(etaGainVal) / 100; // Convert percentage to decimal
+        const lambdaGainNum = parseNum(lambdaGainVal);
+
+        const filled = [!isEmpty(gGainVal), !isEmpty(aGainVal), !isEmpty(lambdaGainVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate antenna gain (G = (4π × A × η) / λ²)
+        if(isEmpty(gGainVal) && aGainNum !== null && lambdaGainNum !== null){
+          if(lambdaGainNum === 0){
+            showResult('خطأ: الطول الموجي لا يمكن أن يكون صفر');
+            return;
+          }
+          const gain = (4 * Math.PI * aGainNum * etaGainNum) / (lambdaGainNum * lambdaGainNum);
+          gGainEl.value = formatNumber(gain);
+          showResult(`كسب الهوائي = ${formatNumber(gain)}`);
+          return;
+        }
+
+        // Calculate effective area (A = (G × λ²) / (4π × η))
+        if(isEmpty(aGainVal) && gGainNum !== null && lambdaGainNum !== null){
+          if(etaGainNum === 0){
+            showResult('خطأ: كفاءة الهوائي لا يمكن أن تكون صفر');
+            return;
+          }
+          const area = (gGainNum * lambdaGainNum * lambdaGainNum) / (4 * Math.PI * etaGainNum);
+          aGainEl.value = formatNumber(area);
+          showResult(`مساحة الهوائي الفعالة = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        // Calculate wavelength (λ = sqrt((4π × A × η) / G))
+        if(isEmpty(lambdaGainVal) && gGainNum !== null && aGainNum !== null){
+          if(gGainNum === 0){
+            showResult('خطأ: كسب الهوائي لا يمكن أن يكون صفر');
+            return;
+          }
+          const wavelength = Math.sqrt((4 * Math.PI * aGainNum * etaGainNum) / gGainNum);
+          lambdaGainEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeBeam(){
+        const thetaBeamVal = thetaBeamEl.value.trim();
+        const lambdaBeamVal = lambdaBeamEl.value.trim();
+        const dBeamVal = dBeamEl.value.trim();
+
+        const thetaBeamNum = parseNum(thetaBeamVal);
+        const lambdaBeamNum = parseNum(lambdaBeamVal);
+        const dBeamNum = parseNum(dBeamVal);
+
+        const filled = [!isEmpty(thetaBeamVal), !isEmpty(lambdaBeamVal), !isEmpty(dBeamVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate beamwidth (θ = λ / D)
+        if(isEmpty(thetaBeamVal) && lambdaBeamNum !== null && dBeamNum !== null){
+          if(dBeamNum === 0){
+            showResult('خطأ: قطر الهوائي لا يمكن أن يكون صفر');
+            return;
+          }
+          const beamwidth = lambdaBeamNum / dBeamNum;
+          thetaBeamEl.value = formatNumber(beamwidth);
+          showResult(`زاوية الإشعاع = ${formatNumber(beamwidth)} rad`);
+          return;
+        }
+
+        // Calculate wavelength (λ = θ × D)
+        if(isEmpty(lambdaBeamVal) && thetaBeamNum !== null && dBeamNum !== null){
+          const wavelength = thetaBeamNum * dBeamNum;
+          lambdaBeamEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        // Calculate antenna diameter (D = λ / θ)
+        if(isEmpty(dBeamVal) && lambdaBeamNum !== null && thetaBeamNum !== null){
+          if(thetaBeamNum === 0){
+            showResult('خطأ: زاوية الإشعاع لا يمكن أن تكون صفر');
+            return;
+          }
+          const diameter = lambdaBeamNum / thetaBeamNum;
+          dBeamEl.value = formatNumber(diameter);
+          showResult(`قطر الهوائي = ${formatNumber(diameter)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcAntennaBtn.addEventListener('click', computeAntenna);
+      calcFrequencyBtn.addEventListener('click', computeFrequency);
+      calcGainBtn.addEventListener('click', computeGain);
+      calcBeamBtn.addEventListener('click', computeBeam);
+
+      rBtn.addEventListener('click', function(){
+        lAntennaEl.value = '';
+        lambdaAntennaEl.value = '';
+        fAntennaEl.value = '';
+        cAntennaEl.value = '299792458';
+        lambdaFreqEl.value = '';
+        gGainEl.value = '';
+        aGainEl.value = '';
+        etaGainEl.value = '50';
+        lambdaGainEl.value = '';
+        thetaBeamEl.value = '';
+        lambdaBeamEl.value = '';
+        dBeamEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [lAntennaEl, lambdaAntennaEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeAntenna();
+          }
+        });
+      });
+
+      [fAntennaEl, cAntennaEl, lambdaFreqEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeFrequency();
+          }
+        });
+      });
+
+      [gGainEl, aGainEl, etaGainEl, lambdaGainEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeGain();
+          }
+        });
+      });
+
+      [thetaBeamEl, lambdaBeamEl, dBeamEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeBeam();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

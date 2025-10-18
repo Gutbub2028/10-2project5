@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب المولد الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب المولد الكهربائي</h2>
+
+  <h3>1. الجهد المستحث: ε = N × Φ × ω / (2π)</h3>
+  <div>
+    <label for="epsilon_gen">الجهد المستحث:</label>
+    <input id="epsilon_gen" type="text" placeholder="(V) الجهد المستحث">
+    <label for="n_gen">عدد اللفات:</label>
+    <input id="n_gen" type="text" placeholder="(لفات) عدد اللفات">
+    <label for="phi_gen">التدفق المغناطيسي:</label>
+    <input id="phi_gen" type="text" placeholder="(Wb) التدفق المغناطيسي">
+    <label for="omega_gen">السرعة الزاوية:</label>
+    <input id="omega_gen" type="text" placeholder="(rad/s) السرعة الزاوية">
+    <input id="calc_generator" type="button" value="حساب">
+  </div>
+
+  <h3>2. القدرة المولدة: P = ε × I</h3>
+  <div>
+    <label for="p_gen">القدرة:</label>
+    <input id="p_gen" type="text" placeholder="(W) القدرة">
+    <label for="epsilon_power">الجهد المستحث:</label>
+    <input id="epsilon_power" type="text" placeholder="(V) الجهد المستحث">
+    <label for="i_gen">التيار:</label>
+    <input id="i_gen" type="text" placeholder="(A) التيار">
+    <input id="calc_power_gen" type="button" value="حساب">
+  </div>
+
+  <h3>3. الكفاءة: η = (P_out / P_in) × 100%</h3>
+  <div>
+    <label for="eta_gen">الكفاءة:</label>
+    <input id="eta_gen" type="text" placeholder="(%) الكفاءة">
+    <label for="p_out_gen">القدرة المخرجة:</label>
+    <input id="p_out_gen" type="text" placeholder="(W) القدرة المخرجة">
+    <label for="p_in_gen">القدرة المدخلة:</label>
+    <input id="p_in_gen" type="text" placeholder="(W) القدرة المدخلة">
+    <input id="calc_efficiency_gen" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const epsilonGenEl = document.getElementById('epsilon_gen');
+      const nGenEl = document.getElementById('n_gen');
+      const phiGenEl = document.getElementById('phi_gen');
+      const omegaGenEl = document.getElementById('omega_gen');
+      const calcGeneratorBtn = document.getElementById('calc_generator');
+
+      const pGenEl = document.getElementById('p_gen');
+      const epsilonPowerEl = document.getElementById('epsilon_power');
+      const iGenEl = document.getElementById('i_gen');
+      const calcPowerGenBtn = document.getElementById('calc_power_gen');
+
+      const etaGenEl = document.getElementById('eta_gen');
+      const pOutGenEl = document.getElementById('p_out_gen');
+      const pInGenEl = document.getElementById('p_in_gen');
+      const calcEfficiencyGenBtn = document.getElementById('calc_efficiency_gen');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeGenerator(){
+        const epsilonGenVal = epsilonGenEl.value.trim();
+        const nGenVal = nGenEl.value.trim();
+        const phiGenVal = phiGenEl.value.trim();
+        const omegaGenVal = omegaGenEl.value.trim();
+
+        const epsilonGenNum = parseNum(epsilonGenVal);
+        const nGenNum = parseNum(nGenVal);
+        const phiGenNum = parseNum(phiGenVal);
+        const omegaGenNum = parseNum(omegaGenVal);
+
+        const filled = [!isEmpty(epsilonGenVal), !isEmpty(nGenVal), !isEmpty(phiGenVal), !isEmpty(omegaGenVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate induced voltage (ε = N × Φ × ω / (2π))
+        if(isEmpty(epsilonGenVal) && nGenNum !== null && phiGenNum !== null && omegaGenNum !== null){
+          const epsilon = nGenNum * phiGenNum * omegaGenNum / (2 * Math.PI);
+          epsilonGenEl.value = formatNumber(epsilon);
+          showResult(`الجهد المستحث = ${formatNumber(epsilon)} V`);
+          return;
+        }
+
+        // Calculate turns (N = ε × 2π / (Φ × ω))
+        if(isEmpty(nGenVal) && epsilonGenNum !== null && phiGenNum !== null && omegaGenNum !== null){
+          if(phiGenNum === 0 || omegaGenNum === 0){
+            showResult('خطأ: التدفق المغناطيسي أو السرعة الزاوية لا يمكن أن يكون صفر');
+            return;
+          }
+          const n = epsilonGenNum * 2 * Math.PI / (phiGenNum * omegaGenNum);
+          nGenEl.value = formatNumber(n);
+          showResult(`عدد اللفات = ${formatNumber(n)} لفات`);
+          return;
+        }
+
+        // Calculate magnetic flux (Φ = ε × 2π / (N × ω))
+        if(isEmpty(phiGenVal) && epsilonGenNum !== null && nGenNum !== null && omegaGenNum !== null){
+          if(nGenNum === 0 || omegaGenNum === 0){
+            showResult('خطأ: عدد اللفات أو السرعة الزاوية لا يمكن أن يكون صفر');
+            return;
+          }
+          const phi = epsilonGenNum * 2 * Math.PI / (nGenNum * omegaGenNum);
+          phiGenEl.value = formatNumber(phi);
+          showResult(`التدفق المغناطيسي = ${formatNumber(phi)} Wb`);
+          return;
+        }
+
+        // Calculate angular velocity (ω = ε × 2π / (N × Φ))
+        if(isEmpty(omegaGenVal) && epsilonGenNum !== null && nGenNum !== null && phiGenNum !== null){
+          if(nGenNum === 0 || phiGenNum === 0){
+            showResult('خطأ: عدد اللفات أو التدفق المغناطيسي لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = epsilonGenNum * 2 * Math.PI / (nGenNum * phiGenNum);
+          omegaGenEl.value = formatNumber(omega);
+          showResult(`السرعة الزاوية = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computePowerGen(){
+        const pGenVal = pGenEl.value.trim();
+        const epsilonPowerVal = epsilonPowerEl.value.trim();
+        const iGenVal = iGenEl.value.trim();
+
+        const pGenNum = parseNum(pGenVal);
+        const epsilonPowerNum = parseNum(epsilonPowerVal);
+        const iGenNum = parseNum(iGenVal);
+
+        const filled = [!isEmpty(pGenVal), !isEmpty(epsilonPowerVal), !isEmpty(iGenVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate power (P = ε × I)
+        if(isEmpty(pGenVal) && epsilonPowerNum !== null && iGenNum !== null){
+          const power = epsilonPowerNum * iGenNum;
+          pGenEl.value = formatNumber(power);
+          showResult(`القدرة = ${formatNumber(power)} W`);
+          return;
+        }
+
+        // Calculate induced voltage (ε = P / I)
+        if(isEmpty(epsilonPowerVal) && pGenNum !== null && iGenNum !== null){
+          if(iGenNum === 0){
+            showResult('خطأ: التيار لا يمكن أن يكون صفر');
+            return;
+          }
+          const epsilon = pGenNum / iGenNum;
+          epsilonPowerEl.value = formatNumber(epsilon);
+          showResult(`الجهد المستحث = ${formatNumber(epsilon)} V`);
+          return;
+        }
+
+        // Calculate current (I = P / ε)
+        if(isEmpty(iGenVal) && pGenNum !== null && epsilonPowerNum !== null){
+          if(epsilonPowerNum === 0){
+            showResult('خطأ: الجهد المستحث لا يمكن أن يكون صفر');
+            return;
+          }
+          const current = pGenNum / epsilonPowerNum;
+          iGenEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEfficiencyGen(){
+        const etaGenVal = etaGenEl.value.trim();
+        const pOutGenVal = pOutGenEl.value.trim();
+        const pInGenVal = pInGenEl.value.trim();
+
+        const etaGenNum = parseNum(etaGenVal);
+        const pOutGenNum = parseNum(pOutGenVal);
+        const pInGenNum = parseNum(pInGenVal);
+
+        const filled = [!isEmpty(etaGenVal), !isEmpty(pOutGenVal), !isEmpty(pInGenVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate efficiency (η = (P_out / P_in) × 100%)
+        if(isEmpty(etaGenVal) && pOutGenNum !== null && pInGenNum !== null){
+          if(pInGenNum === 0){
+            showResult('خطأ: القدرة المدخلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const eta = (pOutGenNum / pInGenNum) * 100;
+          etaGenEl.value = formatNumber(eta);
+          showResult(`الكفاءة = ${formatNumber(eta)} %`);
+          return;
+        }
+
+        // Calculate output power (P_out = η × P_in / 100)
+        if(isEmpty(pOutGenVal) && etaGenNum !== null && pInGenNum !== null){
+          const pOut = etaGenNum * pInGenNum / 100;
+          pOutGenEl.value = formatNumber(pOut);
+          showResult(`القدرة المخرجة = ${formatNumber(pOut)} W`);
+          return;
+        }
+
+        // Calculate input power (P_in = P_out × 100 / η)
+        if(isEmpty(pInGenVal) && etaGenNum !== null && pOutGenNum !== null){
+          if(etaGenNum === 0){
+            showResult('خطأ: الكفاءة لا يمكن أن تكون صفر');
+            return;
+          }
+          const pIn = pOutGenNum * 100 / etaGenNum;
+          pInGenEl.value = formatNumber(pIn);
+          showResult(`القدرة المدخلة = ${formatNumber(pIn)} W`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcGeneratorBtn.addEventListener('click', computeGenerator);
+      calcPowerGenBtn.addEventListener('click', computePowerGen);
+      calcEfficiencyGenBtn.addEventListener('click', computeEfficiencyGen);
+
+      rBtn.addEventListener('click', function(){
+        epsilonGenEl.value = '';
+        nGenEl.value = '';
+        phiGenEl.value = '';
+        omegaGenEl.value = '';
+        pGenEl.value = '';
+        epsilonPowerEl.value = '';
+        iGenEl.value = '';
+        etaGenEl.value = '';
+        pOutGenEl.value = '';
+        pInGenEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [epsilonGenEl, nGenEl, phiGenEl, omegaGenEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeGenerator();
+          }
+        });
+      });
+
+      [pGenEl, epsilonPowerEl, iGenEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computePowerGen();
+          }
+        });
+      });
+
+      [etaGenEl, pOutGenEl, pInGenEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEfficiencyGen();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

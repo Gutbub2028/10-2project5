@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الاستضاءة</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="i" type="text" placeholder="(W) القوة"></input>
+    <input id="r" type="text" placeholder="(m) المسافة"></input>
+    <input id="e" type="text" placeholder="(lux) الاستضاءة"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="reset" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const iEl = document.getElementById('i');
+      const rEl = document.getElementById('r');
+      const eEl = document.getElementById('e');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('reset');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const pVal = iEl.value.trim();
+        const rVal = rEl.value.trim();
+        const eVal = eEl.value.trim();
+
+        const pNum = parseNum(pVal);
+        const rNum = parseNum(rVal);
+        const eNum = parseNum(eVal);
+
+        const filled = [!isEmpty(pVal), !isEmpty(rVal), !isEmpty(eVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate illumination (E = P / (4 * π * r²))
+        if(isEmpty(eVal) && pNum !== null && rNum !== null){
+          if(rNum === 0){
+            showResult('خطأ: المسافة لا يمكن أن تكون صفر');
+            return;
+          }
+          const illumination = pNum / (4 * 3.14 * rNum * rNum);
+          eEl.value = formatNumber(illumination);
+          showResult(`الاستضاءة = ${formatNumber(illumination)} lux`);
+          return;
+        }
+
+        // Calculate power (P = E * 4 * π * r²)
+        if(isEmpty(pVal) && eNum !== null && rNum !== null){
+          const power = eNum * 4 * 3.14 * rNum * rNum;
+          iEl.value = formatNumber(power);
+          showResult(`القوة = ${formatNumber(power)} W`);
+          return;
+        }
+
+        // Calculate distance (r = sqrt(P / (4 * π * E)))
+        if(isEmpty(rVal) && pNum !== null && eNum !== null){
+          if(eNum === 0){
+            showResult('خطأ: الاستضاءة لا يمكن أن تكون صفر');
+            return;
+          }
+          const distance = Math.sqrt(pNum / (4 * 3.14 * eNum));
+          rEl.value = formatNumber(distance);
+          showResult(`المسافة = ${formatNumber(distance)} m`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(pNum !== null && rNum !== null && eNum !== null){
+          const expectedE = pNum / (4 * 3.14 * rNum * rNum);
+          if(Math.abs(expectedE - eNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع E = P/(4πr²)');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        iEl.value = '';
+        rEl.value = '';
+        eEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [iEl, rEl, eEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

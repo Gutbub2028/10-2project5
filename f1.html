@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب تردد الضوء للمراقب</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="f0" type="text" placeholder="(Hz) التردد الأصلي"></input>
+    <input id="v" type="text" placeholder="(m/s) سرعة المصدر"></input>
+    <input id="c" type="text" placeholder="(m/s) سرعة الضوء" value="299792458"></input>
+    <input id="f" type="text" placeholder="(Hz) التردد المرصود"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const f0El = document.getElementById('f0');
+      const vEl = document.getElementById('v');
+      const cEl = document.getElementById('c');
+      const fEl = document.getElementById('f');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const f0Val = f0El.value.trim();
+        const vVal = vEl.value.trim();
+        const cVal = cEl.value.trim() || '299792458';
+        const fVal = fEl.value.trim();
+
+        const f0Num = parseNum(f0Val);
+        const vNum = parseNum(vVal);
+        const cNum = parseNum(cVal);
+        const fNum = parseNum(fVal);
+
+        const filled = [!isEmpty(f0Val), !isEmpty(vVal), !isEmpty(fVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate observed frequency (f = f₀ * √(c²/(c²-v²))) for approaching source
+        if(isEmpty(fVal) && f0Num !== null && vNum !== null){
+          if(cNum === 0){
+            showResult('خطأ: سرعة الضوء لا يمكن أن تكون صفر');
+            return;
+          }
+          if(Math.abs(vNum) >= cNum){
+            showResult('خطأ: سرعة المصدر لا يمكن أن تكون أكبر من سرعة الضوء');
+            return;
+          }
+          const factor = Math.sqrt(cNum * cNum / (cNum * cNum - vNum * vNum));
+          const freq = f0Num * factor;
+          fEl.value = formatNumber(freq);
+          showResult(`التردد المرصود = ${formatNumber(freq)} Hz`);
+          return;
+        }
+
+        // Calculate source velocity (v = c * √(1 - (f₀/f)²))
+        if(isEmpty(vVal) && f0Num !== null && fNum !== null){
+          if(fNum === 0){
+            showResult('خطأ: التردد المرصود لا يمكن أن يكون صفر');
+            return;
+          }
+          if(fNum <= f0Num){
+            showResult('خطأ: التردد المرصود يجب أن يكون أكبر من التردد الأصلي');
+            return;
+          }
+          const ratio = f0Num / fNum;
+          const vel = cNum * Math.sqrt(1 - ratio * ratio);
+          vEl.value = formatNumber(vel);
+          showResult(`سرعة المصدر = ${formatNumber(vel)} m/s`);
+          return;
+        }
+
+        // Calculate original frequency (f₀ = f / √(c²/(c²-v²)))
+        if(isEmpty(f0Val) && fNum !== null && vNum !== null){
+          if(cNum === 0){
+            showResult('خطأ: سرعة الضوء لا يمكن أن تكون صفر');
+            return;
+          }
+          if(Math.abs(vNum) >= cNum){
+            showResult('خطأ: سرعة المصدر لا يمكن أن تكون أكبر من سرعة الضوء');
+            return;
+          }
+          const factor = Math.sqrt((cNum * cNum - vNum * vNum) / (cNum * cNum));
+          const freq = fNum / factor;
+          f0El.value = formatNumber(freq);
+          showResult(`التردد الأصلي = ${formatNumber(freq)} Hz`);
+          return;
+        }
+
+        // all four provided -> validate
+        if(f0Num !== null && vNum !== null && fNum !== null){
+          const expectedF = f0Num * Math.sqrt(cNum * cNum / (cNum * cNum - vNum * vNum));
+          if(Math.abs(expectedF - fNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع معادلة دوبلر للضوء');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        f0El.value = '';
+        vEl.value = '';
+        cEl.value = '299792458';
+        fEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [f0El, vEl, cEl, fEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+

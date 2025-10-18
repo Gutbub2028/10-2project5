@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>طاقة الموجة</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>طاقة الموجة: E = (1/2)μA²ω²</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>طاقة الموجة للوحدة الطول</p>
+  <p><strong>E = (1/2)μA²ω²</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>E: طاقة الموجة (جول)</li>
+    <li>μ: كثافة خطية (كجم/م)</li>
+    <li>A: السعة (م)</li>
+    <li>ω: التردد الزاوي (rad/s)</li>
+  </ul>
+
+  <h3>مثال: كثافة خطية 0.01 كجم/م، سعة 0.1 م، تردد زاوي 6.28 rad/s</h3>
+  <p>الطاقة = (1/2) × 0.01 × (0.1)² × (6.28)² = (1/2) × 0.01 × 0.01 × 39.44 = 0.001972 جول</p>
+
+  <h3>حاسبة:</h3>
+  <div>
+    <label for="e_wave_energy">طاقة الموجة (ج):</label>
+    <input id="e_wave_energy" type="text" placeholder="طاقة الموجة">
+    <label for="mu_wave_energy">كثافة خطية (كجم/م):</label>
+    <input id="mu_wave_energy" type="text" placeholder="كثافة خطية">
+    <label for="a_wave_energy">السعة (م):</label>
+    <input id="a_wave_energy" type="text" placeholder="السعة">
+    <label for="omega_wave_energy">التردد الزاوي (rad/s):</label>
+    <input id="omega_wave_energy" type="text" placeholder="التردد الزاوي">
+    <input id="calc_wave_energy" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const eEl = document.getElementById('e_wave_energy');
+      const muEl = document.getElementById('mu_wave_energy');
+      const aEl = document.getElementById('a_wave_energy');
+      const omegaEl = document.getElementById('omega_wave_energy');
+      const calcBtn = document.getElementById('calc_wave_energy');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const eVal = eEl.value.trim();
+        const muVal = muEl.value.trim();
+        const aVal = aEl.value.trim();
+        const omegaVal = omegaEl.value.trim();
+
+        const eNum = parseNum(eVal);
+        const muNum = parseNum(muVal);
+        const aNum = parseNum(aVal);
+        const omegaNum = parseNum(omegaVal);
+
+        const filled = [!isEmpty(eVal), !isEmpty(muVal), !isEmpty(aVal), !isEmpty(omegaVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        if(isEmpty(eVal) && muNum !== null && aNum !== null && omegaNum !== null){
+          const energy = 0.5 * muNum * aNum * aNum * omegaNum * omegaNum;
+          eEl.value = formatNumber(energy);
+          showResult(`طاقة الموجة = ${formatNumber(energy)} جول`);
+          return;
+        }
+
+        if(isEmpty(muVal) && eNum !== null && aNum !== null && omegaNum !== null){
+          if(aNum === 0 || omegaNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const linearDensity = 2 * eNum / (aNum * aNum * omegaNum * omegaNum);
+          muEl.value = formatNumber(linearDensity);
+          showResult(`كثافة خطية = ${formatNumber(linearDensity)} كجم/م`);
+          return;
+        }
+
+        if(isEmpty(aVal) && eNum !== null && muNum !== null && omegaNum !== null){
+          if(muNum === 0 || omegaNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const amplitude = Math.sqrt(2 * eNum / (muNum * omegaNum * omegaNum));
+          aEl.value = formatNumber(amplitude);
+          showResult(`السعة = ${formatNumber(amplitude)} م`);
+          return;
+        }
+
+        if(isEmpty(omegaVal) && eNum !== null && muNum !== null && aNum !== null){
+          if(muNum === 0 || aNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const angularFreq = Math.sqrt(2 * eNum / (muNum * aNum * aNum));
+          omegaEl.value = formatNumber(angularFreq);
+          showResult(`التردد الزاوي = ${formatNumber(angularFreq)} rad/s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        eEl.value = '';
+        muEl.value = '';
+        aEl.value = '';
+        omegaEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [eEl, muEl, aEl, omegaEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+
+

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب الدار الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الدار الكهربائي</h2>
+
+  <h3>1. دار سلسلة: مقاومة + مكثف + ملف</h3>
+  <div>
+    <label for="r_series">المقاومة:</label>
+    <input id="r_series" type="text" placeholder="(Ω) المقاومة">
+    <label for="c_series">السعة:</label>
+    <input id="c_series" type="text" placeholder="(F) السعة">
+    <label for="l_series">المعاوقة المغناطيسية:</label>
+    <input id="l_series" type="text" placeholder="(H) المعاوقة المغناطيسية">
+    <label for="v_series">الجهد:</label>
+    <input id="v_series" type="text" placeholder="(V) الجهد">
+    <label for="f_series">التردد:</label>
+    <input id="f_series" type="text" placeholder="(Hz) التردد">
+    <input id="calc_rlc_series" type="button" value="حساب">
+  </div>
+
+  <h3>2. دار متوازي: مقاومة || مكثف || ملف</h3>
+  <div>
+    <label for="r_parallel">المقاومة:</label>
+    <input id="r_parallel" type="text" placeholder="(Ω) المقاومة">
+    <label for="c_parallel">السعة:</label>
+    <input id="c_parallel" type="text" placeholder="(F) السعة">
+    <label for="l_parallel">المعاوقة المغناطيسية:</label>
+    <input id="l_parallel" type="text" placeholder="(H) المعاوقة المغناطيسية">
+    <label for="v_parallel">الجهد:</label>
+    <input id="v_parallel" type="text" placeholder="(V) الجهد">
+    <label for="f_parallel">التردد:</label>
+    <input id="f_parallel" type="text" placeholder="(Hz) التردد">
+    <input id="calc_rlc_parallel" type="button" value="حساب">
+  </div>
+
+  <h3>3. دار RC سلسلة</h3>
+  <div>
+    <label for="r_rc">المقاومة:</label>
+    <input id="r_rc" type="text" placeholder="(Ω) المقاومة">
+    <label for="c_rc">السعة:</label>
+    <input id="c_rc" type="text" placeholder="(F) السعة">
+    <label for="v_rc">الجهد:</label>
+    <input id="v_rc" type="text" placeholder="(V) الجهد">
+    <input id="calc_rc" type="button" value="حساب ثابت الزمن">
+  </div>
+
+  <h3>4. دار RL سلسلة</h3>
+  <div>
+    <label for="r_rl">المقاومة:</label>
+    <input id="r_rl" type="text" placeholder="(Ω) المقاومة">
+    <label for="l_rl">المعاوقة المغناطيسية:</label>
+    <input id="l_rl" type="text" placeholder="(H) المعاوقة المغناطيسية">
+    <label for="v_rl">الجهد:</label>
+    <input id="v_rl" type="text" placeholder="(V) الجهد">
+    <input id="calc_rl" type="button" value="حساب ثابت الزمن">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const rSeriesEl = document.getElementById('r_series');
+      const cSeriesEl = document.getElementById('c_series');
+      const lSeriesEl = document.getElementById('l_series');
+      const vSeriesEl = document.getElementById('v_series');
+      const fSeriesEl = document.getElementById('f_series');
+      const calcRlcSeriesBtn = document.getElementById('calc_rlc_series');
+
+      const rParallelEl = document.getElementById('r_parallel');
+      const cParallelEl = document.getElementById('c_parallel');
+      const lParallelEl = document.getElementById('l_parallel');
+      const vParallelEl = document.getElementById('v_parallel');
+      const fParallelEl = document.getElementById('f_parallel');
+      const calcRlcParallelBtn = document.getElementById('calc_rlc_parallel');
+
+      const rRcEl = document.getElementById('r_rc');
+      const cRcEl = document.getElementById('c_rc');
+      const vRcEl = document.getElementById('v_rc');
+      const calcRcBtn = document.getElementById('calc_rc');
+
+      const rRlEl = document.getElementById('r_rl');
+      const lRlEl = document.getElementById('l_rl');
+      const vRlEl = document.getElementById('v_rl');
+      const calcRlBtn = document.getElementById('calc_rl');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeRlcSeries(){
+        const rSeriesVal = rSeriesEl.value.trim();
+        const cSeriesVal = cSeriesEl.value.trim();
+        const lSeriesVal = lSeriesEl.value.trim();
+        const vSeriesVal = vSeriesEl.value.trim();
+        const fSeriesVal = fSeriesEl.value.trim();
+
+        const rSeriesNum = parseNum(rSeriesVal);
+        const cSeriesNum = parseNum(cSeriesVal);
+        const lSeriesNum = parseNum(lSeriesVal);
+        const vSeriesNum = parseNum(vSeriesVal);
+        const fSeriesNum = parseNum(fSeriesVal);
+
+        if(rSeriesNum === null || cSeriesNum === null || lSeriesNum === null || vSeriesNum === null || fSeriesNum === null){
+          showResult('الرجاء إدخال جميع القيم لدار RLC سلسلة');
+          return;
+        }
+
+        const omega = 2 * Math.PI * fSeriesNum; // Angular frequency
+        const xC = 1 / (omega * cSeriesNum); // Capacitive reactance
+        const xL = omega * lSeriesNum; // Inductive reactance
+
+        const z = Math.sqrt(rSeriesNum * rSeriesNum + (xL - xC) * (xL - xC)); // Impedance
+        const i = vSeriesNum / z; // Current
+        const p = vSeriesNum * i * Math.cos(Math.atan((xL - xC) / rSeriesNum)); // Power
+
+        showResult(`الممانعة = ${formatNumber(z)} Ω\n` +
+                  `التيار = ${formatNumber(i)} A\n` +
+                  `القدرة = ${formatNumber(p)} W\n` +
+                  `الممانعة السعوية = ${formatNumber(xC)} Ω\n` +
+                  `الممانعة الحثية = ${formatNumber(xL)} Ω`);
+      }
+
+      function computeRlcParallel(){
+        const rParallelVal = rParallelEl.value.trim();
+        const cParallelVal = cParallelEl.value.trim();
+        const lParallelVal = lParallelEl.value.trim();
+        const vParallelVal = vParallelEl.value.trim();
+        const fParallelVal = fParallelEl.value.trim();
+
+        const rParallelNum = parseNum(rParallelVal);
+        const cParallelNum = parseNum(cParallelVal);
+        const lParallelNum = parseNum(lParallelVal);
+        const vParallelNum = parseNum(vParallelVal);
+        const fParallelNum = parseNum(fParallelVal);
+
+        if(rParallelNum === null || cParallelNum === null || lParallelNum === null || vParallelNum === null || fParallelNum === null){
+          showResult('الرجاء إدخال جميع القيم لدار RLC متوازي');
+          return;
+        }
+
+        const omega = 2 * Math.PI * fParallelNum; // Angular frequency
+        const bC = omega * cParallelNum; // Capacitive susceptance
+        const bL = 1 / (omega * lParallelNum); // Inductive susceptance
+
+        const y = Math.sqrt((1/rParallelNum) * (1/rParallelNum) + (bC - bL) * (bC - bL)); // Admittance
+        const z = 1 / y; // Impedance
+        const i = vParallelNum / z; // Current
+        const p = vParallelNum * vParallelNum / rParallelNum; // Power
+
+        showResult(`الممانعة = ${formatNumber(z)} Ω\n` +
+                  `التيار = ${formatNumber(i)} A\n` +
+                  `القدرة = ${formatNumber(p)} W\n` +
+                  `القبول السعوي = ${formatNumber(bC)} S\n` +
+                  `القبول الحثي = ${formatNumber(bL)} S`);
+      }
+
+      function computeRc(){
+        const rRcVal = rRcEl.value.trim();
+        const cRcVal = cRcEl.value.trim();
+        const vRcVal = vRcEl.value.trim();
+
+        const rRcNum = parseNum(rRcVal);
+        const cRcNum = parseNum(cRcVal);
+        const vRcNum = parseNum(vRcVal);
+
+        if(rRcNum === null || cRcNum === null || vRcNum === null){
+          showResult('الرجاء إدخال جميع القيم لدار RC');
+          return;
+        }
+
+        const tau = rRcNum * cRcNum; // Time constant
+        const i0 = vRcNum / rRcNum; // Initial current
+
+        showResult(`ثابت الزمن τ = ${formatNumber(tau)} s\n` +
+                  `التيار الأولي = ${formatNumber(i0)} A\n` +
+                  `الجهد على المكثف بعد زمن τ = ${formatNumber(vRcNum * (1 - Math.E**(-1)))} V`);
+      }
+
+      function computeRl(){
+        const rRlVal = rRlEl.value.trim();
+        const lRlVal = lRlEl.value.trim();
+        const vRlVal = vRlEl.value.trim();
+
+        const rRlNum = parseNum(rRlVal);
+        const lRlNum = parseNum(lRlVal);
+        const vRlNum = parseNum(vRlVal);
+
+        if(rRlNum === null || lRlNum === null || vRlNum === null){
+          showResult('الرجاء إدخال جميع القيم لدار RL');
+          return;
+        }
+
+        const tau = lRlNum / rRlNum; // Time constant
+        const iFinal = vRlNum / rRlNum; // Final current
+
+        showResult(`ثابت الزمن τ = ${formatNumber(tau)} s\n` +
+                  `التيار النهائي = ${formatNumber(iFinal)} A\n` +
+                  `التيار بعد زمن τ = ${formatNumber(iFinal * (1 - Math.E**(-1)))} A`);
+      }
+
+      calcRlcSeriesBtn.addEventListener('click', computeRlcSeries);
+      calcRlcParallelBtn.addEventListener('click', computeRlcParallel);
+      calcRcBtn.addEventListener('click', computeRc);
+      calcRlBtn.addEventListener('click', computeRl);
+
+      rBtn.addEventListener('click', function(){
+        rSeriesEl.value = '';
+        cSeriesEl.value = '';
+        lSeriesEl.value = '';
+        vSeriesEl.value = '';
+        fSeriesEl.value = '';
+        rParallelEl.value = '';
+        cParallelEl.value = '';
+        lParallelEl.value = '';
+        vParallelEl.value = '';
+        fParallelEl.value = '';
+        rRcEl.value = '';
+        cRcEl.value = '';
+        vRcEl.value = '';
+        rRlEl.value = '';
+        lRlEl.value = '';
+        vRlEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [rSeriesEl, cSeriesEl, lSeriesEl, vSeriesEl, fSeriesEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeRlcSeries();
+          }
+        });
+      });
+
+      [rParallelEl, cParallelEl, lParallelEl, vParallelEl, fParallelEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeRlcParallel();
+          }
+        });
+      });
+
+      [rRcEl, cRcEl, vRcEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeRc();
+          }
+        });
+      });
+
+      [rRlEl, lRlEl, vRlEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeRl();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+

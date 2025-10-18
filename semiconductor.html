@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب الشبه موصل</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب الشبه موصل</h2>
+
+  <h3>1. مقاومة الشبه موصل: R = ρ × L / A</h3>
+  <div>
+    <label for="r_semiconductor">المقاومة:</label>
+    <input id="r_semiconductor" type="text" placeholder="(Ω) المقاومة">
+    <label for="rho_semiconductor">المقاومة النوعية:</label>
+    <input id="rho_semiconductor" type="text" placeholder="(Ω·m) المقاومة النوعية">
+    <label for="l_semiconductor">الطول:</label>
+    <input id="l_semiconductor" type="text" placeholder="(m) الطول">
+    <label for="a_semiconductor">المقطع العرضي:</label>
+    <input id="a_semiconductor" type="text" placeholder="(m²) المقطع العرضي">
+    <input id="calc_semiconductor" type="button" value="حساب">
+  </div>
+
+  <h3>2. تركيز الشحنات الحرة: n = I / (q × v_d × A)</h3>
+  <div>
+    <label for="n_carriers">تركيز الشحنات:</label>
+    <input id="n_carriers" type="text" placeholder="(m⁻³) تركيز الشحنات">
+    <label for="i_carriers">التيار:</label>
+    <input id="i_carriers" type="text" placeholder="(A) التيار">
+    <label for="q_carriers">شحنة الإلكترون:</label>
+    <input id="q_carriers" type="text" placeholder="(C) شحنة الإلكترون" value="1.6e-19">
+    <label for="v_d_carriers">سرعة الانجراف:</label>
+    <input id="v_d_carriers" type="text" placeholder="(m/s) سرعة الانجراف">
+    <label for="a_carriers">المقطع العرضي:</label>
+    <input id="a_carriers" type="text" placeholder="(m²) المقطع العرضي">
+    <input id="calc_carriers" type="button" value="حساب">
+  </div>
+
+  <h3>3. طاقة الفجوة: E_g = h × c / λ</h3>
+  <div>
+    <label for="e_g_bandgap">طاقة الفجوة:</label>
+    <input id="e_g_bandgap" type="text" placeholder="(J) طاقة الفجوة">
+    <label for="h_bandgap">ثابت بلانك:</label>
+    <input id="h_bandgap" type="text" placeholder="(J·s) ثابت بلانك" value="6.626e-34">
+    <label for="c_bandgap">سرعة الضوء:</label>
+    <input id="c_bandgap" type="text" placeholder="(m/s) سرعة الضوء" value="299792458">
+    <label for="lambda_bandgap">الطول الموجي:</label>
+    <input id="lambda_bandgap" type="text" placeholder="(m) الطول الموجي">
+    <input id="calc_bandgap" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const rSemiconductorEl = document.getElementById('r_semiconductor');
+      const rhoSemiconductorEl = document.getElementById('rho_semiconductor');
+      const lSemiconductorEl = document.getElementById('l_semiconductor');
+      const aSemiconductorEl = document.getElementById('a_semiconductor');
+      const calcSemiconductorBtn = document.getElementById('calc_semiconductor');
+
+      const nCarriersEl = document.getElementById('n_carriers');
+      const iCarriersEl = document.getElementById('i_carriers');
+      const qCarriersEl = document.getElementById('q_carriers');
+      const vDCarriersEl = document.getElementById('v_d_carriers');
+      const aCarriersEl = document.getElementById('a_carriers');
+      const calcCarriersBtn = document.getElementById('calc_carriers');
+
+      const eGBandgapEl = document.getElementById('e_g_bandgap');
+      const hBandgapEl = document.getElementById('h_bandgap');
+      const cBandgapEl = document.getElementById('c_bandgap');
+      const lambdaBandgapEl = document.getElementById('lambda_bandgap');
+      const calcBandgapBtn = document.getElementById('calc_bandgap');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeSemiconductor(){
+        const rSemiconductorVal = rSemiconductorEl.value.trim();
+        const rhoSemiconductorVal = rhoSemiconductorEl.value.trim();
+        const lSemiconductorVal = lSemiconductorEl.value.trim();
+        const aSemiconductorVal = aSemiconductorEl.value.trim();
+
+        const rSemiconductorNum = parseNum(rSemiconductorVal);
+        const rhoSemiconductorNum = parseNum(rhoSemiconductorVal);
+        const lSemiconductorNum = parseNum(lSemiconductorVal);
+        const aSemiconductorNum = parseNum(aSemiconductorVal);
+
+        const filled = [!isEmpty(rSemiconductorVal), !isEmpty(rhoSemiconductorVal), !isEmpty(lSemiconductorVal), !isEmpty(aSemiconductorVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate resistance (R = ρ × L / A)
+        if(isEmpty(rSemiconductorVal) && rhoSemiconductorNum !== null && lSemiconductorNum !== null && aSemiconductorNum !== null){
+          if(aSemiconductorNum === 0){
+            showResult('خطأ: المقطع العرضي لا يمكن أن يكون صفر');
+            return;
+          }
+          const resistance = rhoSemiconductorNum * lSemiconductorNum / aSemiconductorNum;
+          rSemiconductorEl.value = formatNumber(resistance);
+          showResult(`المقاومة = ${formatNumber(resistance)} Ω`);
+          return;
+        }
+
+        // Calculate resistivity (ρ = R × A / L)
+        if(isEmpty(rhoSemiconductorVal) && rSemiconductorNum !== null && aSemiconductorNum !== null && lSemiconductorNum !== null){
+          if(lSemiconductorNum === 0){
+            showResult('خطأ: الطول لا يمكن أن يكون صفر');
+            return;
+          }
+          const resistivity = rSemiconductorNum * aSemiconductorNum / lSemiconductorNum;
+          rhoSemiconductorEl.value = formatNumber(resistivity);
+          showResult(`المقاومة النوعية = ${formatNumber(resistivity)} Ω·m`);
+          return;
+        }
+
+        // Calculate length (L = R × A / ρ)
+        if(isEmpty(lSemiconductorVal) && rSemiconductorNum !== null && aSemiconductorNum !== null && rhoSemiconductorNum !== null){
+          if(rhoSemiconductorNum === 0){
+            showResult('خطأ: المقاومة النوعية لا يمكن أن تكون صفر');
+            return;
+          }
+          const length = rSemiconductorNum * aSemiconductorNum / rhoSemiconductorNum;
+          lSemiconductorEl.value = formatNumber(length);
+          showResult(`الطول = ${formatNumber(length)} m`);
+          return;
+        }
+
+        // Calculate area (A = ρ × L / R)
+        if(isEmpty(aSemiconductorVal) && rhoSemiconductorNum !== null && lSemiconductorNum !== null && rSemiconductorNum !== null){
+          if(rSemiconductorNum === 0){
+            showResult('خطأ: المقاومة لا يمكن أن تكون صفر');
+            return;
+          }
+          const area = rhoSemiconductorNum * lSemiconductorNum / rSemiconductorNum;
+          aSemiconductorEl.value = formatNumber(area);
+          showResult(`المقطع العرضي = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeCarriers(){
+        const nCarriersVal = nCarriersEl.value.trim();
+        const iCarriersVal = iCarriersEl.value.trim();
+        const qCarriersVal = qCarriersEl.value.trim() || '1.6e-19';
+        const vDCarriersVal = vDCarriersEl.value.trim();
+        const aCarriersVal = aCarriersEl.value.trim();
+
+        const nCarriersNum = parseNum(nCarriersVal);
+        const iCarriersNum = parseNum(iCarriersVal);
+        const qCarriersNum = parseNum(qCarriersVal);
+        const vDCarriersNum = parseNum(vDCarriersVal);
+        const aCarriersNum = parseNum(aCarriersVal);
+
+        const filled = [!isEmpty(nCarriersVal), !isEmpty(iCarriersVal), !isEmpty(vDCarriersVal), !isEmpty(aCarriersVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate carrier concentration (n = I / (q × v_d × A))
+        if(isEmpty(nCarriersVal) && iCarriersNum !== null && vDCarriersNum !== null && aCarriersNum !== null){
+          if(qCarriersNum === 0 || vDCarriersNum === 0 || aCarriersNum === 0){
+            showResult('خطأ: شحنة الإلكترون أو سرعة الانجراف أو المقطع العرضي لا يمكن أن يكون صفر');
+            return;
+          }
+          const concentration = iCarriersNum / (qCarriersNum * vDCarriersNum * aCarriersNum);
+          nCarriersEl.value = formatNumber(concentration);
+          showResult(`تركيز الشحنات = ${formatNumber(concentration)} m⁻³`);
+          return;
+        }
+
+        // Calculate current (I = n × q × v_d × A)
+        if(isEmpty(iCarriersVal) && nCarriersNum !== null && vDCarriersNum !== null && aCarriersNum !== null){
+          const current = nCarriersNum * qCarriersNum * vDCarriersNum * aCarriersNum;
+          iCarriersEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        // Calculate drift velocity (v_d = I / (n × q × A))
+        if(isEmpty(vDCarriersVal) && nCarriersNum !== null && iCarriersNum !== null && aCarriersNum !== null){
+          if(nCarriersNum === 0 || qCarriersNum === 0 || aCarriersNum === 0){
+            showResult('خطأ: تركيز الشحنات أو شحنة الإلكترون أو المقطع العرضي لا يمكن أن يكون صفر');
+            return;
+          }
+          const velocity = iCarriersNum / (nCarriersNum * qCarriersNum * aCarriersNum);
+          vDCarriersEl.value = formatNumber(velocity);
+          showResult(`سرعة الانجراف = ${formatNumber(velocity)} m/s`);
+          return;
+        }
+
+        // Calculate area (A = I / (n × q × v_d))
+        if(isEmpty(aCarriersVal) && nCarriersNum !== null && iCarriersNum !== null && vDCarriersNum !== null){
+          if(nCarriersNum === 0 || qCarriersNum === 0 || vDCarriersNum === 0){
+            showResult('خطأ: تركيز الشحنات أو شحنة الإلكترون أو سرعة الانجراف لا يمكن أن يكون صفر');
+            return;
+          }
+          const area = iCarriersNum / (nCarriersNum * qCarriersNum * vDCarriersNum);
+          aCarriersEl.value = formatNumber(area);
+          showResult(`المقطع العرضي = ${formatNumber(area)} m²`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeBandgap(){
+        const eGBandgapVal = eGBandgapEl.value.trim();
+        const hBandgapVal = hBandgapEl.value.trim() || '6.626e-34';
+        const cBandgapVal = cBandgapEl.value.trim() || '299792458';
+        const lambdaBandgapVal = lambdaBandgapEl.value.trim();
+
+        const eGBandgapNum = parseNum(eGBandgapVal);
+        const hBandgapNum = parseNum(hBandgapVal);
+        const cBandgapNum = parseNum(cBandgapVal);
+        const lambdaBandgapNum = parseNum(lambdaBandgapVal);
+
+        const filled = [!isEmpty(eGBandgapVal), !isEmpty(lambdaBandgapVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        // Calculate bandgap energy (E_g = h × c / λ)
+        if(isEmpty(eGBandgapVal) && lambdaBandgapNum !== null){
+          if(lambdaBandgapNum === 0){
+            showResult('خطأ: الطول الموجي لا يمكن أن يكون صفر');
+            return;
+          }
+          const energy = hBandgapNum * cBandgapNum / lambdaBandgapNum;
+          eGBandgapEl.value = formatNumber(energy);
+          showResult(`طاقة الفجوة = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate wavelength (λ = h × c / E_g)
+        if(isEmpty(lambdaBandgapVal) && eGBandgapNum !== null){
+          if(eGBandgapNum === 0){
+            showResult('خطأ: طاقة الفجوة لا يمكن أن تكون صفر');
+            return;
+          }
+          const wavelength = hBandgapNum * cBandgapNum / eGBandgapNum;
+          lambdaBandgapEl.value = formatNumber(wavelength);
+          showResult(`الطول الموجي = ${formatNumber(wavelength)} m`);
+          return;
+        }
+
+        // all three provided -> validate
+        if(eGBandgapNum !== null && lambdaBandgapNum !== null){
+          const expectedE = hBandgapNum * cBandgapNum / lambdaBandgapNum;
+          if(Math.abs(expectedE - eGBandgapNum) < 1e-20) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع E_g = h×c/λ');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcSemiconductorBtn.addEventListener('click', computeSemiconductor);
+      calcCarriersBtn.addEventListener('click', computeCarriers);
+      calcBandgapBtn.addEventListener('click', computeBandgap);
+
+      rBtn.addEventListener('click', function(){
+        rSemiconductorEl.value = '';
+        rhoSemiconductorEl.value = '';
+        lSemiconductorEl.value = '';
+        aSemiconductorEl.value = '';
+        nCarriersEl.value = '';
+        iCarriersEl.value = '';
+        qCarriersEl.value = '1.6e-19';
+        vDCarriersEl.value = '';
+        aCarriersEl.value = '';
+        eGBandgapEl.value = '';
+        hBandgapEl.value = '6.626e-34';
+        cBandgapEl.value = '299792458';
+        lambdaBandgapEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [rSemiconductorEl, rhoSemiconductorEl, lSemiconductorEl, aSemiconductorEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeSemiconductor();
+          }
+        });
+      });
+
+      [nCarriersEl, iCarriersEl, qCarriersEl, vDCarriersEl, aCarriersEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeCarriers();
+          }
+        });
+      });
+
+      [eGBandgapEl, hBandgapEl, cBandgapEl, lambdaBandgapEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeBandgap();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

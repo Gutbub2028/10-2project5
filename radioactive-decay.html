@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>النشاط الإشعاعي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>النشاط الإشعاعي: A = -dN/dt</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>النشاط الإشعاعي هو معدل تغير عدد النوى بالنسبة للزمن</p>
+  <p><strong>A = -dN/dt = λN</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>A: النشاط الإشعاعي (بيكريل)</li>
+    <li>N: عدد النوى</li>
+    <li>t: الزمن</li>
+    <li>λ: ثابت الاضمحلال (ث⁻¹)</li>
+  </ul>
+
+  <h3>مثال: عدد نوى 1000، ثابت اضمحلال 0.001 ث⁻¹</h3>
+  <p>النشاط = 0.001 × 1000 = 1 بيكريل</p>
+
+  <h3>حاسبة التفاضل:</h3>
+  <div>
+    <label for="function_decay">الدالة -dN/dt:</label>
+    <input id="function_decay" type="text" placeholder="مثال: λ*N">
+    <label for="t_value_decay">قيمة t:</label>
+    <input id="t_value_decay" type="text" placeholder="قيمة t">
+    <input id="calc_derivative_decay" type="button" value="اشتق">
+    <input id="calc_decay" type="button" value="حساب النشاط">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const aEl = document.getElementById('a_activity');
+      const lambdaEl = document.getElementById('lambda_decay');
+      const nEl = document.getElementById('n_nuclei');
+      const calcBtn = document.getElementById('calc_decay');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeDerivative(){
+        const funcVal = document.getElementById('function_decay').value.trim();
+        const tVal = document.getElementById('t_value_decay').value.trim();
+
+        if(isEmpty(funcVal)){
+          showResult('الرجاء إدخال الدالة');
+          return;
+        }
+
+        let derivative = '';
+        if(funcVal.includes('λ*N') || funcVal.includes('λ N') || funcVal.includes('λ×N') || funcVal.includes('λN') || funcVal.includes('-dN/dt') || funcVal.includes('A = λN')){
+          derivative = 'λN';
+        }
+
+        showResult(`المشتقة A = ${derivative}`);
+      }
+
+      function compute(){
+        const aVal = aEl.value.trim();
+        const lambdaVal = lambdaEl.value.trim();
+        const nVal = nEl.value.trim();
+
+        const aNum = parseNum(aVal);
+        const lambdaNum = parseNum(lambdaVal);
+        const nNum = parseNum(nVal);
+
+        const filled = [!isEmpty(aVal), !isEmpty(lambdaVal), !isEmpty(nVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        if(isEmpty(aVal) && lambdaNum !== null && nNum !== null){
+          const activity = lambdaNum * nNum;
+          aEl.value = formatNumber(activity);
+          showResult(`النشاط الإشعاعي = ${formatNumber(activity)} بيكريل`);
+          return;
+        }
+
+        if(isEmpty(lambdaVal) && aNum !== null && nNum !== null){
+          if(nNum === 0){
+            showResult('خطأ: عدد النوى لا يمكن أن يكون صفر');
+            return;
+          }
+          const decayConstant = aNum / nNum;
+          lambdaEl.value = formatNumber(decayConstant);
+          showResult(`ثابت الاضمحلال = ${formatNumber(decayConstant)} ث⁻¹`);
+          return;
+        }
+
+        if(isEmpty(nVal) && aNum !== null && lambdaNum !== null){
+          if(lambdaNum === 0){
+            showResult('خطأ: ثابت الاضمحلال لا يمكن أن يكون صفر');
+            return;
+          }
+          const nuclei = aNum / lambdaNum;
+          nEl.value = formatNumber(nuclei);
+          showResult(`عدد النوى = ${formatNumber(nuclei)}`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      document.getElementById('calc_derivative_decay').addEventListener('click', computeDerivative);
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        document.getElementById('function_decay').value = '';
+        document.getElementById('t_value_decay').value = '';
+        aEl.value = '';
+        lambdaEl.value = '';
+        nEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [document.getElementById('function_decay'), document.getElementById('t_value_decay'), aEl, lambdaEl, nEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            if(el.id === 'function_decay' || el.id === 't_value_decay'){
+              computeDerivative();
+            } else {
+              compute();
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+
+

@@ -1,0 +1,137 @@
+
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب التفاضل و التكامل في الفيزياء</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ol {
+      list-style: none;
+      padding: 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    li {
+      margin: 15px 0;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    li:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+    }
+    a {
+      display: block;
+      padding: 15px 20px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.1em;
+      transition: background 0.3s;
+    }
+    li a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    input[type="button"] {
+      display: block;
+      margin: 30px auto;
+      padding: 12px 25px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a:last-child {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:last-child:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <h1>حساب التفاضل و التكامل في الفيزياء</h1>
+
+  <ol>
+    <li><a href="velocity-derivative.html">السرعة كمشتقة للإزاحة: v = dx/dt</a></li>
+    <li><a href="acceleration-derivative.html">التسارع كمشتقة للسرعة: a = dv/dt</a></li>
+    <li><a href="velocity-integral.html">السرعة كتكامل للتسارع: v = ∫a dt</a></li>
+    <li><a href="displacement-integral.html">الإزاحة كتكامل للسرعة: x = ∫v dt</a></li>
+    <li><a href="work-integral.html">العمل كتكامل للقوة: W = ∫F dx</a></li>
+    <li><a href="kinetic-energy-integral.html">الطاقة الحركية: KE = ∫(1/2)mv dv</a></li>
+    <li><a href="elastic-energy-integral.html">الطاقة المرنة: PE = ∫kx dx</a></li>
+    <li><a href="torque-integral.html">العزم: τ = ∫r dF</a></li>
+    <li><a href="magnetic-flux-integral.html">التدفق المغناطيسي: Φ = ∫B dA</a></li>
+    <li><a href="faraday-law.html">قانون فاراداي: ε = -dΦ/dt</a></li>
+    <li><a href="ampere-law.html">قانون أمبير: ∮B dl = μ₀I</a></li>
+    <li><a href="heat-integral.html">الحرارة: Q = ∫c dT</a></li>
+    <li><a href="boyle-law.html">قانون بويل: PV = constant</a></li>
+    <li><a href="wave-equation.html">معادلة الموجة: y = A sin(kx - ωt)</a></li>
+    <li><a href="wave-speed.html">السرعة الموجية: v = ω/k</a></li>
+    <li><a href="wave-energy.html">طاقة الموجة: E = (1/2)μω²A²</a></li>
+    <li><a href="radioactive-decay.html">النشاط الإشعاعي: A = -dN/dt</a></li>
+    <li><a href="remaining-nuclei.html">عدد النوى المتبقية: N = N₀e^(-λt)</a></li>
+    <li><a href="half-life.html">عمر النصف: t₁/₂ = ln(2)/λ</a></li>
+  </ol>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="calcu.html">الرجوع الى الصفحة الرئيسية</a>
+</body>
+</html></style>  
+

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>عمر النصف</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>عمر النصف: t₁/₂ = ln(2)/λ</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>عمر النصف هو الزمن اللازم لانخفاض عدد النوى إلى النصف</p>
+  <p><strong>t₁/₂ = ln(2)/λ</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>t₁/₂: عمر النصف</li>
+    <li>λ: ثابت الاضمحلال (ث⁻¹)</li>
+    <li>ln(2) ≈ 0.693</li>
+  </ul>
+
+  <h3>مثال: ثابت اضمحلال 0.001 ث⁻¹</h3>
+  <p>عمر النصف = ln(2) / 0.001 = 0.693 / 0.001 = 693 ثانية</p>
+
+  <h3>حاسبة:</h3>
+  <div>
+    <label for="t_half">عمر النصف (ث):</label>
+    <input id="t_half" type="text" placeholder="عمر النصف">
+    <label for="lambda_half">ثابت الاضمحلال (ث⁻¹):</label>
+    <input id="lambda_half" type="text" placeholder="ثابت الاضمحلال">
+    <input id="calc_half_life" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const tEl = document.getElementById('t_half');
+      const lambdaEl = document.getElementById('lambda_half');
+      const calcBtn = document.getElementById('calc_half_life');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const tVal = tEl.value.trim();
+        const lambdaVal = lambdaEl.value.trim();
+
+        const tNum = parseNum(tVal);
+        const lambdaNum = parseNum(lambdaVal);
+
+        const filled = [!isEmpty(tVal), !isEmpty(lambdaVal)].filter(Boolean).length;
+        if(filled < 1){
+          showResult('الرجاء إدخال قيمة واحدة على الأقل.');
+          return;
+        }
+
+        if(isEmpty(tVal) && lambdaNum !== null){
+          if(lambdaNum === 0){
+            showResult('خطأ: ثابت الاضمحلال لا يمكن أن يكون صفر');
+            return;
+          }
+          const halfLife = Math.log(2) / lambdaNum;
+          tEl.value = formatNumber(halfLife);
+          showResult(`عمر النصف = ${formatNumber(halfLife)} ثانية`);
+          return;
+        }
+
+        if(isEmpty(lambdaVal) && tNum !== null){
+          if(tNum === 0){
+            showResult('خطأ: عمر النصف لا يمكن أن يكون صفر');
+            return;
+          }
+          const decayConstant = Math.log(2) / tNum;
+          lambdaEl.value = formatNumber(decayConstant);
+          showResult(`ثابت الاضمحلال = ${formatNumber(decayConstant)} ث⁻¹`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        tEl.value = '';
+        lambdaEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [tEl, lambdaEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+
+

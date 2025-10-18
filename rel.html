@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>حساب قانون سنل للانكسار</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="n1" type="text" placeholder="معامل الانكسار الأول"></input>
+    <input id="n2" type="text" placeholder="معامل الانكسار الثاني"></input>
+    <input id="i" type="text" placeholder="(rad) زاوية السقوط"></input>
+    <input id="r" type="text" placeholder="(rad) زاوية الانكسار"></input>
+    <input id="s" type="button" value="تاكيد">
+    <input id="reset" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const n1El = document.getElementById('n1');
+      const n2El = document.getElementById('n2');
+      const iEl = document.getElementById('i');
+      const rEl = document.getElementById('r');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('reset');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const n1Val = n1El.value.trim();
+        const n2Val = n2El.value.trim();
+        const iVal = iEl.value.trim();
+        const rVal = rEl.value.trim();
+
+        const n1Num = parseNum(n1Val);
+        const n2Num = parseNum(n2Val);
+        const iNum = parseNum(iVal);
+        const rNum = parseNum(rVal);
+
+        const filled = [!isEmpty(n1Val), !isEmpty(n2Val), !isEmpty(iVal), !isEmpty(rVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        // Calculate refraction angle (r = arcsin(n1/n2 * sin(i)))
+        if(isEmpty(rVal) && n1Num !== null && n2Num !== null && iNum !== null){
+          const arg = (n1Num / n2Num) * Math.sin(iNum);
+          if(arg > 1){
+            showResult('خطأ: القيمة المحسوبة أكبر من 1، انكسار كلي');
+            return;
+          }
+          const refraction = Math.asin(arg);
+          rEl.value = formatNumber(refraction);
+          showResult(`زاوية الانكسار = ${formatNumber(refraction)} rad`);
+          return;
+        }
+
+        // Calculate incidence angle (i = arcsin(n2/n1 * sin(r)))
+        if(isEmpty(iVal) && n1Num !== null && n2Num !== null && rNum !== null){
+          const arg = (n2Num / n1Num) * Math.sin(rNum);
+          if(arg > 1){
+            showResult('خطأ: القيمة المحسوبة أكبر من 1، انكسار كلي');
+            return;
+          }
+          const incidence = Math.asin(arg);
+          iEl.value = formatNumber(incidence);
+          showResult(`زاوية السقوط = ${formatNumber(incidence)} rad`);
+          return;
+        }
+
+        // Calculate n2 (n2 = n1 * sin(i) / sin(r))
+        if(isEmpty(n2Val) && n1Num !== null && iNum !== null && rNum !== null){
+          if(Math.sin(rNum) === 0){
+            showResult('خطأ: الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const n2 = n1Num * Math.sin(iNum) / Math.sin(rNum);
+          n2El.value = formatNumber(n2);
+          showResult(`معامل الانكسار الثاني = ${formatNumber(n2)}`);
+          return;
+        }
+
+        // Calculate n1 (n1 = n2 * sin(r) / sin(i))
+        if(isEmpty(n1Val) && n2Num !== null && iNum !== null && rNum !== null){
+          if(Math.sin(iNum) === 0){
+            showResult('خطأ: الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const n1 = n2Num * Math.sin(rNum) / Math.sin(iNum);
+          n1El.value = formatNumber(n1);
+          showResult(`معامل الانكسار الأول = ${formatNumber(n1)}`);
+          return;
+        }
+
+        // all four provided -> validate
+        if(n1Num !== null && n2Num !== null && iNum !== null && rNum !== null){
+          const expectedR = Math.asin((n1Num / n2Num) * Math.sin(iNum));
+          if(Math.abs(expectedR - rNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون سنل n1*sin(i) = n2*sin(r)');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        n1El.value = '';
+        n2El.value = '';
+        iEl.value = '';
+        rEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [n1El, n2El, iEl, rEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+

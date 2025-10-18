@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب طاقة الحركة</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 200px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="calcu.html">الصفحة الرئيسة</a>
+  </header>
+  <h2>حساب طاقة الحركة</h2>
+  <p>ادخل المعطيات و اذا تريد حساب قيمة اجعل خانتها فارغة</p>
+  <div>
+    <label for="ke">طاقة الحركة:</label>
+    <input id="ke" type="text" placeholder="(J) طاقة الحركة">
+    <label for="m">الكتلة:</label>
+    <input id="m" type="text" placeholder="(kg) الكتلة">
+    <label for="v">السرعة:</label>
+    <input id="v" type="text" placeholder="(m/s) السرعة">
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+  </div>
+  <a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+  <script>
+    (function(){
+      const ke = document.getElementById('ke');
+      const m = document.getElementById('m');
+      const v = document.getElementById('v');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const keVal = ke.value.trim();
+        const mVal = m.value.trim();
+        const vVal = v.value.trim();
+
+        const keNum = parseNum(keVal);
+        const mNum = parseNum(mVal);
+        const vNum = parseNum(vVal);
+
+        const filled = [!isEmpty(keVal), !isEmpty(mVal), !isEmpty(vVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate Kinetic Energy (KE = ½mv²)
+        if(isEmpty(keVal) && mNum !== null && vNum !== null){
+          const energy = 0.5 * mNum * vNum * vNum;
+          ke.value = formatNumber(energy);
+          showResult(`طاقة الحركة = ${formatNumber(energy)} J`);
+          return;
+        }
+
+        // Calculate mass (m = 2KE/v²)
+        if(isEmpty(mVal) && keNum !== null && vNum !== null){
+          if(vNum === 0){
+            showResult('خطأ: السرعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const mass = (2 * keNum) / (vNum * vNum);
+          m.value = formatNumber(mass);
+          showResult(`الكتلة = ${formatNumber(mass)} kg`);
+          return;
+        }
+
+        // Calculate velocity (v = √(2KE/m))
+        if(isEmpty(vVal) && keNum !== null && mNum !== null){
+          if(mNum === 0){
+            showResult('خطأ: الكتلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const velocity = Math.sqrt((2 * keNum) / mNum);
+          v.value = formatNumber(velocity);
+          showResult(`السرعة = ${formatNumber(velocity)} m/s`);
+          return;
+        }
+
+        // Validate if all values are provided
+        if(keNum !== null && mNum !== null && vNum !== null){
+          const expectedKE = 0.5 * mNum * vNum * vNum;
+          if(Math.abs(expectedKE - keNum) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع قانون طاقة الحركة KE = ½mv²');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        ke.value = '';
+        m.value = '';
+        v.value = '';
+        const old = document.getElementById('calc-result');
+        if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [ke, m, v].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script>
+</body></style>  
+
+

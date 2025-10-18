@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسية</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>حساب المحرك الكهربائي</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 120px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>حساب المحرك الكهربائي</h2>
+
+  <h3>1. العزم: τ = I × B × r × l</h3>
+  <div>
+    <label for="tau_motor">العزم:</label>
+    <input id="tau_motor" type="text" placeholder="(N·m) العزم">
+    <label for="i_motor">التيار:</label>
+    <input id="i_motor" type="text" placeholder="(A) التيار">
+    <label for="b_motor">شدة المجال المغناطيسي:</label>
+    <input id="b_motor" type="text" placeholder="(T) شدة المجال المغناطيسي">
+    <label for="r_motor">نصف القطر:</label>
+    <input id="r_motor" type="text" placeholder="(m) نصف القطر">
+    <label for="l_motor">الطول:</label>
+    <input id="l_motor" type="text" placeholder="(m) الطول">
+    <input id="calc_motor" type="button" value="حساب">
+  </div>
+
+  <h3>2. القدرة: P = τ × ω</h3>
+  <div>
+    <label for="p_motor">القدرة:</label>
+    <input id="p_motor" type="text" placeholder="(W) القدرة">
+    <label for="tau_power">العزم:</label>
+    <input id="tau_power" type="text" placeholder="(N·m) العزم">
+    <label for="omega_motor">السرعة الزاوية:</label>
+    <input id="omega_motor" type="text" placeholder="(rad/s) السرعة الزاوية">
+    <input id="calc_power_motor" type="button" value="حساب">
+  </div>
+
+  <h3>3. الكفاءة: η = (P_out / P_in) × 100%</h3>
+  <div>
+    <label for="eta_motor">الكفاءة:</label>
+    <input id="eta_motor" type="text" placeholder="(%) الكفاءة">
+    <label for="p_out_motor">القدرة الميكانيكية:</label>
+    <input id="p_out_motor" type="text" placeholder="(W) القدرة الميكانيكية">
+    <label for="p_in_motor">القدرة الكهربائية:</label>
+    <input id="p_in_motor" type="text" placeholder="(W) القدرة الكهربائية">
+    <input id="calc_efficiency_motor" type="button" value="حساب">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين الكل">
+
+  <a href="static.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const tauMotorEl = document.getElementById('tau_motor');
+      const iMotorEl = document.getElementById('i_motor');
+      const bMotorEl = document.getElementById('b_motor');
+      const rMotorEl = document.getElementById('r_motor');
+      const lMotorEl = document.getElementById('l_motor');
+      const calcMotorBtn = document.getElementById('calc_motor');
+
+      const pMotorEl = document.getElementById('p_motor');
+      const tauPowerEl = document.getElementById('tau_power');
+      const omegaMotorEl = document.getElementById('omega_motor');
+      const calcPowerMotorBtn = document.getElementById('calc_power_motor');
+
+      const etaMotorEl = document.getElementById('eta_motor');
+      const pOutMotorEl = document.getElementById('p_out_motor');
+      const pInMotorEl = document.getElementById('p_in_motor');
+      const calcEfficiencyMotorBtn = document.getElementById('calc_efficiency_motor');
+
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeMotor(){
+        const tauMotorVal = tauMotorEl.value.trim();
+        const iMotorVal = iMotorEl.value.trim();
+        const bMotorVal = bMotorEl.value.trim();
+        const rMotorVal = rMotorEl.value.trim();
+        const lMotorVal = lMotorEl.value.trim();
+
+        const tauMotorNum = parseNum(tauMotorVal);
+        const iMotorNum = parseNum(iMotorVal);
+        const bMotorNum = parseNum(bMotorVal);
+        const rMotorNum = parseNum(rMotorVal);
+        const lMotorNum = parseNum(lMotorVal);
+
+        const filled = [!isEmpty(tauMotorVal), !isEmpty(iMotorVal), !isEmpty(bMotorVal), !isEmpty(rMotorVal), !isEmpty(lMotorVal)].filter(Boolean).length;
+        if(filled < 4){
+          showResult('الرجاء إدخال أربع قيم على الأقل لحساب الخامسة.');
+          return;
+        }
+
+        // Calculate torque (τ = I × B × r × l)
+        if(isEmpty(tauMotorVal) && iMotorNum !== null && bMotorNum !== null && rMotorNum !== null && lMotorNum !== null){
+          const torque = iMotorNum * bMotorNum * rMotorNum * lMotorNum;
+          tauMotorEl.value = formatNumber(torque);
+          showResult(`العزم = ${formatNumber(torque)} N·m`);
+          return;
+        }
+
+        // Calculate current (I = τ / (B × r × l))
+        if(isEmpty(iMotorVal) && tauMotorNum !== null && bMotorNum !== null && rMotorNum !== null && lMotorNum !== null){
+          if(bMotorNum === 0 || rMotorNum === 0 || lMotorNum === 0){
+            showResult('خطأ: شدة المجال المغناطيسي أو نصف القطر أو الطول لا يمكن أن يكون صفر');
+            return;
+          }
+          const current = tauMotorNum / (bMotorNum * rMotorNum * lMotorNum);
+          iMotorEl.value = formatNumber(current);
+          showResult(`التيار = ${formatNumber(current)} A`);
+          return;
+        }
+
+        // Calculate magnetic field (B = τ / (I × r × l))
+        if(isEmpty(bMotorVal) && tauMotorNum !== null && iMotorNum !== null && rMotorNum !== null && lMotorNum !== null){
+          if(iMotorNum === 0 || rMotorNum === 0 || lMotorNum === 0){
+            showResult('خطأ: التيار أو نصف القطر أو الطول لا يمكن أن يكون صفر');
+            return;
+          }
+          const bField = tauMotorNum / (iMotorNum * rMotorNum * lMotorNum);
+          bMotorEl.value = formatNumber(bField);
+          showResult(`شدة المجال المغناطيسي = ${formatNumber(bField)} T`);
+          return;
+        }
+
+        // Calculate radius (r = τ / (I × B × l))
+        if(isEmpty(rMotorVal) && tauMotorNum !== null && iMotorNum !== null && bMotorNum !== null && lMotorNum !== null){
+          if(iMotorNum === 0 || bMotorNum === 0 || lMotorNum === 0){
+            showResult('خطأ: التيار أو شدة المجال المغناطيسي أو الطول لا يمكن أن يكون صفر');
+            return;
+          }
+          const radius = tauMotorNum / (iMotorNum * bMotorNum * lMotorNum);
+          rMotorEl.value = formatNumber(radius);
+          showResult(`نصف القطر = ${formatNumber(radius)} m`);
+          return;
+        }
+
+        // Calculate length (l = τ / (I × B × r))
+        if(isEmpty(lMotorVal) && tauMotorNum !== null && iMotorNum !== null && bMotorNum !== null && rMotorNum !== null){
+          if(iMotorNum === 0 || bMotorNum === 0 || rMotorNum === 0){
+            showResult('خطأ: التيار أو شدة المجال المغناطيسي أو نصف القطر لا يمكن أن يكون صفر');
+            return;
+          }
+          const length = tauMotorNum / (iMotorNum * bMotorNum * rMotorNum);
+          lMotorEl.value = formatNumber(length);
+          showResult(`الطول = ${formatNumber(length)} m`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computePowerMotor(){
+        const pMotorVal = pMotorEl.value.trim();
+        const tauPowerVal = tauPowerEl.value.trim();
+        const omegaMotorVal = omegaMotorEl.value.trim();
+
+        const pMotorNum = parseNum(pMotorVal);
+        const tauPowerNum = parseNum(tauPowerVal);
+        const omegaMotorNum = parseNum(omegaMotorVal);
+
+        const filled = [!isEmpty(pMotorVal), !isEmpty(tauPowerVal), !isEmpty(omegaMotorVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate power (P = τ × ω)
+        if(isEmpty(pMotorVal) && tauPowerNum !== null && omegaMotorNum !== null){
+          const power = tauPowerNum * omegaMotorNum;
+          pMotorEl.value = formatNumber(power);
+          showResult(`القدرة = ${formatNumber(power)} W`);
+          return;
+        }
+
+        // Calculate torque (τ = P / ω)
+        if(isEmpty(tauPowerVal) && pMotorNum !== null && omegaMotorNum !== null){
+          if(omegaMotorNum === 0){
+            showResult('خطأ: السرعة الزاوية لا يمكن أن تكون صفر');
+            return;
+          }
+          const torque = pMotorNum / omegaMotorNum;
+          tauPowerEl.value = formatNumber(torque);
+          showResult(`العزم = ${formatNumber(torque)} N·m`);
+          return;
+        }
+
+        // Calculate angular velocity (ω = P / τ)
+        if(isEmpty(omegaMotorVal) && pMotorNum !== null && tauPowerNum !== null){
+          if(tauPowerNum === 0){
+            showResult('خطأ: العزم لا يمكن أن يكون صفر');
+            return;
+          }
+          const omega = pMotorNum / tauPowerNum;
+          omegaMotorEl.value = formatNumber(omega);
+          showResult(`السرعة الزاوية = ${formatNumber(omega)} rad/s`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      function computeEfficiencyMotor(){
+        const etaMotorVal = etaMotorEl.value.trim();
+        const pOutMotorVal = pOutMotorEl.value.trim();
+        const pInMotorVal = pInMotorEl.value.trim();
+
+        const etaMotorNum = parseNum(etaMotorVal);
+        const pOutMotorNum = parseNum(pOutMotorVal);
+        const pInMotorNum = parseNum(pInMotorVal);
+
+        const filled = [!isEmpty(etaMotorVal), !isEmpty(pOutMotorVal), !isEmpty(pInMotorVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        // Calculate efficiency (η = (P_out / P_in) × 100%)
+        if(isEmpty(etaMotorVal) && pOutMotorNum !== null && pInMotorNum !== null){
+          if(pInMotorNum === 0){
+            showResult('خطأ: القدرة المدخلة لا يمكن أن تكون صفر');
+            return;
+          }
+          const eta = (pOutMotorNum / pInMotorNum) * 100;
+          etaMotorEl.value = formatNumber(eta);
+          showResult(`الكفاءة = ${formatNumber(eta)} %`);
+          return;
+        }
+
+        // Calculate output power (P_out = η × P_in / 100)
+        if(isEmpty(pOutMotorVal) && etaMotorNum !== null && pInMotorNum !== null){
+          const pOut = etaMotorNum * pInMotorNum / 100;
+          pOutMotorEl.value = formatNumber(pOut);
+          showResult(`القدرة الميكانيكية = ${formatNumber(pOut)} W`);
+          return;
+        }
+
+        // Calculate input power (P_in = P_out × 100 / η)
+        if(isEmpty(pInMotorVal) && etaMotorNum !== null && pOutMotorNum !== null){
+          if(etaMotorNum === 0){
+            showResult('خطأ: الكفاءة لا يمكن أن تكون صفر');
+            return;
+          }
+          const pIn = pOutMotorNum * 100 / etaMotorNum;
+          pInMotorEl.value = formatNumber(pIn);
+          showResult(`القدرة الكهربائية = ${formatNumber(pIn)} W`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      calcMotorBtn.addEventListener('click', computeMotor);
+      calcPowerMotorBtn.addEventListener('click', computePowerMotor);
+      calcEfficiencyMotorBtn.addEventListener('click', computeEfficiencyMotor);
+
+      rBtn.addEventListener('click', function(){
+        tauMotorEl.value = '';
+        iMotorEl.value = '';
+        bMotorEl.value = '';
+        rMotorEl.value = '';
+        lMotorEl.value = '';
+        pMotorEl.value = '';
+        tauPowerEl.value = '';
+        omegaMotorEl.value = '';
+        etaMotorEl.value = '';
+        pOutMotorEl.value = '';
+        pInMotorEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [tauMotorEl, iMotorEl, bMotorEl, rMotorEl, lMotorEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeMotor();
+          }
+        });
+      });
+
+      [pMotorEl, tauPowerEl, omegaMotorEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computePowerMotor();
+          }
+        });
+      });
+
+      [etaMotorEl, pOutMotorEl, pInMotorEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            computeEfficiencyMotor();
+          }
+        });
+      });
+    })();
+ </script>
+</body>
+</html></style>  
+
+

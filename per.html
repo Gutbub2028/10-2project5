@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ديناميكا و فروعها</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+  <h2>حساب مبدأ برنولي</h2>
+<p>ادخل المعطيات و اذا تريد حسابه اجعله فارغاً
+    <input id="p1" type="text" placeholder="(Pa) الضغط الأول"></input>
+    <input id="v1" type="text" placeholder="(m/s) السرعة الأولى"></input>
+    <input id="h1" type="text" placeholder="(m) الارتفاع الأول"></input>
+    <input id="p2" type="text" placeholder="(Pa) الضغط الثاني"></input>
+    <input id="v2" type="text" placeholder="(m/s) السرعة الثانية"></input>
+    <input id="h2" type="text" placeholder="(m) الارتفاع الثاني"></input>
+    <input id="rho" type="text" placeholder="(kg/m³) الكثافة" value="1000">
+    <input id="s" type="button" value="تاكيد">
+    <input id="r" type="button" value="اعادة">
+</p>
+<a href="dynamic.html">الرجوع الى الصفحة السابقة</a>
+ <script>
+    (function(){
+      // consistent element variable names
+      const p1El = document.getElementById('p1');
+      const v1El = document.getElementById('v1');
+      const h1El = document.getElementById('h1');
+      const p2El = document.getElementById('p2');
+      const v2El = document.getElementById('v2');
+      const h2El = document.getElementById('h2');
+      const rhoEl = document.getElementById('rho');
+      const sBtn = document.getElementById('s');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        // round to max 6 decimal places, remove trailing zeros
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function compute(){
+        const p1Val = p1El.value.trim();
+        const v1Val = v1El.value.trim();
+        const h1Val = h1El.value.trim();
+        const p2Val = p2El.value.trim();
+        const v2Val = v2El.value.trim();
+        const h2Val = h2El.value.trim();
+        const rhoVal = rhoEl.value.trim() || '1000';
+
+        const p1Num = parseNum(p1Val);
+        const v1Num = parseNum(v1Val);
+        const h1Num = parseNum(h1Val);
+        const p2Num = parseNum(p2Val);
+        const v2Num = parseNum(v2Val);
+        const h2Num = parseNum(h2Val);
+        const rhoNum = parseNum(rhoVal);
+
+        const filled = [!isEmpty(p1Val), !isEmpty(v1Val), !isEmpty(h1Val), !isEmpty(p2Val), !isEmpty(v2Val), !isEmpty(h2Val)].filter(Boolean).length;
+        if(filled < 5){
+          showResult('الرجاء إدخال خمس قيم على الأقل لحساب السادسة.');
+          return;
+        }
+
+        // Calculate pressure 2 (P2 = P1 + 0.5*ρ*(v1² - v2²) + ρ*g*(h1 - h2))
+        if(isEmpty(p2Val) && p1Num !== null && v1Num !== null && v2Num !== null && h1Num !== null && h2Num !== null){
+          const pressure2 = p1Num + 0.5 * rhoNum * (v1Num * v1Num - v2Num * v2Num) + rhoNum * 9.81 * (h1Num - h2Num);
+          p2El.value = formatNumber(pressure2);
+          showResult(`الضغط الثاني = ${formatNumber(pressure2)} Pa`);
+          return;
+        }
+
+        // Calculate velocity 2 (v2 = sqrt(v1² + 2*(P1 - P2)/ρ + 2*g*(h1 - h2)))
+        if(isEmpty(v2Val) && p1Num !== null && p2Num !== null && v1Num !== null && h1Num !== null && h2Num !== null){
+          const velocity2 = Math.sqrt(v1Num * v1Num + 2 * (p1Num - p2Num) / rhoNum + 2 * 9.81 * (h1Num - h2Num));
+          v2El.value = formatNumber(velocity2);
+          showResult(`السرعة الثانية = ${formatNumber(velocity2)} m/s`);
+          return;
+        }
+
+        // Calculate height 2 (h2 = h1 + (P1 - P2)/(ρ*g) + (v1² - v2²)/(2*g))
+        if(isEmpty(h2Val) && p1Num !== null && p2Num !== null && v1Num !== null && v2Num !== null && h1Num !== null){
+          const height2 = h1Num + (p1Num - p2Num) / (rhoNum * 9.81) + (v1Num * v1Num - v2Num * v2Num) / (2 * 9.81);
+          h2El.value = formatNumber(height2);
+          showResult(`الارتفاع الثاني = ${formatNumber(height2)} m`);
+          return;
+        }
+
+        // Calculate pressure 1 (P1 = P2 - 0.5*ρ*(v1² - v2²) - ρ*g*(h1 - h2))
+        if(isEmpty(p1Val) && p2Num !== null && v1Num !== null && v2Num !== null && h1Num !== null && h2Num !== null){
+          const pressure1 = p2Num - 0.5 * rhoNum * (v1Num * v1Num - v2Num * v2Num) - rhoNum * 9.81 * (h1Num - h2Num);
+          p1El.value = formatNumber(pressure1);
+          showResult(`الضغط الأول = ${formatNumber(pressure1)} Pa`);
+          return;
+        }
+
+        // Calculate velocity 1 (v1 = sqrt(v2² - 2*(P1 - P2)/ρ - 2*g*(h1 - h2)))
+        if(isEmpty(v1Val) && p1Num !== null && p2Num !== null && v2Num !== null && h1Num !== null && h2Num !== null){
+          const arg = v2Num * v2Num - 2 * (p1Num - p2Num) / rhoNum - 2 * 9.81 * (h1Num - h2Num);
+          if(arg < 0){
+            showResult('خطأ: القيمة المحسوبة أقل من صفر، غير ممكن');
+            return;
+          }
+          const velocity1 = Math.sqrt(arg);
+          v1El.value = formatNumber(velocity1);
+          showResult(`السرعة الأولى = ${formatNumber(velocity1)} m/s`);
+          return;
+        }
+
+        // Calculate height 1 (h1 = h2 - (P1 - P2)/(ρ*g) - (v1² - v2²)/(2*g))
+        if(isEmpty(h1Val) && p1Num !== null && p2Num !== null && v1Num !== null && v2Num !== null && h2Num !== null){
+          const height1 = h2Num - (p1Num - p2Num) / (rhoNum * 9.81) - (v1Num * v1Num - v2Num * v2Num) / (2 * 9.81);
+          h1El.value = formatNumber(height1);
+          showResult(`الارتفاع الأول = ${formatNumber(height1)} m`);
+          return;
+        }
+
+        // all six provided -> validate
+        if(p1Num !== null && v1Num !== null && h1Num !== null && p2Num !== null && v2Num !== null && h2Num !== null){
+          const expectedP2 = p1Num + 0.5 * rhoNum * (v1Num * v1Num - v2Num * v2Num) + rhoNum * 9.81 * (h1Num - h2Num);
+          if(Math.abs(expectedP2 - p2Num) < 0.000001) {
+            showResult('القيم صحيحة!');
+          } else {
+            showResult('القيم غير متطابقة مع معادلة برنولي');
+          }
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      sBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        p1El.value = '';
+        v1El.value = '';
+        h1El.value = '';
+        p2El.value = '';
+        v2El.value = '';
+        h2El.value = '';
+        rhoEl.value = '1000';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      // allow Enter to compute when focused inside inputs
+      [p1El, v1El, h1El, p2El, v2El, h2El, rhoEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            compute();
+          }
+        });
+      });
+    })();
+  </script></style>  
+
+
