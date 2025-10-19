@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>الحرارة</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>الحرارة: Q = ∫c dT</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>الحرارة هي تكامل السعة الحرارية بالنسبة لفرق درجة الحرارة</p>
+  <p><strong>Q = ∫c dT = c × ΔT</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>Q: الحرارة (جول)</li>
+    <li>c: السعة الحرارية (جول/كجم·كلفن)</li>
+    <li>ΔT: فرق درجة الحرارة (كلفن)</li>
+  </ul>
+
+  <h3>مثال: كتلة 2 كجم من الماء، السعة الحرارية 4186 ج/كجم·ك، فرق درجة الحرارة 10 ك</h3>
+  <p>الحرارة = 2 × 4186 × 10 = 83620 جول</p>
+
+  <h3>حاسبة التكامل:</h3>
+  <div>
+    <label for="function_heat">الدالة c dT:</label>
+    <input id="function_heat" type="text" placeholder="مثال: c*dT">
+    <label for="lower_limit_heat">حد أدنى:</label>
+    <input id="lower_limit_heat" type="text" placeholder="T₁">
+    <label for="upper_limit_heat">حد أعلى:</label>
+    <input id="upper_limit_heat" type="text" placeholder="T₂">
+    <input id="calc_integral_heat" type="button" value="كامل">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const qEl = document.getElementById('q_heat');
+      const mEl = document.getElementById('m_heat');
+      const cEl = document.getElementById('c_heat');
+      const dtEl = document.getElementById('dt_heat');
+      const calcBtn = document.getElementById('calc_heat');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeIntegral(){
+        const funcVal = document.getElementById('function_heat').value.trim();
+        const lowerVal = document.getElementById('lower_limit_heat').value.trim();
+        const upperVal = document.getElementById('upper_limit_heat').value.trim();
+
+        if(isEmpty(funcVal)){
+          showResult('الرجاء إدخال الدالة');
+          return;
+        }
+
+        let integral = '';
+        if(funcVal.includes('c*dT') || funcVal.includes('c dT') || funcVal.includes('c×dT') || funcVal.includes('c*ΔT') || funcVal.includes('c ΔT')){
+          integral = 'c×ΔT';
+        }
+
+        if(!isEmpty(lowerVal) && !isEmpty(upperVal)){
+          integral += ` من ${lowerVal} إلى ${upperVal}`;
+        }
+
+        showResult(`التكامل ∫c dT = ${integral}`);
+      }
+
+      function compute(){
+        const qVal = qEl.value.trim();
+        const mVal = mEl.value.trim();
+        const cVal = cEl.value.trim();
+        const dtVal = dtEl.value.trim();
+
+        const qNum = parseNum(qVal);
+        const mNum = parseNum(mVal);
+        const cNum = parseNum(cVal);
+        const dtNum = parseNum(dtVal);
+
+        const filled = [!isEmpty(qVal), !isEmpty(mVal), !isEmpty(cVal), !isEmpty(dtVal)].filter(Boolean).length;
+        if(filled < 3){
+          showResult('الرجاء إدخال ثلاث قيم على الأقل لحساب الرابعة.');
+          return;
+        }
+
+        if(isEmpty(qVal) && mNum !== null && cNum !== null && dtNum !== null){
+          const heat = mNum * cNum * dtNum;
+          qEl.value = formatNumber(heat);
+          showResult(`الحرارة = ${formatNumber(heat)} جول`);
+          return;
+        }
+
+        if(isEmpty(mVal) && qNum !== null && cNum !== null && dtNum !== null){
+          if(cNum === 0 || dtNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const mass = qNum / (cNum * dtNum);
+          mEl.value = formatNumber(mass);
+          showResult(`الكتلة = ${formatNumber(mass)} كجم`);
+          return;
+        }
+
+        if(isEmpty(cVal) && qNum !== null && mNum !== null && dtNum !== null){
+          if(mNum === 0 || dtNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const capacity = qNum / (mNum * dtNum);
+          cEl.value = formatNumber(capacity);
+          showResult(`السعة الحرارية = ${formatNumber(capacity)} ج/كجم·ك`);
+          return;
+        }
+
+        if(isEmpty(dtVal) && qNum !== null && mNum !== null && cNum !== null){
+          if(mNum === 0 || cNum === 0){
+            showResult('خطأ: لا يمكن القسمة على صفر');
+            return;
+          }
+          const deltaT = qNum / (mNum * cNum);
+          dtEl.value = formatNumber(deltaT);
+          showResult(`فرق درجة الحرارة = ${formatNumber(deltaT)} كلفن`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      document.getElementById('calc_integral_heat').addEventListener('click', computeIntegral);
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        document.getElementById('function_heat').value = '';
+        document.getElementById('lower_limit_heat').value = '';
+        document.getElementById('upper_limit_heat').value = '';
+        qEl.value = '';
+        mEl.value = '';
+        cEl.value = '';
+        dtEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [document.getElementById('function_heat'), document.getElementById('lower_limit_heat'), document.getElementById('upper_limit_heat'), qEl, mEl, cEl, dtEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            if(el.id === 'function_heat' || el.id === 'lower_limit_heat' || el.id === 'upper_limit_heat'){
+              computeIntegral();
+            } else {
+              compute();
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+
+

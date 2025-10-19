@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ar">
+    <header>
+        <a href="calcu.html">الصفحة الرئيسة</a>
+    </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>السرعة كمشتقة للإزاحة</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    ul {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    div {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      width: 150px;
+    }
+    input[type="button"] {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    input[type="button"]:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+    body > a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: background 0.3s;
+    }
+    body > a:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #calc-result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h2>السرعة كمشتقة للإزاحة: v = dx/dt</h2>
+
+  <h3>المعادلة الرياضية:</h3>
+  <p>السرعة هي معدل تغير الإزاحة بالنسبة للزمن</p>
+  <p><strong>v(t) = dx/dt</strong></p>
+  <p>حيث:</p>
+  <ul>
+    <li>v(t): السرعة في اللحظة t</li>
+    <li>x(t): الإزاحة في اللحظة t</li>
+    <li>t: الزمن</li>
+  </ul>
+
+  <h3>مثال: إذا كانت الإزاحة x(t) = 5t² + 3t + 2 متر</h3>
+  <p>فإن السرعة v(t) = dx/dt = d(5t² + 3t + 2)/dt = 10t + 3 م/ث</p>
+  <p>الحساب: d(5t²)/dt = 10t، d(3t)/dt = 3، d(2)/dt = 0</p>
+
+  <h3>حاسبة التفاضل:</h3>
+  <div>
+    <label for="function_velocity">الدالة x(t):</label>
+    <input id="function_velocity" type="text" placeholder="مثال: 5t^2 + 3t + 2">
+    <label for="t_value_velocity">قيمة t:</label>
+    <input id="t_value_velocity" type="text" placeholder="قيمة t">
+    <input id="calc_derivative_velocity" type="button" value="اشتق">
+    <input id="calc_velocity" type="button" value="حساب السرعة">
+  </div>
+
+  <input id="r" type="button" value="إعادة تعيين">
+
+  <a href="calc1.html">العودة إلى قائمة الدروس</a>
+ <script>
+    (function(){
+      const vEl = document.getElementById('v_velocity');
+      const dxEl = document.getElementById('dx_velocity');
+      const dtEl = document.getElementById('dt_velocity');
+      const calcBtn = document.getElementById('calc_velocity');
+      const rBtn = document.getElementById('r');
+
+      function isEmpty(x){
+        return x === null || x === undefined || x.toString().trim() === '';
+      }
+
+      function showResult(msg){
+        let old = document.getElementById('calc-result');
+        if(old) old.remove();
+        const p = document.createElement('p');
+        p.id = 'calc-result';
+        p.textContent = msg;
+        p.style.fontWeight = 'bold';
+        p.style.marginTop = '8px';
+        document.body.appendChild(p);
+      }
+
+      function parseNum(str){
+        const n = Number(str);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function formatNumber(n){
+        if(!Number.isFinite(n)) return n;
+        return parseFloat(n.toFixed(6)).toString();
+      }
+
+      function computeDerivative(){
+        const funcVal = document.getElementById('function_velocity').value.trim();
+        const tVal = document.getElementById('t_value_velocity').value.trim();
+
+        if(isEmpty(funcVal)){
+          showResult('الرجاء إدخال الدالة');
+          return;
+        }
+
+        // Simple derivative calculator for basic polynomials
+        let derivative = '';
+
+        // Split the function by + and - operators, keeping the operators
+        const terms = funcVal.split(/([+-])/).filter(term => term.trim() !== '');
+
+        let derivativeTerms = [];
+
+        for(let i = 0; i < terms.length; i++){
+          let term = terms[i].trim();
+          let sign = (i > 0 && (terms[i-1] === '+' || terms[i-1] === '-')) ? terms[i-1] : '';
+
+          if(term === '+' || term === '-') continue;
+
+          // Handle t^2 terms
+          if(term.includes('t^2') || term.includes('t²')){
+            let coeff = term.split(/t\^?2/)[0] || '1';
+            if(coeff === '' || coeff === '+') coeff = '1';
+            if(coeff === '-') coeff = '-1';
+            const numCoeff = parseNum(coeff) || 1;
+            const newCoeff = numCoeff * 2;
+            if(newCoeff !== 0){
+              derivativeTerms.push((sign ? sign : '') + (newCoeff === 1 ? '' : newCoeff === -1 ? '-' : newCoeff) + 't');
+            }
+          }
+          // Handle t terms (but not t^2)
+          else if(term.includes('t') && !term.includes('t^2') && !term.includes('t²') && !term.includes('^3') && !term.includes('³')){
+            let coeff = term.split('t')[0] || '1';
+            if(coeff === '' || coeff === '+') coeff = '1';
+            if(coeff === '-') coeff = '-1';
+            const numCoeff = parseNum(coeff) || 1;
+            if(numCoeff !== 0){
+              derivativeTerms.push((sign ? sign : '') + (numCoeff === 1 ? '' : numCoeff === -1 ? '-' : numCoeff));
+            }
+          }
+          // Handle constants (no t)
+          else if(!term.includes('t') && term !== ''){
+            // Constants have derivative 0, so skip them
+            continue;
+          }
+        }
+
+        derivative = derivativeTerms.join(' ');
+
+        // Clean up the result
+        if(derivative === '') derivative = '0';
+        derivative = derivative.replace(/\s+/g, ' ').trim();
+
+        showResult(`المشتقة dx/dt = ${derivative}`);
+      }
+
+      function compute(){
+        const vVal = vEl.value.trim();
+        const dxVal = dxEl.value.trim();
+        const dtVal = dtEl.value.trim();
+
+        const vNum = parseNum(vVal);
+        const dxNum = parseNum(dxVal);
+        const dtNum = parseNum(dtVal);
+
+        const filled = [!isEmpty(vVal), !isEmpty(dxVal), !isEmpty(dtVal)].filter(Boolean).length;
+        if(filled < 2){
+          showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
+          return;
+        }
+
+        if(isEmpty(vVal) && dxNum !== null && dtNum !== null){
+          if(dtNum === 0){
+            showResult('خطأ: التغير في الزمن لا يمكن أن يكون صفر');
+            return;
+          }
+          const velocity = dxNum / dtNum;
+          vEl.value = formatNumber(velocity);
+          showResult(`السرعة = ${formatNumber(velocity)} م/ث`);
+          return;
+        }
+
+        if(isEmpty(dxVal) && vNum !== null && dtNum !== null){
+          const displacement = vNum * dtNum;
+          dxEl.value = formatNumber(displacement);
+          showResult(`التغير في الإزاحة = ${formatNumber(displacement)} م`);
+          return;
+        }
+
+        if(isEmpty(dtVal) && vNum !== null && dxNum !== null){
+          if(vNum === 0){
+            showResult('خطأ: السرعة لا يمكن أن تكون صفر');
+            return;
+          }
+          const time = dxNum / vNum;
+          dtEl.value = formatNumber(time);
+          showResult(`التغير في الزمن = ${formatNumber(time)} ث`);
+          return;
+        }
+
+        showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
+      }
+
+      document.getElementById('calc_derivative_velocity').addEventListener('click', computeDerivative);
+      calcBtn.addEventListener('click', compute);
+      rBtn.addEventListener('click', function(){
+        document.getElementById('function_velocity').value = '';
+        document.getElementById('t_value_velocity').value = '';
+        vEl.value = '';
+        dxEl.value = '';
+        dtEl.value = '';
+        const old = document.getElementById('calc-result'); if(old) old.remove();
+      });
+
+      [document.getElementById('function_velocity'), document.getElementById('t_value_velocity'), vEl, dxEl, dtEl].forEach(function(el){
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            if(el.id === 'function_velocity' || el.id === 't_value_velocity'){
+              computeDerivative();
+            } else {
+              compute();
+            }
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html></style>  
+
+

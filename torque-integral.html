@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>العمل كتكامل للقوة</title>
+  <title>العزم</title>
   <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
   <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   <style>
@@ -96,33 +96,31 @@
   </style>
 </head>
 <body>
-  <h2>العمل كتكامل للقوة: W = ∫F dx</h2>
+  <h2>العزم: τ = ∫r dF</h2>
 
   <h3>المعادلة الرياضية:</h3>
-  <p>العمل هو تكامل القوة بالنسبة للإزاحة</p>
-  <p><strong>W = ∫F(x) dx</strong></p>
-  <p>للقوة الثابتة: <strong>W = F × d × cosθ</strong></p>
+  <p>العزم هو تكامل r dF حول نقطة الدوران</p>
+  <p><strong>τ = ∫r dF = r × F × sinθ</strong></p>
   <p>حيث:</p>
   <ul>
-    <li>W: العمل (الطاقة)</li>
+    <li>τ: العزم</li>
+    <li>r: المسافة من نقطة الدوران</li>
     <li>F: القوة</li>
-    <li>d: الإزاحة</li>
-    <li>θ: الزاوية بين اتجاه القوة واتجاه الإزاحة</li>
+    <li>θ: الزاوية بين اتجاه القوة وخط r</li>
   </ul>
 
-  <h3>مثال: قوة 10 نيوتن تؤثر على جسم وتزيحه 5 أمتار بنفس اتجاه القوة</h3>
-  <p>العمل W = ∫F dx = ∫10 dx = 10x (من 0 إلى 5) = 50 جول</p>
-  <p>التكامل: ∫F dx = F×x (لأن F ثابت) = 10 × 5 × cos(0°) = 50 جول</p>
+  <h3>مثال: قوة 10 ن تؤثر على ذراع طول 0.5 م بنفس اتجاه الذراع</h3>
+  <p>العزم = 0.5 × 10 × sin(90°) = 5 نيوتن×متر</p>
 
   <h3>حاسبة التكامل:</h3>
   <div>
-    <label for="function_work">الدالة F(x):</label>
-    <input id="function_work" type="text" placeholder="مثال: 10 (قوة ثابتة)">
-    <label for="lower_limit_work">حد أدنى:</label>
-    <input id="lower_limit_work" type="text" placeholder="0">
-    <label for="upper_limit_work">حد أعلى:</label>
-    <input id="upper_limit_work" type="text" placeholder="x">
-    <input id="calc_integral_work" type="button" value="كامل">
+    <label for="function_torque">الدالة r dF:</label>
+    <input id="function_torque" type="text" placeholder="مثال: r*F*sinθ">
+    <label for="lower_limit_tor">حد أدنى:</label>
+    <input id="lower_limit_tor" type="text" placeholder="0">
+    <label for="upper_limit_tor">حد أعلى:</label>
+    <input id="upper_limit_tor" type="text" placeholder="r">
+    <input id="calc_integral_tor" type="button" value="كامل">
   </div>
 
   <input id="r" type="button" value="إعادة تعيين">
@@ -130,11 +128,11 @@
   <a href="calc1.html">العودة إلى قائمة الدروس</a>
  <script>
     (function(){
-      const wEl = document.getElementById('w_work');
-      const fEl = document.getElementById('f_work');
-      const dxEl = document.getElementById('dx_work');
-      const thetaEl = document.getElementById('theta_work');
-      const calcBtn = document.getElementById('calc_work');
+      const tauEl = document.getElementById('tau_torque');
+      const rEl = document.getElementById('r_torque');
+      const fEl = document.getElementById('f_torque');
+      const thetaEl = document.getElementById('theta_torque');
+      const calcBtn = document.getElementById('calc_torque');
       const rBtn = document.getElementById('r');
 
       function isEmpty(x){
@@ -163,102 +161,93 @@
       }
 
       function computeIntegral(){
-        const funcVal = document.getElementById('function_work').value.trim();
-        const lowerVal = document.getElementById('lower_limit_work').value.trim();
-        const upperVal = document.getElementById('upper_limit_work').value.trim();
+        const funcVal = document.getElementById('function_torque').value.trim();
+        const lowerVal = document.getElementById('lower_limit_tor').value.trim();
+        const upperVal = document.getElementById('upper_limit_tor').value.trim();
 
         if(isEmpty(funcVal)){
           showResult('الرجاء إدخال الدالة');
           return;
         }
 
-        // Simple integral calculator for force functions
         let integral = '';
-        if(/^\d+$/.test(funcVal.trim())){ // constant force
-          const constant = parseNum(funcVal);
-          integral = constant + 'x';
-        } else if(funcVal.includes('kx') || funcVal.includes('k*x')){
-          const coeff = funcVal.split('x')[0] || 'k';
-          integral = '(' + coeff + '/2)x²';
-        } else if(funcVal.includes('x^2') || funcVal.includes('x²')){
-          const coeff = funcVal.split('x^2')[0] || '1';
-          const numCoeff = parseNum(coeff) || 1;
-          integral = '(' + numCoeff + '/3)x^3';
+        if(funcVal.includes('r*F') || funcVal.includes('r F') || funcVal.includes('r×F') || funcVal.includes('r*F*sinθ') || funcVal.includes('r F sinθ')){
+          integral = 'r×F×sinθ';
         }
 
         if(!isEmpty(lowerVal) && !isEmpty(upperVal)){
           integral += ` من ${lowerVal} إلى ${upperVal}`;
         }
 
-        showResult(`التكامل ∫F(x) dx = ${integral} + C`);
+        showResult(`التكامل ∫r dF = ${integral}`);
       }
 
       function compute(){
-        const wVal = wEl.value.trim();
+        const tauVal = tauEl.value.trim();
+        const rVal = rEl.value.trim();
         const fVal = fEl.value.trim();
-        const dxVal = dxEl.value.trim();
-        const thetaVal = thetaEl.value.trim() || '0';
+        const thetaVal = thetaEl.value.trim() || '90';
 
-        const wNum = parseNum(wVal);
+        const tauNum = parseNum(tauVal);
+        const rNum = parseNum(rVal);
         const fNum = parseNum(fVal);
-        const dxNum = parseNum(dxVal);
         const thetaNum = parseNum(thetaVal);
 
-        const filled = [!isEmpty(wVal), !isEmpty(fVal), !isEmpty(dxVal)].filter(Boolean).length;
+        const filled = [!isEmpty(tauVal), !isEmpty(rVal), !isEmpty(fVal)].filter(Boolean).length;
         if(filled < 2){
           showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
           return;
         }
 
-        if(isEmpty(wVal) && fNum !== null && dxNum !== null){
-          const work = fNum * dxNum * Math.cos(thetaNum * Math.PI / 180);
-          wEl.value = formatNumber(work);
-          showResult(`العمل = ${formatNumber(work)} ج`);
+        if(isEmpty(tauVal) && rNum !== null && fNum !== null){
+          const torque = rNum * fNum * Math.sin(thetaNum * Math.PI / 180);
+          tauEl.value = formatNumber(torque);
+          showResult(`العزم = ${formatNumber(torque)} ن×م`);
           return;
         }
 
-        if(isEmpty(fVal) && wNum !== null && dxNum !== null){
-          if(dxNum === 0){
-            showResult('خطأ: الإزاحة لا يمكن أن تكون صفر');
-            return;
-          }
-          const force = wNum / (dxNum * Math.cos(thetaNum * Math.PI / 180));
-          fEl.value = formatNumber(force);
-          showResult(`القوة = ${formatNumber(force)} ن`);
-          return;
-        }
-
-        if(isEmpty(dxVal) && wNum !== null && fNum !== null){
+        if(isEmpty(rVal) && tauNum !== null && fNum !== null){
           if(fNum === 0){
             showResult('خطأ: القوة لا يمكن أن تكون صفر');
             return;
           }
-          const displacement = wNum / (fNum * Math.cos(thetaNum * Math.PI / 180));
-          dxEl.value = formatNumber(displacement);
-          showResult(`الإزاحة = ${formatNumber(displacement)} م`);
+          const radius = tauNum / (fNum * Math.sin(thetaNum * Math.PI / 180));
+          rEl.value = formatNumber(radius);
+          showResult(`المسافة = ${formatNumber(radius)} م`);
+          return;
+        }
+
+        if(isEmpty(fVal) && tauNum !== null && rNum !== null){
+          if(rNum === 0){
+            showResult('خطأ: المسافة لا يمكن أن تكون صفر');
+            return;
+          }
+          const force = tauNum / (rNum * Math.sin(thetaNum * Math.PI / 180));
+          fEl.value = formatNumber(force);
+          showResult(`القوة = ${formatNumber(force)} ن`);
           return;
         }
 
         showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
       }
 
-      document.getElementById('calc_integral_work').addEventListener('click', computeIntegral);
+      document.getElementById('calc_integral_tor').addEventListener('click', computeIntegral);
       calcBtn.addEventListener('click', compute);
       rBtn.addEventListener('click', function(){
-        document.getElementById('function_work').value = '';
-        document.getElementById('lower_limit_work').value = '';
-        document.getElementById('upper_limit_work').value = '';
-        wEl.value = '';
+        document.getElementById('function_torque').value = '';
+        document.getElementById('lower_limit_tor').value = '';
+        document.getElementById('upper_limit_tor').value = '';
+        tauEl.value = '';
+        rEl.value = '';
         fEl.value = '';
-        dxEl.value = '';
-        thetaEl.value = '0';
+        thetaEl.value = '90';
         const old = document.getElementById('calc-result'); if(old) old.remove();
       });
 
-      [document.getElementById('function_work'), document.getElementById('lower_limit_work'), document.getElementById('upper_limit_work'), wEl, fEl, dxEl, thetaEl].forEach(function(el){
+      [document.getElementById('function_torque'), document.getElementById('lower_limit_tor'), document.getElementById('upper_limit_tor'), tauEl, rEl, fEl, thetaEl].forEach(function(el){
         el.addEventListener('keydown', function(e){
           if(e.key === 'Enter'){
-            if(el.id === 'function_work' || el.id === 'lower_limit_work' || el.id === 'upper_limit_work'){
+            if(el.id === 'function_torque' || el.id === 'lower_limit_tor' || el.id === 'upper_limit_tor'){
               computeIntegral();
             } else {
               compute();

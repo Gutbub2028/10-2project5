@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>العمل كتكامل للقوة</title>
+  <title>الطاقة المرنة</title>
   <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
   <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   <style>
@@ -96,33 +96,30 @@
   </style>
 </head>
 <body>
-  <h2>العمل كتكامل للقوة: W = ∫F dx</h2>
+  <h2>الطاقة المرنة: PE = ∫kx dx</h2>
 
   <h3>المعادلة الرياضية:</h3>
-  <p>العمل هو تكامل القوة بالنسبة للإزاحة</p>
-  <p><strong>W = ∫F(x) dx</strong></p>
-  <p>للقوة الثابتة: <strong>W = F × d × cosθ</strong></p>
+  <p>الطاقة المرنة هي تكامل kx dx من x=0 إلى x</p>
+  <p><strong>PE = ∫kx dx = (1/2)kx²</strong></p>
   <p>حيث:</p>
   <ul>
-    <li>W: العمل (الطاقة)</li>
-    <li>F: القوة</li>
-    <li>d: الإزاحة</li>
-    <li>θ: الزاوية بين اتجاه القوة واتجاه الإزاحة</li>
+    <li>PE: الطاقة المرنة</li>
+    <li>k: ثابت النابض</li>
+    <li>x: الإزاحة</li>
   </ul>
 
-  <h3>مثال: قوة 10 نيوتن تؤثر على جسم وتزيحه 5 أمتار بنفس اتجاه القوة</h3>
-  <p>العمل W = ∫F dx = ∫10 dx = 10x (من 0 إلى 5) = 50 جول</p>
-  <p>التكامل: ∫F dx = F×x (لأن F ثابت) = 10 × 5 × cos(0°) = 50 جول</p>
+  <h3>مثال: نابض ثابت k=100 ن/م، إزاحة x=0.2 م</h3>
+  <p>الطاقة المرنة = (1/2) × 100 × (0.2)² = (1/2) × 100 × 0.04 = 2 جول</p>
 
   <h3>حاسبة التكامل:</h3>
   <div>
-    <label for="function_work">الدالة F(x):</label>
-    <input id="function_work" type="text" placeholder="مثال: 10 (قوة ثابتة)">
-    <label for="lower_limit_work">حد أدنى:</label>
-    <input id="lower_limit_work" type="text" placeholder="0">
-    <label for="upper_limit_work">حد أعلى:</label>
-    <input id="upper_limit_work" type="text" placeholder="x">
-    <input id="calc_integral_work" type="button" value="كامل">
+    <label for="function_elastic">الدالة kx:</label>
+    <input id="function_elastic" type="text" placeholder="مثال: k*x">
+    <label for="lower_limit_el">حد أدنى:</label>
+    <input id="lower_limit_el" type="text" placeholder="0">
+    <label for="upper_limit_el">حد أعلى:</label>
+    <input id="upper_limit_el" type="text" placeholder="x">
+    <input id="calc_integral_el" type="button" value="كامل">
   </div>
 
   <input id="r" type="button" value="إعادة تعيين">
@@ -130,11 +127,10 @@
   <a href="calc1.html">العودة إلى قائمة الدروس</a>
  <script>
     (function(){
-      const wEl = document.getElementById('w_work');
-      const fEl = document.getElementById('f_work');
-      const dxEl = document.getElementById('dx_work');
-      const thetaEl = document.getElementById('theta_work');
-      const calcBtn = document.getElementById('calc_work');
+      const peEl = document.getElementById('pe_elastic');
+      const kEl = document.getElementById('k_elastic');
+      const xEl = document.getElementById('x_elastic');
+      const calcBtn = document.getElementById('calc_elastic');
       const rBtn = document.getElementById('r');
 
       function isEmpty(x){
@@ -163,78 +159,67 @@
       }
 
       function computeIntegral(){
-        const funcVal = document.getElementById('function_work').value.trim();
-        const lowerVal = document.getElementById('lower_limit_work').value.trim();
-        const upperVal = document.getElementById('upper_limit_work').value.trim();
+        const funcVal = document.getElementById('function_elastic').value.trim();
+        const lowerVal = document.getElementById('lower_limit_el').value.trim();
+        const upperVal = document.getElementById('upper_limit_el').value.trim();
 
         if(isEmpty(funcVal)){
           showResult('الرجاء إدخال الدالة');
           return;
         }
 
-        // Simple integral calculator for force functions
         let integral = '';
-        if(/^\d+$/.test(funcVal.trim())){ // constant force
-          const constant = parseNum(funcVal);
-          integral = constant + 'x';
-        } else if(funcVal.includes('kx') || funcVal.includes('k*x')){
-          const coeff = funcVal.split('x')[0] || 'k';
-          integral = '(' + coeff + '/2)x²';
-        } else if(funcVal.includes('x^2') || funcVal.includes('x²')){
-          const coeff = funcVal.split('x^2')[0] || '1';
-          const numCoeff = parseNum(coeff) || 1;
-          integral = '(' + numCoeff + '/3)x^3';
+        if(funcVal.includes('kx') || funcVal.includes('k*x') || funcVal.includes('k x')){
+          integral = '(1/2)kx²';
         }
 
         if(!isEmpty(lowerVal) && !isEmpty(upperVal)){
           integral += ` من ${lowerVal} إلى ${upperVal}`;
         }
 
-        showResult(`التكامل ∫F(x) dx = ${integral} + C`);
+        showResult(`التكامل ∫kx dx = ${integral}`);
       }
 
       function compute(){
-        const wVal = wEl.value.trim();
-        const fVal = fEl.value.trim();
-        const dxVal = dxEl.value.trim();
-        const thetaVal = thetaEl.value.trim() || '0';
+        const peVal = peEl.value.trim();
+        const kVal = kEl.value.trim();
+        const xVal = xEl.value.trim();
 
-        const wNum = parseNum(wVal);
-        const fNum = parseNum(fVal);
-        const dxNum = parseNum(dxVal);
-        const thetaNum = parseNum(thetaVal);
+        const peNum = parseNum(peVal);
+        const kNum = parseNum(kVal);
+        const xNum = parseNum(xVal);
 
-        const filled = [!isEmpty(wVal), !isEmpty(fVal), !isEmpty(dxVal)].filter(Boolean).length;
+        const filled = [!isEmpty(peVal), !isEmpty(kVal), !isEmpty(xVal)].filter(Boolean).length;
         if(filled < 2){
           showResult('الرجاء إدخال قيمتين على الأقل لحساب الثالثة.');
           return;
         }
 
-        if(isEmpty(wVal) && fNum !== null && dxNum !== null){
-          const work = fNum * dxNum * Math.cos(thetaNum * Math.PI / 180);
-          wEl.value = formatNumber(work);
-          showResult(`العمل = ${formatNumber(work)} ج`);
+        if(isEmpty(peVal) && kNum !== null && xNum !== null){
+          const elasticEnergy = 0.5 * kNum * xNum * xNum;
+          peEl.value = formatNumber(elasticEnergy);
+          showResult(`الطاقة المرنة = ${formatNumber(elasticEnergy)} ج`);
           return;
         }
 
-        if(isEmpty(fVal) && wNum !== null && dxNum !== null){
-          if(dxNum === 0){
+        if(isEmpty(kVal) && peNum !== null && xNum !== null){
+          if(xNum === 0){
             showResult('خطأ: الإزاحة لا يمكن أن تكون صفر');
             return;
           }
-          const force = wNum / (dxNum * Math.cos(thetaNum * Math.PI / 180));
-          fEl.value = formatNumber(force);
-          showResult(`القوة = ${formatNumber(force)} ن`);
+          const springConstant = 2 * peNum / (xNum * xNum);
+          kEl.value = formatNumber(springConstant);
+          showResult(`ثابت النابض = ${formatNumber(springConstant)} ن/م`);
           return;
         }
 
-        if(isEmpty(dxVal) && wNum !== null && fNum !== null){
-          if(fNum === 0){
-            showResult('خطأ: القوة لا يمكن أن تكون صفر');
+        if(isEmpty(xVal) && peNum !== null && kNum !== null){
+          if(kNum === 0){
+            showResult('خطأ: ثابت النابض لا يمكن أن يكون صفر');
             return;
           }
-          const displacement = wNum / (fNum * Math.cos(thetaNum * Math.PI / 180));
-          dxEl.value = formatNumber(displacement);
+          const displacement = Math.sqrt(2 * peNum / kNum);
+          xEl.value = formatNumber(displacement);
           showResult(`الإزاحة = ${formatNumber(displacement)} م`);
           return;
         }
@@ -242,23 +227,22 @@
         showResult('خطأ: بيانات غير كافية أو غير صحيحة.');
       }
 
-      document.getElementById('calc_integral_work').addEventListener('click', computeIntegral);
+      document.getElementById('calc_integral_el').addEventListener('click', computeIntegral);
       calcBtn.addEventListener('click', compute);
       rBtn.addEventListener('click', function(){
-        document.getElementById('function_work').value = '';
-        document.getElementById('lower_limit_work').value = '';
-        document.getElementById('upper_limit_work').value = '';
-        wEl.value = '';
-        fEl.value = '';
-        dxEl.value = '';
-        thetaEl.value = '0';
+        document.getElementById('function_elastic').value = '';
+        document.getElementById('lower_limit_el').value = '';
+        document.getElementById('upper_limit_el').value = '';
+        peEl.value = '';
+        kEl.value = '';
+        xEl.value = '';
         const old = document.getElementById('calc-result'); if(old) old.remove();
       });
 
-      [document.getElementById('function_work'), document.getElementById('lower_limit_work'), document.getElementById('upper_limit_work'), wEl, fEl, dxEl, thetaEl].forEach(function(el){
+      [document.getElementById('function_elastic'), document.getElementById('lower_limit_el'), document.getElementById('upper_limit_el'), peEl, kEl, xEl].forEach(function(el){
         el.addEventListener('keydown', function(e){
           if(e.key === 'Enter'){
-            if(el.id === 'function_work' || el.id === 'lower_limit_work' || el.id === 'upper_limit_work'){
+            if(el.id === 'function_elastic' || el.id === 'lower_limit_el' || el.id === 'upper_limit_el'){
               computeIntegral();
             } else {
               compute();
@@ -270,5 +254,4 @@
   </script>
 </body>
 </html></style>  
-
 
