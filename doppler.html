@@ -164,8 +164,8 @@
             showResult('خطأ: سرعة الصوت لا يمكن أن تكون صفر');
             return;
           }
-          const numerator = cNum + voNum;
-          const denominator = cNum + vsNum;
+          const numerator = cNum - voNum;
+          const denominator = cNum - vsNum;
           if(denominator === 0){
             showResult('خطأ: القاسم لا يمكن أن يكون صفر');
             return;
@@ -222,7 +222,7 @@
           if(Math.abs(expectedF - fNum) < 0.000001) {
             showResult('القيم صحيحة!');
           } else {
-            showResult('القيم غير متطابقة مع معادلة دوبلر f = f₀*(c+vₒ)/(c+vₛ)');
+            showResult('القيم غير متطابقة مع معادلة دوبلر f = f₀*(c+-vₒ)/(c+-vₛ)');
           }
           return;
         }
@@ -250,4 +250,5 @@
       });
     })();
   </script></style>  
+
 
